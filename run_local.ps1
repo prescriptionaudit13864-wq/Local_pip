@@ -39,7 +39,7 @@ if (Test-Path $envFile) {
 }
 $provider = if ($env:AUDIT_PROVIDER) { $env:AUDIT_PROVIDER.ToLower() } else { "local" }
 $env:AUDIT_PROVIDER = $provider
-$env:PRESCRIPTION_DATA_DIR = Join-Path $Root "prescription-tool\backend\data"
+$env:PRESCRIPTION_DATA_DIR = Join-Path $Root "prescribex-app\backend\data"
 $env:PYTHONIOENCODING = "utf-8"
 $env:PYTHONDONTWRITEBYTECODE = "1"
 
@@ -78,12 +78,12 @@ try {
     }
 
     $bridge = Start-Process -PassThru -NoNewWindow -WorkingDirectory $Root -FilePath $Python `
-        -ArgumentList "-m", "v3.app_server", "serve" `
+        -ArgumentList "-m", "audit_pipeline.app_server", "serve" `
         -RedirectStandardOutput (Join-Path $Root "audit_server.log") -RedirectStandardError (Join-Path $Root "audit_server.err.log")
     $procs += $bridge
     Wait-Ready "http://127.0.0.1:8765/health" "audit server (loads the model first; large models take a few minutes)" $bridge 1800 (Join-Path $Root "audit_server.err.log")
 
-    Set-Location (Join-Path $Root "prescription-tool")
+    Set-Location (Join-Path $Root "prescribex-app")
     npm run dev -- --open
 } finally {
     Set-Location $Root   # so ".\run_local.ps1" works again in the same window

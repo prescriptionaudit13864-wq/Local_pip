@@ -1,6 +1,6 @@
 """Compare Hugging Face models on the PrescribeX audit pipeline (accuracy + time).
 
-The script does not change the pipeline. It imports ``v3`` as-is and replays every prescription the way the
+The script does not change the pipeline. It imports ``audit_pipeline`` as-is and replays every prescription the way the
 React writer does: one live section audit per section, in writer order
 (chiefComplaints -> pastHistory -> investigations -> diagnosis (+ investigations recheck) -> rx -> advice),
 each call seeing only the fields entered so far, then the final "Run AI Audit" with the live results.
@@ -8,7 +8,7 @@ each call seeing only the fields entered so far, then the final "Run AI Audit" w
 Every model runs in its own subprocess (clean GPU memory; one crash or OOM does not stop the rest), loaded
 in-process by ``LocalChatProvider`` with ``HF_QUANT=4bit`` (bitsandbytes).
 
-Run from the project root (the folder that holds ``v3``)::
+Run from the project root (the folder that holds ``audit_pipeline``)::
 
     .venv\\Scripts\\python.exe benchmark\\run_benchmark.py                          # models marked "run" in models.json
     .venv\\Scripts\\python.exe benchmark\\run_benchmark.py --models Qwen/Qwen2.5-7B-Instruct microsoft/phi-4
@@ -16,7 +16,7 @@ Run from the project root (the folder that holds ``v3``)::
     .venv\\Scripts\\python.exe benchmark\\run_benchmark.py --cases my_rx.json --limit 5 --no-live
 
 Input (``--cases``): a JSON list, or ``{"cases": [...]}``. Each case is either
-``{"case_id", "patient", "visit", "history", "expected_errors"}`` (see synthetic_prescriptions.json) or any file
+``{"case_id", "patient", "visit", "history", "expected_errors"}`` (see synthetic_prescriptions_all.json) or any file
 shape the app saves (finalPrescription step file, downloaded prescription). ``expected_errors`` is optional;
 without it a case is timed but not scored.
 
@@ -44,7 +44,7 @@ ROOT = Path(__file__).resolve().parent.parent
 BENCH = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-# Writer order and the fields each section adds (prescription-tool/src/App.jsx SECTION_ORDER, SECTION_VISIT_FIELDS).
+# Writer order and the fields each section adds (prescribex-app/src/App.jsx SECTION_ORDER, SECTION_VISIT_FIELDS).
 # Examination data (vitals, ANC notes, results) is entered before the first audited section.
 SECTION_STEPS = (
     ("chiefComplaints", ("chiefComplaints",)),
@@ -62,7 +62,7 @@ RULES_ONLY = "rules-only"
 
 # --------------------------------------------------------------------------- cases
 def load_cases(path: Path, limit: int | None) -> list[dict[str, Any]]:
-    from v3.app_adapter import normalize_payload
+    from audit_pipeline.app_adapter import normalize_payload
 
     raw = json.loads(path.read_text(encoding="utf-8-sig"))
     items = raw.get("cases", [raw]) if isinstance(raw, Mapping) else raw
@@ -97,7 +97,7 @@ class RulesOnlyProvider:
         self.last_response_text_preview = ""
 
     def audit(self, *, system: str, prompt: str, max_tokens: int) -> dict[str, Any]:
-        from v3.gemma_provider import UnsupportedPrompt
+        from audit_pipeline.gemma_provider import UnsupportedPrompt
 
         if "TASK_JSON=" not in prompt:
             raise UnsupportedPrompt("rules-only baseline does not answer router/classifier prompts")
@@ -200,7 +200,7 @@ def build_provider(model: str) -> tuple[Any, dict[str, Any]]:
     for name in ("LLM_BASE_URL", "LLM_MODEL"):  # always load in-process
         os.environ.pop(name, None)
     import torch
-    from v3.provider import LocalChatProvider
+    from audit_pipeline.provider import LocalChatProvider
 
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
@@ -370,7 +370,7 @@ def run_case(service: Any, timed: TimedProvider, case: Mapping[str, Any], live: 
 
 
 def run_worker(model: str, cases_path: Path, out_path: Path, limit: int | None, live: bool) -> int:
-    from v3.app_server import AuditService, load_env
+    from audit_pipeline.app_server import AuditService, load_env
 
     os.environ["PRESCRIPTION_DATA_DIR"] = ""  # never mix real saved patients into the benchmark
     load_env()  # HF_TOKEN etc.; values set above win (load_dotenv override=False)
@@ -475,8 +475,8 @@ def write_summary(run_dir: Path) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--models", nargs="+", help=f"HF model ids (default: models.json entries with run=true); '{RULES_ONLY}' = no LLM")
-    parser.add_argument("--cases", default=str(BENCH / "prescriptions_10.json"),
-                        help="default: the 10-case set; use synthetic_prescriptions.json for all 35")
+    parser.add_argument("--cases", default=str(BENCH / "test_prescriptions.json"),
+                        help="default: the 10-case set; use synthetic_prescriptions_all.json for all 35")
     parser.add_argument("--limit", type=int, help="only the first N cases (quick test)")
     parser.add_argument("--no-live", action="store_true", help="skip the per-section live audits; final audit only")
     parser.add_argument("--out", help="results folder (default: benchmark/results/<timestamp>)")

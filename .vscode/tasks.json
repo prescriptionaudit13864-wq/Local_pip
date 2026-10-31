@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "LLM benchmark (all models, 10 prescriptions)",
+            "label": "Benchmark: run all models",
             "type": "process",
             "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
             "args": ["benchmark\\run_benchmark.py"],
@@ -14,11 +14,11 @@
             "problemMatcher": []
         },
         {
-            "label": "Add Gemma 4 (waits for the running benchmark)",
+            "label": "Benchmark: export doctor review files",
             "type": "process",
-            "command": "powershell.exe",
-            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\benchmark\\add_gemma4.ps1"],
-            "options": { "cwd": "${workspaceFolder}" },
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": ["benchmark\\export_doctor_review.py"],
+            "options": { "cwd": "${workspaceFolder}", "env": { "PYTHONIOENCODING": "utf-8" } },
             "presentation": { "reveal": "always", "panel": "dedicated", "focus": true, "clear": true },
             "problemMatcher": []
         }

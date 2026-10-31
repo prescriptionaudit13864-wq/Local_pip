@@ -1,42 +1,82 @@
-﻿# PrescribeX (local Gemma 4 audit)
+﻿# PrescribeX: Prescription Audit
 
-Run `.\run_local.ps1` in Windows PowerShell. It starts the Gemma server (port 8766), the audit bridge (port 8765) and the app.
+A prescription-writing app with a live clinical audit. As the doctor fills in each section, a rule engine raises
+possible errors (drug interactions, pregnancy and allergy contraindications, dosing limits, organ impairment,
+demographic conflicts) and a local language model confirms or rejects each one. A final audit runs when the
+prescription is saved.
 
-Layout:
-- `prescription-tool/` - React app
-- `v3/` - audit pipeline and `app_server.py` bridge
-- `prescription_audit_gemma4/prescription_audit_gemma4/` - `serve_gemma4.py` plus the gold LoRA adapter in `outputs/`
+Everything runs locally: no patient data leaves the machine.
 
-`.env` has `AUDIT_PROVIDER=gemma`. Set it to `groq` (with `GROQ_API_KEY`) to use the cloud model instead.
+## Project layout
 
-- The Gemma model is a section classifier: for CC/Dx/Inv/Rx/Adv it names the error rules it was trained on. Rule-engine candidates are confirmed only when the model flags the same rule.
-- Candidates for rules the model was not trained on follow `GEMMA_UNSUPPORTED` in `.env`: `confirm_high` (default), `omit`, or `confirm`.
-- The RAG router and advice-action classifier need a general chat model, so with Gemma they use their deterministic fallback.
+| Folder / file | Contents |
+|---|---|
+| `prescribex-app/` | React (Vite) app; `backend/` saves patients and visits to an Excel workbook |
+| `audit_pipeline/` | Audit pipeline: rule and safety engines, guideline retrieval, LLM providers, and the `app_server` HTTP bridge |
+| `audit_pipeline/data/` | Medicine and investigation catalogues, ICD-11 terminology, guideline and drug fact stores |
+| `audit_pipeline/configs/` | Protocol rules, medicine aliases, dosing-frequency cache |
+| `benchmark/` | Comparison of local 4-bit LLMs as the reviewer model (see below) |
+| `run_local.ps1` | Starts the audit server and the app |
 
-## Excel database
+## Running the app
 
-`prescription-tool/backend/PrescribeX_Database.xlsx` is created automatically with three sheets:
-- **Patient Info**: one row per patient (ID, name, gender, age, address, contact, blood group). Written once, never edited.
-- **Prescription Data**: one row per visit. Visit ID = Patient ID + `-` + visit number (e.g. `555666-1`). It holds the screening (never edited) and, after the doctor presses Save, the final prescription.
-- **Prescription Log**: Patient ID, Category, Input, LLM found errors, Timestamp. A row is added each time a section is saved, so every change the doctor makes is kept.
+Requirements: Python 3.11 with a CUDA GPU, Node.js.
 
-An older single-sheet workbook is split into these sheets automatically on the next save.
-If the workbook is open in Excel, writes are kept in `backend/db_pending.json` and added on the next save. Close the file to let them through.
+```powershell
+python -m venv .venv
+.venv\Scripts\pip install -r audit_pipeline\requirements.txt
+cd prescribex-app; npm install; cd ..
+.\run_local.ps1
+```
 
-## Trying other models (one-line change)
-
-Edit `.env` and run `.\run_local.ps1`:
+`run_local.ps1` starts the audit server on port 8765 and then the app. The model is chosen in a `.env` file in the
+project root (not committed):
 
 ```
 AUDIT_PROVIDER=local
-HF_MODEL=Qwen/Qwen2.5-7B-Instruct    # any Hugging Face model id or local folder (downloaded on first start)
-HF_QUANT=none                        # none | 4bit | 8bit to fit a large model on the GPU
-HF_ADAPTER=                          # optional LoRA adapter on top of HF_MODEL
-HF_TOKEN=                            # only for gated models
+HF_MODEL=unsloth/Qwen3-14B-bnb-4bit   # any Hugging Face model id or local folder (downloaded on first start)
+HF_QUANT=none                         # none | 4bit | 8bit (use none for repos that are already quantized)
+HF_ADAPTER=                           # optional LoRA adapter on top of HF_MODEL
+HF_TOKEN=                             # only for gated models
 ```
 
-`AUDIT_PROVIDER=local` downloads `HF_MODEL` from Hugging Face on first use, runs it inside the audit server, and asks it to
-confirm or reject each candidate. `groq` uses the cloud model.
-Ollama / LM Studio also work: set `LLM_BASE_URL=http://127.0.0.1:11434/v1` and `HF_MODEL=<their model name>`.
+Ollama or LM Studio also work: set `LLM_BASE_URL=http://127.0.0.1:11434/v1` and `HF_MODEL=<their model name>`.
 
-**Disk space:** when a start downloads a new model, the models this pipeline downloaded earlier are deleted once the new one has loaded (tracked in `prescription_audit_gemma4/prescription_audit_gemma4/downloaded_models.json`). Models that were already on your disk before the pipeline used them, and the base model of your fine-tuned adapter, are never deleted. Set `HF_KEEP_OLD_MODELS=1` in `.env` to keep everything.
+The audit server can also be run on its own:
+
+```powershell
+python -m audit_pipeline.app_server serve                 # HTTP API on http://127.0.0.1:8765
+python -m audit_pipeline.app_server audit path\to\visit.json
+```
+
+### Patient workbook
+
+The app writes `prescribex-app/backend/PrescribeX_Database.xlsx` with three sheets: **Patient Info** (one row per
+patient), **Prescription Data** (one row per visit) and **Prescription Log** (every saved section with the errors the
+audit found). The workbook and `prescribex-app/backend/data/` hold patient records and are excluded from git.
+
+## Model benchmark
+
+`benchmark/` replays prescriptions through the pipeline section by section, exactly as the app sends them, with
+different local 4-bit models, and scores each model's findings against known planted errors.
+
+| File | Purpose |
+|---|---|
+| `run_benchmark.py` | Runs every model in `models.json` (`run: true`) on the test prescriptions |
+| `models.json` | The models compared, plus a `rules-only` baseline with no LLM |
+| `test_prescriptions.json` | 10 synthetic prescriptions with 11 planted errors (8 critical, 3 major) |
+| `synthetic_prescriptions_all.json` | Full set of 35 synthetic cases (29 with errors, 6 clean) |
+| `export_doctor_review.py` | Exports results as CSV/Excel with columns for a doctor to verify each finding |
+| `results/2026-10-30_model_comparison/` | Results for 16 models + baseline: one JSON per model, `summary.csv`, and `doctor_review/` |
+
+```powershell
+.venv\Scripts\pip install bitsandbytes openpyxl
+.venv\Scripts\python benchmark\run_benchmark.py                          # all models, 10 prescriptions
+.venv\Scripts\python benchmark\run_benchmark.py --models unsloth/Qwen3-8B-bnb-4bit --limit 2
+.venv\Scripts\python benchmark\export_doctor_review.py                   # CSV/Excel for the latest run
+```
+
+Metrics per model: precision, recall, F1, critical-error recall, live-audit recall, seconds per prescription,
+tokens/s, malformed-output rate, peak VRAM and load time.
+
+The synthetic prescriptions use fictional patients and are for evaluation only, not medical advice.

@@ -8,5 +8,5 @@ __pycache__/
 dist/
 
 # Patient records saved by the app (may contain real patient data)
-prescription-tool/backend/data/
-prescription-tool/backend/PrescribeX_Database.xlsx
+prescribex-app/backend/data/
+prescribex-app/backend/PrescribeX_Database.xlsx
