@@ -1,0 +1,43 @@
+{
+  "note": "Models run by run_benchmark.py when --models is not given (run=true). The unsloth/*-bnb-4bit repos are already 4-bit on Hugging Face (small download, no licence gate) and load as published. A normal repo id (e.g. Qwen/Qwen3-8B) also works: it downloads full weights and is quantized to 4-bit at load. VRAM/disk are approximate.",
+  "models": [
+    {"id": "rules-only", "run": true, "params_b": 0, "vram_4bit_gb": 0, "disk_gb": 0,
+     "why": "Baseline with no LLM: every rule-engine candidate accepted. Shows the recall ceiling and how much precision each model adds."},
+
+    {"id": "unsloth/Qwen2.5-7B-Instruct-bnb-4bit", "run": true, "params_b": 7.6, "vram_4bit_gb": 6, "disk_gb": 5.5,
+     "why": "Strong, fast 7B; very reliable JSON output. Good small-model reference."},
+    {"id": "unsloth/Qwen3-8B-bnb-4bit", "run": true, "params_b": 8.2, "vram_4bit_gb": 7, "disk_gb": 6,
+     "why": "Newer Qwen generation; the pipeline turns thinking off (enable_thinking=False)."},
+    {"id": "unsloth/mistral-7b-instruct-v0.3-bnb-4bit", "run": true, "params_b": 7.2, "vram_4bit_gb": 5, "disk_gb": 4,
+     "why": "4-bit version of the model in your .env, so you have a before/after reference."},
+    {"id": "unsloth/phi-4-bnb-4bit", "run": true, "params_b": 14.7, "vram_4bit_gb": 10, "disk_gb": 9,
+     "why": "14B with strong reasoning for its size; MIT licence."},
+    {"id": "unsloth/Qwen3-14B-bnb-4bit", "run": true, "params_b": 14.8, "vram_4bit_gb": 10, "disk_gb": 10,
+     "why": "Best accuracy/speed balance in this list for a 32 GB GPU."},
+
+    {"id": "unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit", "run": true, "params_b": 8.0, "vram_4bit_gb": 6, "disk_gb": 6,
+     "why": "Widely used reference model; many medical fine-tunes are built on it."},
+    {"id": "unsloth/gemma-3-12b-it-bnb-4bit", "run": true, "params_b": 12, "vram_4bit_gb": 9, "disk_gb": 8,
+     "why": "Good multilingual (Bangla) ability; useful if notes are mixed-language."},
+    {"id": "unsloth/Qwen2.5-14B-Instruct-bnb-4bit", "run": true, "params_b": 14.8, "vram_4bit_gb": 10, "disk_gb": 10,
+     "why": "Previous-generation 14B; compare against Qwen3-14B."},
+    {"id": "unsloth/Mistral-Small-24B-Instruct-2501-bnb-4bit", "run": true, "params_b": 24, "vram_4bit_gb": 15, "disk_gb": 14,
+     "why": "Mid-size, fast for its size, strong instruction following."},
+    {"id": "unsloth/gemma-3-27b-it-bnb-4bit", "run": true, "params_b": 27, "vram_4bit_gb": 18, "disk_gb": 17,
+     "why": "Large Gemma; strong general medical knowledge."},
+    {"id": "unsloth/Qwen3-32B-bnb-4bit", "run": true, "params_b": 32.8, "vram_4bit_gb": 21, "disk_gb": 20,
+     "why": "Largest that fits 32 GB in 4-bit with room for context; likely accuracy ceiling of this list."},
+
+    {"id": "unsloth/gemma-4-E4B-it", "run": true, "params_b": 8, "vram_4bit_gb": 6, "disk_gb": 16,
+     "why": "Gemma 4 small (4B effective). Newest Google generation; quantized to 4-bit at load."},
+    {"id": "unsloth/gemma-4-12B-it-qat-q4_0-unquantized", "run": true, "params_b": 12, "vram_4bit_gb": 9, "disk_gb": 24,
+     "why": "Gemma 4 12B, quantization-aware trained for 4-bit, so it loses little accuracy at 4-bit."},
+
+    {"id": "unsloth/medgemma-27b-text-it-bnb-4bit", "run": true, "params_b": 27, "vram_4bit_gb": 18, "disk_gb": 17,
+     "why": "Medical-domain Gemma (text only). The main medical model to compare against general models."},
+    {"id": "aaditya/Llama3-OpenBioLLM-8B", "run": true, "params_b": 8, "vram_4bit_gb": 6, "disk_gb": 16,
+     "why": "Biomedical fine-tune (quantized at load); weaker at strict JSON, worth one run for the medical-vs-general slide."},
+    {"id": "Intelligent-Internet/II-Medical-8B", "run": true, "params_b": 8.2, "vram_4bit_gb": 7, "disk_gb": 16,
+     "why": "Medical reasoning model (quantized at load). Long thinking output can hit the token budget, so expect more JSON failures."}
+  ]
+}

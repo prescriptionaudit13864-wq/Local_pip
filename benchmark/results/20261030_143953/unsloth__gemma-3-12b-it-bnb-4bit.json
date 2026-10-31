@@ -1,0 +1,4160 @@
+{
+  "model": "unsloth/gemma-3-12b-it-bnb-4bit",
+  "quantization": "pre-quantized on the Hub (bitsandbytes)",
+  "cases_file": "C:\\Users\\HEAT\\Documents\\Local Pipeline\\Local_pip\\benchmark\\prescriptions_10.json",
+  "run_at": "2026-10-30T19:01:42",
+  "load_info": {
+    "load_seconds": 147.98,
+    "quantization": "pre-quantized on the Hub (bitsandbytes)",
+    "system_role_folded": false,
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "vram_after_load_gb": 7.26,
+    "peak_vram_gb": 16.68
+  },
+  "summary": {
+    "model": "unsloth/gemma-3-12b-it-bnb-4bit",
+    "cases": 10,
+    "failed_cases": 0,
+    "precision": 0.3125,
+    "recall": 0.9091,
+    "f1": 0.4651,
+    "significant_precision": 0.5172,
+    "critical_recall": 0.875,
+    "live_recall": 1.0,
+    "clean_cases_with_false_alarm": 0,
+    "clean_cases": 0,
+    "avg_case_seconds": 321.1433,
+    "avg_live_section_seconds": 21.2275,
+    "avg_final_audit_seconds": 172.5501,
+    "total_llm_seconds": 3194.55,
+    "llm_calls": 127,
+    "avg_llm_call_seconds": 25.1539,
+    "output_tokens": 59047,
+    "tokens_per_second": 18.4837,
+    "llm_errors": 0,
+    "llm_error_rate": 0.0,
+    "load_seconds": 147.98,
+    "peak_vram_gb": 16.68,
+    "recall_by_category": {
+      "allergy": 1.0,
+      "demographic_conflict": 1.0,
+      "diagnostic_error": 1.0,
+      "dosing_error": 0.0,
+      "drug_drug_interaction": 1.0,
+      "followup_interaction": 1.0,
+      "organ_impairment": 1.0,
+      "pregnancy_contraindication": 1.0
+    }
+  },
+  "cases": [
+    {
+      "case_id": "SYN-001",
+      "title": "Male patient documented as pregnant",
+      "category": "demographic_conflict",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 14.18,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Lower abdominal pain for 2 days Nausea and vomiting in the morning",
+              "confidence": "medium",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [
+            "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
+          ],
+          "error": "",
+          "llm_seconds": 11.905
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 0.002,
+          "status": "moderate",
+          "summary": "The live audit completed with pipeline notes that require review.",
+          "findings": [],
+          "warnings": [
+            "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
+          ],
+          "error": "",
+          "llm_seconds": 0
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 17.165,
+          "status": "moderate",
+          "summary": "The live audit completed with pipeline notes that require review.",
+          "findings": [],
+          "warnings": [
+            "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
+          ],
+          "error": "",
+          "llm_seconds": 16.961
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 6.599,
+          "status": "critical",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "Dx.context.demo:1",
+              "section": "Dx",
+              "rule_name": "diagnosis_demographic_context",
+              "rule_id": "Dx.context.demo",
+              "why": "Diagnosis is incompatible with patient's male gender and confirmed pregnancy.",
+              "correction": "Verify patient's gender and pregnancy status.",
+              "evidence": "Diagnosis: Hyperemesis gravidarum | Age: 32 | Gender: M | ANC/PNC: Pregnant, 20 weeks gestation",
+              "confidence": "high",
+              "concern_level": "major"
+            }
+          ],
+          "warnings": [
+            "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
+          ],
+          "error": "",
+          "llm_seconds": 6.596
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 17.202,
+          "status": "moderate",
+          "summary": "The live audit completed with pipeline notes that require review.",
+          "findings": [],
+          "warnings": [
+            "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
+          ],
+          "error": "",
+          "llm_seconds": 16.989
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 1.475,
+          "status": "moderate",
+          "summary": "The live audit completed with pipeline notes that require review.",
+          "findings": [],
+          "warnings": [
+            "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
+          ],
+          "error": "",
+          "llm_seconds": 1.334
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 10.82,
+          "status": "moderate",
+          "summary": "The live audit completed with pipeline notes that require review.",
+          "findings": [],
+          "warnings": [
+            "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
+          ],
+          "error": "",
+          "llm_seconds": 10.752
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 11.905,
+          "output_tokens": 214,
+          "output_chars": 961,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 16.961,
+          "output_tokens": 315,
+          "output_chars": 1531,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 6.596,
+          "output_tokens": 119,
+          "output_chars": 460,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 16.989,
+          "output_tokens": 315,
+          "output_chars": 1531,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 1.334,
+          "output_tokens": 13,
+          "output_chars": 42,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 10.752,
+          "output_tokens": 195,
+          "output_chars": 718,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 37.763,
+          "output_tokens": 727,
+          "output_chars": 2537,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Demo",
+          "seconds": 4.807,
+          "output_tokens": 89,
+          "output_chars": 396,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 11.437,
+          "output_tokens": 214,
+          "output_chars": 961,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 6.574,
+          "output_tokens": 119,
+          "output_chars": 460,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 10.255,
+          "output_tokens": 186,
+          "output_chars": 851,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 1.33,
+          "output_tokens": 13,
+          "output_chars": 42,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 10.786,
+          "output_tokens": 195,
+          "output_chars": 718,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "completed",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Lower abdominal pain for 2 days Nausea and vomiting in the morning",
+            "confidence": "medium",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Dx.context.demo:1",
+            "section": "Dx",
+            "rule_name": "diagnosis_demographic_context",
+            "rule_id": "Dx.context.demo",
+            "why": "Diagnosis is incompatible with patient's male gender and confirmed pregnancy.",
+            "correction": "Verify patient's gender and pregnancy status.",
+            "evidence": "Diagnosis: Hyperemesis gravidarum | Age: 32 | Gender: M | ANC/PNC: Pregnant, 20 weeks gestation",
+            "confidence": "high",
+            "concern_level": "major"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Dx [Dx.context.demo]: Diagnosis is incompatible with patient's male gender and confirmed pregnancy."
+        ],
+        "candidate_count": 36,
+        "warnings": [
+          "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
+        ],
+        "rejected_high_evidence_candidates": [],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [],
+          "live_finding_count": 2,
+          "final_finding_count": 2
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792103600000",
+          "Patient_ID": "SYN-001",
+          "Visit_Date": "2026-10-15 22:33:20",
+          "Age": "32",
+          "Gender": "M",
+          "Chief_Complaint": "Lower abdominal pain for 2 days\nNausea and vomiting in the morning",
+          "Past_History": "",
+          "Health_Screening": "Temperature: 98.6 F, Pulse Rate: 84 bpm, Blood Pressure: 120/80",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "",
+          "Investigation_Results": "",
+          "Diagnosis": "Hyperemesis gravidarum",
+          "Medication": "Folison 5 mg (0 + 0 + 1) - (30 day(s))",
+          "Advice": "Regular antenatal check-up",
+          "ANC_Notes": "Pregnant, 20 weeks gestation"
+        }
+      },
+      "timing": {
+        "total_seconds": 150.934,
+        "live_seconds": 67.443,
+        "final_seconds": 83.49,
+        "llm_seconds": 147.489,
+        "llm_calls": 13,
+        "output_tokens": 2714
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "male_pregnancy"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 2,
+          "correct_findings": 1,
+          "significant_findings": 1,
+          "correct_significant_findings": 1
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "male_pregnancy"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 2,
+          "correct_findings": 1,
+          "significant_findings": 1,
+          "correct_significant_findings": 1
+        }
+      }
+    },
+    {
+      "case_id": "SYN-005",
+      "title": "Triple antithrombotic therapy",
+      "category": "drug_drug_interaction",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 23.538,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Palpitation for 1 week",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 23.533
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 24.025,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 24.021
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 15.29,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 15.071
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 14.845,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 14.842
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 27.098,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 26.89
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 12.212,
+          "status": "critical",
+          "summary": "2 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "ddi",
+              "rule_id": "Rx.ddi",
+              "why": "Interaction evidence explicitly references current medicine Warfarin Sodium.",
+              "correction": "Review potential interaction between Warfarin and Aspirin.",
+              "evidence": "Salicylates may enhance the effect of anticoagulants",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "ddi",
+              "rule_id": "Rx.ddi",
+              "why": "Interaction evidence explicitly references current medicine Warfarin Sodium.",
+              "correction": "Review potential interaction between Warfarin and Clopidogrel.",
+              "evidence": "NSAIDs, warfarin, selective serotonin and serotonin norepinephrine reuptake inhibitors (SSRIs, SNRIs): Increases risk of bleeding",
+              "confidence": "high",
+              "concern_level": "major"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 11.781
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 13.472,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "Adv.cc:1",
+              "section": "Adv",
+              "rule_name": "adv_cc_protocol_review",
+              "rule_id": "Adv.cc",
+              "why": "Diagnosis of atrial fibrillation and ischemic heart disease warrants advice regarding medication adherence, monitoring INR, and potential signs of bleeding.",
+              "correction": "Document advice relevant to the diagnosis.",
+              "evidence": "Diagnosis: Atrial fibrillation, Ischaemic heart disease | Medication: Warin 5 mg (0 + 0 + 1) - (Continue), Ecosprin 75 mg (0 + 1 + 0) - (Continue) [after meal], Clopid 75 mg (0 + 1 + 0) - (Continue) [after meal] | Advice: none | Chief_Complaint: Palpitation for 1 week | Health_Screening: Temperature: 98.4 F, Pulse Rate: 112 bpm, Blood Pressure: 140/90",
+              "confidence": "medium",
+              "concern_level": "moderate"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 13.39
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 23.533,
+          "output_tokens": 451,
+          "output_chars": 2035,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Hx",
+          "seconds": 24.021,
+          "output_tokens": 461,
+          "output_chars": 1793,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 15.071,
+          "output_tokens": 277,
+          "output_chars": 1281,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 14.842,
+          "output_tokens": 277,
+          "output_chars": 969,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 26.89,
+          "output_tokens": 491,
+          "output_chars": 2304,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 11.781,
+          "output_tokens": 188,
+          "output_chars": 810,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 13.39,
+          "output_tokens": 236,
+          "output_chars": 825,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 64.224,
+          "output_tokens": 1200,
+          "output_chars": 4155,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 24.142,
+          "output_tokens": 451,
+          "output_chars": 2035,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Hx",
+          "seconds": 24.9,
+          "output_tokens": 461,
+          "output_chars": 1793,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 15.1,
+          "output_tokens": 277,
+          "output_chars": 969,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 26.789,
+          "output_tokens": 491,
+          "output_chars": 2304,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 11.773,
+          "output_tokens": 188,
+          "output_chars": 810,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 13.33,
+          "output_tokens": 236,
+          "output_chars": 825,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "completed",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Palpitation for 1 week",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "ddi",
+            "rule_id": "Rx.ddi",
+            "why": "Interaction evidence explicitly references current medicine Warfarin Sodium.",
+            "correction": "Review potential interaction between Warfarin and Aspirin.",
+            "evidence": "Salicylates may enhance the effect of anticoagulants",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "ddi",
+            "rule_id": "Rx.ddi",
+            "why": "Interaction evidence explicitly references current medicine Warfarin Sodium.",
+            "correction": "Review potential interaction between Warfarin and Clopidogrel.",
+            "evidence": "NSAIDs, warfarin, selective serotonin and serotonin norepinephrine reuptake inhibitors (SSRIs, SNRIs): Increases risk of bleeding",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "Adv.cc:1",
+            "section": "Adv",
+            "rule_name": "adv_cc_protocol_review",
+            "rule_id": "Adv.cc",
+            "why": "Diagnosis of atrial fibrillation and ischemic heart disease warrants advice regarding medication adherence, monitoring INR, and potential signs of bleeding.",
+            "correction": "Document advice relevant to the diagnosis.",
+            "evidence": "Diagnosis: Atrial fibrillation, Ischaemic heart disease | Medication: Warin 5 mg (0 + 0 + 1) - (Continue), Ecosprin 75 mg (0 + 1 + 0) - (Continue) [after meal], Clopid 75 mg (0 + 1 + 0) - (Continue) [after meal] | Advice: none | Chief_Complaint: Palpitation for 1 week | Health_Screening: Temperature: 98.4 F, Pulse Rate: 112 bpm, Blood Pressure: 140/90",
+            "confidence": "medium",
+            "concern_level": "moderate"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Rx [Rx.ddi]: Interaction evidence explicitly references current medicine Warfarin Sodium.",
+          "Rx [Rx.ddi]: Interaction evidence explicitly references current medicine Warfarin Sodium.",
+          "Adv [Adv.cc]: Diagnosis of atrial fibrillation and ischemic heart disease warrants advice regarding medication adherence, monitoring INR, and potential signs of bleeding."
+        ],
+        "candidate_count": 40,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [],
+          "live_finding_count": 4,
+          "final_finding_count": 4
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792118000000",
+          "Patient_ID": "SYN-005",
+          "Visit_Date": "2026-10-16 02:33:20",
+          "Age": "67",
+          "Gender": "M",
+          "Chief_Complaint": "Palpitation for 1 week",
+          "Past_History": "Coronary stent 1 month ago",
+          "Health_Screening": "Temperature: 98.4 F, Pulse Rate: 112 bpm, Blood Pressure: 140/90",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "ECG, INR",
+          "Investigation_Results": "",
+          "Diagnosis": "Atrial fibrillation, Ischaemic heart disease",
+          "Medication": "Warin 5 mg (0 + 0 + 1) - (Continue), Ecosprin 75 mg (0 + 1 + 0) - (Continue) [after meal], Clopid 75 mg (0 + 1 + 0) - (Continue) [after meal]",
+          "Advice": "",
+          "ANC_Notes": ""
+        }
+      },
+      "timing": {
+        "total_seconds": 311.611,
+        "live_seconds": 130.48,
+        "final_seconds": 181.131,
+        "llm_seconds": 309.786,
+        "llm_calls": 14,
+        "output_tokens": 5685
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "ddi_bleeding"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 4,
+          "correct_findings": 2,
+          "significant_findings": 3,
+          "correct_significant_findings": 2
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "ddi_bleeding"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 4,
+          "correct_findings": 2,
+          "significant_findings": 3,
+          "correct_significant_findings": 2
+        }
+      }
+    },
+    {
+      "case_id": "SYN-008",
+      "title": "ACE inhibitor + spironolactone + potassium with hyperkalaemia",
+      "category": "drug_drug_interaction",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 50.198,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Shortness of breath on exertion Leg swelling for 2 weeks",
+              "confidence": "medium",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 50.188
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 9.406,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 9.403
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 44.273,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 44.034
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 6.005,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 6.002
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 44.213,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "Inv.demo.1:1",
+              "section": "Inv",
+              "rule_name": "inv_demo_1_protocol_review",
+              "rule_id": "Inv.demo.1",
+              "why": "Age and gender are not clearly violated.",
+              "correction": "Review age/gender appropriateness of investigations.",
+              "evidence": "Diagnosis: Heart failure | Investigation: none | Investigation_Results: Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min | Chief_Complaint: Shortness of breath on exertion Leg swelling for 2 weeks | Health_Screening: Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 71 | Gender: F",
+              "confidence": "low",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 43.968
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 35.225,
+          "status": "critical",
+          "summary": "4 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "renal_risk",
+              "rule_id": "Rx.risk.renal",
+              "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+              "correction": "Review Spironolactone dose and renal function.",
+              "evidence": "Patient evidence: Chronic kidney disease | eGFR 35 mL/min | Medicine facts: Spironolactone is contraindicated in patients with acute renal insufficiency, significant impairment of renal function, anuria, hyperkalaemia or sensitivity to Spironolactone",
+              "confidence": "high",
+              "concern_level": "critical"
+            },
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "renal_risk",
+              "rule_id": "Rx.risk.renal",
+              "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+              "correction": "Review Potassium Chloride dose and renal function.",
+              "evidence": "Patient evidence: Chronic kidney disease | eGFR 35 mL/min | Medicine facts: It should be administered with caution to patients with renal or adrenocortical insufficiency, cardiac disease, acute dehydration, heat cramps, extensive tissue destruction as occurs with severe burns, or to patients receiving potassium-sparing diuretics",
+              "confidence": "high",
+              "concern_level": "critical"
+            },
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "hyperkalemia_potassium_raising_drug",
+              "rule_id": "Rx.lab.hyperkalemia",
+              "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+              "correction": "Review the prescription and supporting evidence with clinician/pharmacist review, especially if contraindicated or high risk.",
+              "evidence": "Patient evidence: Potassium 6.1 mmol/L | Medicine fact: Spironolactone is contraindicated in patients with acute renal insufficiency, significant impairment of renal function, anuria, hyperkalaemia or sensitivity to Spironolactone",
+              "confidence": "high",
+              "concern_level": "moderate"
+            },
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "hyperkalemia_potassium_raising_drug",
+              "rule_id": "Rx.lab.hyperkalemia",
+              "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+              "correction": "Review the prescription and supporting evidence with clinician/pharmacist review, especially if contraindicated or high risk.",
+              "evidence": "Patient evidence: Potassium 6.1 mmol/L | Medicine facts: Combined treatment with the following increase the risk of hyperkalaemia: Angiotensin-converting enzyme inhibitors, cyclosporin, NSAIDs, beta-blockers, heparin, digoxin, potassium-sparing diuretics | It should be administered with caution to patients with renal or adrenocortical insufficiency, cardiac disease, acute dehydration, heat cramps, extensive tissue destruction as occurs with severe burns, or to patients receiving potassium-sparing diuretics",
+              "confidence": "high",
+              "concern_level": "moderate"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 34.697
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 13.637,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 13.531
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 50.188,
+          "output_tokens": 941,
+          "output_chars": 4233,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Hx",
+          "seconds": 9.403,
+          "output_tokens": 169,
+          "output_chars": 641,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 44.034,
+          "output_tokens": 820,
+          "output_chars": 3008,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 6.002,
+          "output_tokens": 105,
+          "output_chars": 459,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 43.968,
+          "output_tokens": 820,
+          "output_chars": 3058,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 34.697,
+          "output_tokens": 618,
+          "output_chars": 2890,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 13.531,
+          "output_tokens": 240,
+          "output_chars": 834,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 64.044,
+          "output_tokens": 1200,
+          "output_chars": 4407,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 50.075,
+          "output_tokens": 941,
+          "output_chars": 4233,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Hx",
+          "seconds": 9.296,
+          "output_tokens": 169,
+          "output_chars": 641,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 6.033,
+          "output_tokens": 105,
+          "output_chars": 459,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 49.968,
+          "output_tokens": 930,
+          "output_chars": 3407,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 34.836,
+          "output_tokens": 618,
+          "output_chars": 2890,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 13.577,
+          "output_tokens": 240,
+          "output_chars": 834,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "needs_review",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Shortness of breath on exertion Leg swelling for 2 weeks",
+            "confidence": "medium",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Inv.demo.1:1",
+            "section": "Inv",
+            "rule_name": "inv_demo_1_protocol_review",
+            "rule_id": "Inv.demo.1",
+            "why": "Age and gender are not clearly violated.",
+            "correction": "Review age/gender appropriateness of investigations.",
+            "evidence": "Diagnosis: Heart failure | Investigation: none | Investigation_Results: Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min | Chief_Complaint: Shortness of breath on exertion Leg swelling for 2 weeks | Health_Screening: Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 71 | Gender: F",
+            "confidence": "low",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Inv.demo.2:1",
+            "section": "Inv",
+            "rule_name": "inv_demo_2_protocol_review",
+            "rule_id": "Inv.demo.2",
+            "why": "Region is not clearly violated.",
+            "correction": "Review region-specific appropriateness of investigations.",
+            "evidence": "Diagnosis: Heart failure | Investigation: none | Investigation_Results: Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min | Chief_Complaint: Shortness of breath on exertion Leg swelling for 2 weeks | Health_Screening: Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 71 | Gender: F",
+            "confidence": "low",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Inv.cc:1",
+            "section": "Inv",
+            "rule_name": "inv_cc_protocol_review",
+            "rule_id": "Inv.cc",
+            "why": "Diagnosis is settled; no confirmatory tests are needed.",
+            "correction": "Ensure investigations support the established diagnosis of heart failure.",
+            "evidence": "Diagnosis: Heart failure | Investigation: none | Investigation_Results: Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min | Chief_Complaint: Shortness of breath on exertion Leg swelling for 2 weeks | Health_Screening: Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 71 | Gender: F",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "Inv.hs:1",
+            "section": "Inv",
+            "rule_name": "inv_hs_protocol_review",
+            "rule_id": "Inv.hs",
+            "why": "No clinically significant findings to justify additional investigations.",
+            "correction": "Justify any additional investigations based on clinical findings.",
+            "evidence": "Diagnosis: Heart failure | Investigation: none | Investigation_Results: Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min | Chief_Complaint: Shortness of breath on exertion Leg swelling for 2 weeks | Health_Screening: Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 71 | Gender: F",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "renal_risk",
+            "rule_id": "Rx.risk.renal",
+            "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "correction": "Review Spironolactone dose and renal function.",
+            "evidence": "Patient evidence: Chronic kidney disease | eGFR 35 mL/min | Medicine facts: Spironolactone is contraindicated in patients with acute renal insufficiency, significant impairment of renal function, anuria, hyperkalaemia or sensitivity to Spironolactone",
+            "confidence": "high",
+            "concern_level": "critical"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "renal_risk",
+            "rule_id": "Rx.risk.renal",
+            "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "correction": "Review Potassium Chloride dose and renal function.",
+            "evidence": "Patient evidence: Chronic kidney disease | eGFR 35 mL/min | Medicine facts: It should be administered with caution to patients with renal or adrenocortical insufficiency, cardiac disease, acute dehydration, heat cramps, extensive tissue destruction as occurs with severe burns, or to patients receiving potassium-sparing diuretics",
+            "confidence": "high",
+            "concern_level": "critical"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "hyperkalemia_potassium_raising_drug",
+            "rule_id": "Rx.lab.hyperkalemia",
+            "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "correction": "Review the prescription and supporting evidence with clinician/pharmacist review, especially if contraindicated or high risk.",
+            "evidence": "Patient evidence: Potassium 6.1 mmol/L | Medicine fact: Spironolactone is contraindicated in patients with acute renal insufficiency, significant impairment of renal function, anuria, hyperkalaemia or sensitivity to Spironolactone",
+            "confidence": "high",
+            "concern_level": "moderate"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "hyperkalemia_potassium_raising_drug",
+            "rule_id": "Rx.lab.hyperkalemia",
+            "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "correction": "Review the prescription and supporting evidence with clinician/pharmacist review, especially if contraindicated or high risk.",
+            "evidence": "Patient evidence: Potassium 6.1 mmol/L | Medicine facts: Combined treatment with the following increase the risk of hyperkalaemia: Angiotensin-converting enzyme inhibitors, cyclosporin, NSAIDs, beta-blockers, heparin, digoxin, potassium-sparing diuretics | It should be administered with caution to patients with renal or adrenocortical insufficiency, cardiac disease, acute dehydration, heat cramps, extensive tissue destruction as occurs with severe burns, or to patients receiving potassium-sparing diuretics",
+            "confidence": "high",
+            "concern_level": "moderate"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Inv [Inv.cc]: Diagnosis is settled; no confirmatory tests are needed.",
+          "Rx [Rx.lab.hyperkalemia]: Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+          "Rx [Rx.lab.hyperkalemia]: Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review."
+        ],
+        "candidate_count": 43,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [
+          {
+            "section": "Rx",
+            "rule_id": "Rx.risk.renal",
+            "rule_name": "renal_risk",
+            "evidence_strength": "high",
+            "generic_id": "1015",
+            "generic_name": "Spironolactone",
+            "evidence": "Patient evidence: Chronic kidney disease | eGFR 35 mL/min | Medicine facts: Spironolactone is contraindicated in patients with acute renal insufficiency, significant impairment of renal function, anuria, hyperkalaemia or sensitivity to Spironolactone.",
+            "why_candidate": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "needs_human_review": true
+          },
+          {
+            "section": "Rx",
+            "rule_id": "Rx.lab.hyperkalemia",
+            "rule_name": "hyperkalemia_potassium_raising_drug",
+            "evidence_strength": "high",
+            "generic_id": "1015",
+            "generic_name": "Spironolactone",
+            "evidence": "Patient evidence: Potassium 6.1 mmol/L | Medicine fact: Spironolactone is contraindicated in patients with acute renal insufficiency, significant impairment of renal function, anuria, hyperkalaemia or sensitivity to Spironolactone.",
+            "why_candidate": "Patient hyperkalemia evidence and generic-specific medicine safety evidence require review.",
+            "needs_human_review": true
+          },
+          {
+            "section": "Rx",
+            "rule_id": "Rx.risk.renal",
+            "rule_name": "renal_risk",
+            "evidence_strength": "high",
+            "generic_id": "904",
+            "generic_name": "Potassium Chloride",
+            "evidence": "Patient evidence: Chronic kidney disease | eGFR 35 mL/min | eGFR 35 mL/min | Medicine facts: It should be administered with caution to patients with renal or adrenocortical insufficiency, cardiac disease, acute dehydration, heat cramps, extensive tissue destruction as occurs with severe burns, or to patients receiving potassium-sparing diuretics.",
+            "why_candidate": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "needs_human_review": true
+          },
+          {
+            "section": "Rx",
+            "rule_id": "Rx.lab.hyperkalemia",
+            "rule_name": "hyperkalemia_potassium_raising_drug",
+            "evidence_strength": "high",
+            "generic_id": "904",
+            "generic_name": "Potassium Chloride",
+            "evidence": "Patient evidence: Potassium 6.1 mmol/L | Medicine facts: Combined treatment with the following increase the risk of hyperkalaemia: Angiotensin-converting enzyme inhibitors, cyclosporin, NSAIDs, beta-blockers, heparin, digoxin, potassium-sparing diuretics. | It should be administered with caution to patients with renal or adrenocortical insufficiency, cardiac disease, acute dehydration, heat cramps, extensive tissue destruction as occurs with severe burns, or to patients receiving potassium-sparing diuretics.",
+            "why_candidate": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "needs_human_review": true
+          }
+        ],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [
+            {
+              "candidate_id": "Inv.demo.2:1",
+              "section": "Inv",
+              "rule_name": "inv_demo_2_protocol_review",
+              "rule_id": "Inv.demo.2",
+              "why": "Region is not clearly violated.",
+              "correction": "Review region-specific appropriateness of investigations.",
+              "evidence": "Diagnosis: Heart failure | Investigation: none | Investigation_Results: Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min | Chief_Complaint: Shortness of breath on exertion Leg swelling for 2 weeks | Health_Screening: Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 71 | Gender: F",
+              "confidence": "low",
+              "concern_level": "minor"
+            },
+            {
+              "candidate_id": "Inv.cc:1",
+              "section": "Inv",
+              "rule_name": "inv_cc_protocol_review",
+              "rule_id": "Inv.cc",
+              "why": "Diagnosis is settled; no confirmatory tests are needed.",
+              "correction": "Ensure investigations support the established diagnosis of heart failure.",
+              "evidence": "Diagnosis: Heart failure | Investigation: none | Investigation_Results: Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min | Chief_Complaint: Shortness of breath on exertion Leg swelling for 2 weeks | Health_Screening: Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 71 | Gender: F",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "Inv.hs:1",
+              "section": "Inv",
+              "rule_name": "inv_hs_protocol_review",
+              "rule_id": "Inv.hs",
+              "why": "No clinically significant findings to justify additional investigations.",
+              "correction": "Justify any additional investigations based on clinical findings.",
+              "evidence": "Diagnosis: Heart failure | Investigation: none | Investigation_Results: Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min | Chief_Complaint: Shortness of breath on exertion Leg swelling for 2 weeks | Health_Screening: Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 71 | Gender: F",
+              "confidence": "high",
+              "concern_level": "major"
+            }
+          ],
+          "live_finding_count": 4,
+          "final_finding_count": 7
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792128800000",
+          "Patient_ID": "SYN-008",
+          "Visit_Date": "2026-10-16 05:33:20",
+          "Age": "71",
+          "Gender": "F",
+          "Chief_Complaint": "Shortness of breath on exertion\nLeg swelling for 2 weeks",
+          "Past_History": "Chronic kidney disease",
+          "Health_Screening": "Temperature: 98.0 F, Pulse Rate: 64 bpm, Blood Pressure: 110/70",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "",
+          "Investigation_Results": "Serum Electrolytes: Potassium 6.1 mmol/L, Creatinine: eGFR 35 mL/min",
+          "Diagnosis": "Heart failure",
+          "Medication": "Anapril 5 mg (1 + 0 + 1) - (Continue), Inospiron 25 mg (1 + 0 + 0) - (Continue), Electro-K 500 mg/5 ml (10 ml+0+10 ml) - (Continue) [after meal]",
+          "Advice": "",
+          "ANC_Notes": ""
+        }
+      },
+      "timing": {
+        "total_seconds": 431.812,
+        "live_seconds": 202.957,
+        "final_seconds": 228.854,
+        "llm_seconds": 429.652,
+        "llm_calls": 14,
+        "output_tokens": 7916
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "hyperkalaemia"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 9,
+          "correct_findings": 4,
+          "significant_findings": 6,
+          "correct_significant_findings": 4
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "hyperkalaemia"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 6,
+          "correct_findings": 4,
+          "significant_findings": 4,
+          "correct_significant_findings": 4
+        }
+      }
+    },
+    {
+      "case_id": "SYN-009",
+      "title": "Warfarin in early pregnancy",
+      "category": "pregnancy_contraindication",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 45.188,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Left calf swelling and pain for 3 days",
+              "confidence": "medium",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 45.179
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 0.002,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 0
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 49.805,
+          "status": "moderate",
+          "summary": "4 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "Inv.demo.1:1",
+              "section": "Inv",
+              "rule_name": "inv_demo_1_protocol_review",
+              "rule_id": "Inv.demo.1",
+              "why": "Age and gender specific investigations present.",
+              "correction": "Review age and gender appropriateness.",
+              "evidence": "Diagnosis: none | Investigation: Doppler USG of left leg | Investigation_Results: none | Chief_Complaint: Left calf swelling and pain for 3 days | Health_Screening: Temperature: 98.6 F, Pulse Rate: 92 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 28 | Gender: F",
+              "confidence": "low",
+              "concern_level": "moderate"
+            },
+            {
+              "candidate_id": "Inv.cc:1",
+              "section": "Inv",
+              "rule_name": "inv_cc_protocol_review",
+              "rule_id": "Inv.cc",
+              "why": "Investigations support working up the DIAGNOSIS.",
+              "correction": "Confirm diagnosis supports investigation.",
+              "evidence": "Diagnosis: none | Investigation: Doppler USG of left leg | Investigation_Results: none | Chief_Complaint: Left calf swelling and pain for 3 days | Health_Screening: Temperature: 98.6 F, Pulse Rate: 92 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 28 | Gender: F",
+              "confidence": "low",
+              "concern_level": "moderate"
+            },
+            {
+              "candidate_id": "Inv.hs:1",
+              "section": "Inv",
+              "rule_name": "inv_hs_protocol_review",
+              "rule_id": "Inv.hs",
+              "why": "Investigations should be requested only when clinically significant clinical findings justify confirmation, exclusion, monitoring, or further evaluation.",
+              "correction": "Confirm clinical findings justify investigation.",
+              "evidence": "Diagnosis: none | Investigation: Doppler USG of left leg | Investigation_Results: none | Chief_Complaint: Left calf swelling and pain for 3 days | Health_Screening: Temperature: 98.6 F, Pulse Rate: 92 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 28 | Gender: F",
+              "confidence": "low",
+              "concern_level": "moderate"
+            },
+            {
+              "candidate_id": "Inv.dx:1",
+              "section": "Inv",
+              "rule_name": "inv_dx_protocol_review",
+              "rule_id": "Inv.dx",
+              "why": "A confirmatory investigation is required ONLY when the diagnosis is explicitly provisional, differential, suspected, query, or to-be-confirmed.",
+              "correction": "Confirm diagnosis is not settled.",
+              "evidence": "Diagnosis: none | Investigation: Doppler USG of left leg | Investigation_Results: none | Chief_Complaint: Left calf swelling and pain for 3 days | Health_Screening: Temperature: 98.6 F, Pulse Rate: 92 bpm, Blood Pressure: 110/70 | On_Examination: none | Systemic_Examination: none | Age: 28 | Gender: F",
+              "confidence": "low",
+              "concern_level": "moderate"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 49.597
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 20.145,
+          "status": "moderate",
+          "summary": "2 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Dx",
+              "rule_name": "diagnosis_not_supported_by_chief_complaint",
+              "rule_id": "Dx.cc.1",
+              "why": "The diagnosis of DVT plausibly accounts for the patient's left calf swelling and pain.",
+              "correction": "No change needed.",
+              "evidence": "Diagnosis: Deep vein thrombosis | Chief complaint: Left calf swelling and pain for 3 days",
+              "confidence": "high",
+              "concern_level": "moderate"
+            },
+            {
+              "candidate_id": "Dx.cc.2:1",
+              "section": "Dx",
+              "rule_name": "dx_cc_2_protocol_review",
+              "rule_id": "Dx.cc.2",
+              "why": "The diagnosis is not contradicted by the complaints, normal vitals, and lack of investigation results.",
+              "correction": "No change needed.",
+              "evidence": "Diagnosis: Deep vein thrombosis | Chief_Complaint: Left calf swelling and pain for 3 days | Health_Screening: Temperature: 98.6 F, Pulse Rate: 92 bpm, Blood Pressure: 110/70 | Investigation_Results: none",
+              "confidence": "high",
+              "concern_level": "moderate"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 20.141
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 7.426,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 7.231
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 9.231,
+          "status": "critical",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "pregnancy_safety",
+              "rule_id": "Rx.risk.pregnancy",
+              "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+              "correction": "Review pregnancy risk and consider guideline-supported alternatives given the 10-week gestation.",
+              "evidence": "Patient evidence: Pregnant, 10 weeks gestation | Medicine facts: Warfarin is contraindicated in the first trimester of pregnancy because of the risk of teratogenicity. It should not be used in women who are or may become pregnant because the drug passes through the placental barrier and may cause fatal hemorrhage to the fetus",
+              "confidence": "high",
+              "concern_level": "critical"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 9.105
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 10.198,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 10.142
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 45.179,
+          "output_tokens": 850,
+          "output_chars": 3799,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 49.597,
+          "output_tokens": 926,
+          "output_chars": 3621,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 20.141,
+          "output_tokens": 374,
+          "output_chars": 1394,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 7.231,
+          "output_tokens": 123,
+          "output_chars": 573,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 9.105,
+          "output_tokens": 158,
+          "output_chars": 761,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 10.142,
+          "output_tokens": 182,
+          "output_chars": 661,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 63.422,
+          "output_tokens": 1200,
+          "output_chars": 4329,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 45.115,
+          "output_tokens": 850,
+          "output_chars": 3799,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 20.212,
+          "output_tokens": 374,
+          "output_chars": 1394,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 7.251,
+          "output_tokens": 123,
+          "output_chars": 573,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 9.107,
+          "output_tokens": 158,
+          "output_chars": 761,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 10.139,
+          "output_tokens": 182,
+          "output_chars": 661,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "needs_review",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Left calf swelling and pain for 3 days",
+            "confidence": "medium",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "",
+            "section": "Dx",
+            "rule_name": "diagnosis_not_supported_by_chief_complaint",
+            "rule_id": "Dx.cc.1",
+            "why": "The diagnosis of DVT plausibly accounts for the patient's left calf swelling and pain.",
+            "correction": "No change needed.",
+            "evidence": "Diagnosis: Deep vein thrombosis | Chief complaint: Left calf swelling and pain for 3 days",
+            "confidence": "high",
+            "concern_level": "moderate"
+          },
+          {
+            "candidate_id": "Dx.cc.2:1",
+            "section": "Dx",
+            "rule_name": "dx_cc_2_protocol_review",
+            "rule_id": "Dx.cc.2",
+            "why": "The diagnosis is not contradicted by the complaints, normal vitals, and lack of investigation results.",
+            "correction": "No change needed.",
+            "evidence": "Diagnosis: Deep vein thrombosis | Chief_Complaint: Left calf swelling and pain for 3 days | Health_Screening: Temperature: 98.6 F, Pulse Rate: 92 bpm, Blood Pressure: 110/70 | Investigation_Results: none",
+            "confidence": "high",
+            "concern_level": "moderate"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "pregnancy_safety",
+            "rule_id": "Rx.risk.pregnancy",
+            "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "correction": "Review pregnancy risk and consider guideline-supported alternatives given the 10-week gestation.",
+            "evidence": "Patient evidence: Pregnant, 10 weeks gestation | Medicine facts: Warfarin is contraindicated in the first trimester of pregnancy because of the risk of teratogenicity. It should not be used in women who are or may become pregnant because the drug passes through the placental barrier and may cause fatal hemorrhage to the fetus",
+            "confidence": "high",
+            "concern_level": "critical"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Dx [Dx.cc.1]: The diagnosis of DVT plausibly accounts for the patient's left calf swelling and pain.",
+          "Dx [Dx.cc.2]: The diagnosis is not contradicted by the complaints, normal vitals, and lack of investigation results.",
+          "Rx [Rx.risk.pregnancy]: Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review."
+        ],
+        "candidate_count": 35,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [
+          {
+            "section": "Rx",
+            "rule_id": "Rx.risk.pregnancy",
+            "rule_name": "pregnancy_safety",
+            "evidence_strength": "high",
+            "generic_id": "1166",
+            "generic_name": "Warfarin Sodium",
+            "evidence": "Patient evidence: Pregnant, 10 weeks gestation | Medicine facts: Warfarin is contraindicated in the first trimester of pregnancy because of the risk of teratogenicity. It should not be used in women who are or may become pregnant because the drug passes through the placental barrier and may cause fatal hemorrhage to the fetus.",
+            "why_candidate": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "needs_human_review": true
+          }
+        ],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [],
+          "live_finding_count": 4,
+          "final_finding_count": 4
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792132400000",
+          "Patient_ID": "SYN-009",
+          "Visit_Date": "2026-10-16 06:33:20",
+          "Age": "28",
+          "Gender": "F",
+          "Chief_Complaint": "Left calf swelling and pain for 3 days",
+          "Past_History": "",
+          "Health_Screening": "Temperature: 98.6 F, Pulse Rate: 92 bpm, Blood Pressure: 110/70",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "Doppler USG of left leg",
+          "Investigation_Results": "",
+          "Diagnosis": "Deep vein thrombosis",
+          "Medication": "Warin 5 mg (0 + 0 + 1) - (3 month(s))",
+          "Advice": "",
+          "ANC_Notes": "Pregnant, 10 weeks gestation"
+        }
+      },
+      "timing": {
+        "total_seconds": 297.786,
+        "live_seconds": 141.995,
+        "final_seconds": 155.789,
+        "llm_seconds": 296.641,
+        "llm_calls": 12,
+        "output_tokens": 5500
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "warfarin_pregnancy"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 4,
+          "correct_findings": 1,
+          "significant_findings": 3,
+          "correct_significant_findings": 1
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "warfarin_pregnancy"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 8,
+          "correct_findings": 1,
+          "significant_findings": 7,
+          "correct_significant_findings": 1
+        }
+      }
+    },
+    {
+      "case_id": "SYN-014",
+      "title": "Pregnancy danger signs without referral",
+      "category": "pregnancy_contraindication",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 44.723,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Severe headache with pregnancy Blurred vision with pregnancy",
+              "confidence": "medium",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 44.717
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 0.002,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 0
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 1.37,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 1.175
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 5.614,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 5.611
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 19.92,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 19.72
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 1.488,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 1.354
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 9.144,
+          "status": "critical",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Adv",
+              "rule_name": "pregnancy_danger_sign_action_missing",
+              "rule_id": "Adv.preg.danger",
+              "why": "Severe headache and blurred vision with pregnancy, alongside elevated blood pressure, strongly suggest pre-eclampsia and require urgent assessment/counselling regarding danger signs.",
+              "correction": "Urgent clinician/OB assessment or referral documentation plus danger-sign counseling is needed.",
+              "evidence": "Chief Complaint: Severe headache with pregnancy Blurred vision with pregnancy | Health Screening: Temperature: 98.6 F, Pulse Rate: 96 bpm, Blood Pressure: 170/110",
+              "confidence": "high",
+              "concern_level": "critical"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 9.079
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 44.717,
+          "output_tokens": 842,
+          "output_chars": 3849,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 1.175,
+          "output_tokens": 13,
+          "output_chars": 43,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 5.611,
+          "output_tokens": 98,
+          "output_chars": 422,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 19.72,
+          "output_tokens": 358,
+          "output_chars": 1626,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 1.354,
+          "output_tokens": 13,
+          "output_chars": 42,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 9.079,
+          "output_tokens": 158,
+          "output_chars": 679,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 26.182,
+          "output_tokens": 489,
+          "output_chars": 1816,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 44.753,
+          "output_tokens": 842,
+          "output_chars": 3849,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 5.579,
+          "output_tokens": 98,
+          "output_chars": 422,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 19.589,
+          "output_tokens": 358,
+          "output_chars": 1626,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 1.342,
+          "output_tokens": 13,
+          "output_chars": 42,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 9.015,
+          "output_tokens": 158,
+          "output_chars": 679,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "completed",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Severe headache with pregnancy Blurred vision with pregnancy",
+            "confidence": "medium",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "",
+            "section": "Adv",
+            "rule_name": "pregnancy_danger_sign_action_missing",
+            "rule_id": "Adv.preg.danger",
+            "why": "Severe headache and blurred vision with pregnancy, alongside elevated blood pressure, strongly suggest pre-eclampsia and require urgent assessment/counselling regarding danger signs.",
+            "correction": "Urgent clinician/OB assessment or referral documentation plus danger-sign counseling is needed.",
+            "evidence": "Chief Complaint: Severe headache with pregnancy Blurred vision with pregnancy | Health Screening: Temperature: 98.6 F, Pulse Rate: 96 bpm, Blood Pressure: 170/110",
+            "confidence": "high",
+            "concern_level": "critical"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Adv [Adv.preg.danger]: Severe headache and blurred vision with pregnancy, alongside elevated blood pressure, strongly suggest pre-eclampsia and require urgent assessment/counselling regarding danger signs."
+        ],
+        "candidate_count": 38,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [],
+          "live_finding_count": 2,
+          "final_finding_count": 2
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792150400000",
+          "Patient_ID": "SYN-014",
+          "Visit_Date": "2026-10-16 11:33:20",
+          "Age": "23",
+          "Gender": "F",
+          "Chief_Complaint": "Severe headache with pregnancy\nBlurred vision with pregnancy",
+          "Past_History": "",
+          "Health_Screening": "Temperature: 98.6 F, Pulse Rate: 96 bpm, Blood Pressure: 170/110",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "",
+          "Investigation_Results": "",
+          "Diagnosis": "Pre-eclampsia",
+          "Medication": "Napa 500 mg (1 + 1 + 1) - (3 day(s))",
+          "Advice": "Take rest",
+          "ANC_Notes": "Pregnant, 34 weeks gestation, Bilateral leg oedema"
+        }
+      },
+      "timing": {
+        "total_seconds": 189.248,
+        "live_seconds": 82.261,
+        "final_seconds": 106.988,
+        "llm_seconds": 188.116,
+        "llm_calls": 12,
+        "output_tokens": 3440
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "preg_danger_no_referral"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 2,
+          "correct_findings": 1,
+          "significant_findings": 1,
+          "correct_significant_findings": 1
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "preg_danger_no_referral"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 2,
+          "correct_findings": 1,
+          "significant_findings": 1,
+          "correct_significant_findings": 1
+        }
+      }
+    },
+    {
+      "case_id": "SYN-015",
+      "title": "Amoxicillin-clavulanate despite penicillin allergy",
+      "category": "allergy",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 41.462,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Sore throat and fever for 3 days",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 41.452
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 18.558,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 18.554
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 42.64,
+          "status": "critical",
+          "summary": "4 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "Inv.cc:1",
+              "section": "Inv",
+              "rule_name": "inv_cc_protocol_review",
+              "rule_id": "Inv.cc",
+              "why": "Diagnosis is not provisional, differential, suspected, query, or to-be-ruled-out.",
+              "correction": "Confirm a diagnosis before ordering investigations.",
+              "evidence": "Diagnosis: none | Investigation: none | Investigation_Results: none | Chief_Complaint: Sore throat and fever for 3 days | Health_Screening: Temperature: 101 F, Pulse Rate: 96 bpm, Blood Pressure: 120/80 | On_Examination: none | Systemic_Examination: none | Age: 35 | Gender: F",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "Inv.hs:1",
+              "section": "Inv",
+              "rule_name": "inv_hs_protocol_review",
+              "rule_id": "Inv.hs",
+              "why": "Clinically significant findings do not justify investigations.",
+              "correction": "Justify investigations based on clinical findings.",
+              "evidence": "Diagnosis: none | Investigation: none | Investigation_Results: none | Chief_Complaint: Sore throat and fever for 3 days | Health_Screening: Temperature: 101 F, Pulse Rate: 96 bpm, Blood Pressure: 120/80 | On_Examination: none | Systemic_Examination: none | Age: 35 | Gender: F",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "Inv.dx:1",
+              "section": "Inv",
+              "rule_name": "inv_dx_protocol_review",
+              "rule_id": "Inv.dx",
+              "why": "Diagnosis is not provisional, differential, suspected, query, or to-be-confirmed.",
+              "correction": "Confirm a diagnosis before ordering investigations.",
+              "evidence": "Diagnosis: none | Investigation: none | Investigation_Results: none | Chief_Complaint: Sore throat and fever for 3 days | Health_Screening: Temperature: 101 F, Pulse Rate: 96 bpm, Blood Pressure: 120/80 | On_Examination: none | Systemic_Examination: none | Age: 35 | Gender: F",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "Inv.demo.2:1",
+              "section": "Inv",
+              "rule_name": "inv_demo_2_protocol_review",
+              "rule_id": "Inv.demo.2",
+              "why": "No region-specific investigations are ordered.",
+              "correction": "Review for region-specific investigations.",
+              "evidence": "Diagnosis: none | Investigation: none | Investigation_Results: none | Chief_Complaint: Sore throat and fever for 3 days | Health_Screening: Temperature: 101 F, Pulse Rate: 96 bpm, Blood Pressure: 120/80 | On_Examination: none | Systemic_Examination: none | Age: 35 | Gender: F",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 42.417
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 22.388,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 22.385
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 1.416,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 1.189
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 12.888,
+          "status": "critical",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "allergy_contraindication",
+              "rule_id": "Rx.risk.allergy",
+              "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+              "correction": "Review patient allergy history and consider alternative antibiotics due to penicillin allergy.",
+              "evidence": "Patient evidence: Allergy to penicillin | Medicine facts: Also contraindicated for patients with a previous history of Co-amoxiclav or Penicillin-associated cholestatic jaundice | History of Penicillin hypersensitivity",
+              "confidence": "medium",
+              "concern_level": "critical"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 12.723
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 10.509,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 10.438
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 41.452,
+          "output_tokens": 782,
+          "output_chars": 3510,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Hx",
+          "seconds": 18.554,
+          "output_tokens": 343,
+          "output_chars": 1365,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 42.417,
+          "output_tokens": 795,
+          "output_chars": 2926,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 22.385,
+          "output_tokens": 416,
+          "output_chars": 1635,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 1.189,
+          "output_tokens": 13,
+          "output_chars": 43,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 12.723,
+          "output_tokens": 226,
+          "output_chars": 1058,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 10.438,
+          "output_tokens": 186,
+          "output_chars": 646,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 42.817,
+          "output_tokens": 807,
+          "output_chars": 2716,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 41.332,
+          "output_tokens": 782,
+          "output_chars": 3510,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Hx",
+          "seconds": 18.606,
+          "output_tokens": 343,
+          "output_chars": 1365,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 22.448,
+          "output_tokens": 416,
+          "output_chars": 1635,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 1.186,
+          "output_tokens": 13,
+          "output_chars": 43,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 12.788,
+          "output_tokens": 226,
+          "output_chars": 1058,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 10.491,
+          "output_tokens": 186,
+          "output_chars": 646,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "needs_review",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Sore throat and fever for 3 days",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "allergy_contraindication",
+            "rule_id": "Rx.risk.allergy",
+            "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "correction": "Review patient allergy history and consider alternative antibiotics due to penicillin allergy.",
+            "evidence": "Patient evidence: Allergy to penicillin | Medicine facts: Also contraindicated for patients with a previous history of Co-amoxiclav or Penicillin-associated cholestatic jaundice | History of Penicillin hypersensitivity",
+            "confidence": "medium",
+            "concern_level": "critical"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Rx [Rx.risk.allergy]: Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review."
+        ],
+        "candidate_count": 39,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [
+          {
+            "section": "Rx",
+            "rule_id": "Rx.risk.allergy",
+            "rule_name": "allergy_contraindication",
+            "evidence_strength": "high",
+            "generic_id": "70",
+            "generic_name": "Amoxicillin + Clavulanic Acid",
+            "evidence": "Patient evidence: Allergy to penicillin | Medicine facts: Also contraindicated for patients with a previous history of Co-amoxiclav or Penicillin-associated cholestatic jaundice. | History of Penicillin hypersensitivity.",
+            "why_candidate": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "needs_human_review": true
+          }
+        ],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [],
+          "live_finding_count": 2,
+          "final_finding_count": 2
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792154000000",
+          "Patient_ID": "SYN-015",
+          "Visit_Date": "2026-10-16 12:33:20",
+          "Age": "35",
+          "Gender": "F",
+          "Chief_Complaint": "Sore throat and fever for 3 days",
+          "Past_History": "Allergy to penicillin, rash and lip swelling",
+          "Health_Screening": "Temperature: 101 F, Pulse Rate: 96 bpm, Blood Pressure: 120/80",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "",
+          "Investigation_Results": "",
+          "Diagnosis": "Acute tonsillitis",
+          "Medication": "Moxaclav 500 mg+125 mg (1 + 1 + 1) - (7 day(s))",
+          "Advice": "",
+          "ANC_Notes": ""
+        }
+      },
+      "timing": {
+        "total_seconds": 300.125,
+        "live_seconds": 149.861,
+        "final_seconds": 150.264,
+        "llm_seconds": 298.826,
+        "llm_calls": 14,
+        "output_tokens": 5534
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "penicillin_allergy"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 2,
+          "correct_findings": 1,
+          "significant_findings": 1,
+          "correct_significant_findings": 1
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "penicillin_allergy"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 6,
+          "correct_findings": 1,
+          "significant_findings": 4,
+          "correct_significant_findings": 1
+        }
+      }
+    },
+    {
+      "case_id": "SYN-017",
+      "title": "Statin with acute hepatitis",
+      "category": "organ_impairment",
+      "expected_count": 2,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 53.337,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Yellow discoloration of eyes for 1 week Loss of appetite",
+              "confidence": "medium",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 53.333
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 0.003,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 0
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 44.447,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 44.209
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 39.686,
+          "status": "moderate",
+          "summary": "4 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Dx",
+              "rule_name": "diagnosis_not_supported_by_chief_complaint",
+              "rule_id": "Dx.cc.1",
+              "why": "Acute viral hepatitis aligns with jaundice and loss of appetite, but dyslipidemia is unrelated to the presented complaints.",
+              "correction": "Review the need for Dyslipidaemia diagnosis given the presented complaints.",
+              "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Chief complaint: Yellow discoloration of eyes for 1 week Loss of appetite",
+              "confidence": "medium",
+              "concern_level": "moderate"
+            },
+            {
+              "candidate_id": "",
+              "section": "Dx",
+              "rule_name": "diagnosis_not_supported_by_clinical_findings",
+              "rule_id": "Dx.hs.1",
+              "why": "Acute viral hepatitis is supported by elevated SGPT and bilirubin, but dyslipidemia lacks supporting evidence from the provided clinical findings.",
+              "correction": "Review the need for Dyslipidaemia diagnosis given the available clinical findings.",
+              "evidence": "Entered diagnosis: Acute viral hepatitis, Dyslipidaemia",
+              "confidence": "medium",
+              "concern_level": "moderate"
+            },
+            {
+              "candidate_id": "Dx.cc.2:1",
+              "section": "Dx",
+              "rule_name": "dx_cc_2_protocol_review",
+              "rule_id": "Dx.cc.2",
+              "why": "The diagnosis is not contradicted by the complaints, examination, or investigation results.",
+              "correction": "No change needed.",
+              "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL",
+              "confidence": "high",
+              "concern_level": "minor"
+            },
+            {
+              "candidate_id": "Dx.context.demo:1",
+              "section": "Dx",
+              "rule_name": "diagnosis_demographic_context",
+              "rule_id": "Dx.context.demo",
+              "why": "The diagnosis is compatible with the patient's age and gender.",
+              "correction": "No change needed.",
+              "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Age: 46 | Gender: M",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 39.681
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 44.557,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "Inv.demo.1:1",
+              "section": "Inv",
+              "rule_name": "inv_demo_1_protocol_review",
+              "rule_id": "Inv.demo.1",
+              "why": "Age and gender are not relevant to the absence of investigations.",
+              "correction": "Review age and gender appropriateness of investigations.",
+              "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+              "confidence": "low",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 44.304
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 14.588,
+          "status": "critical",
+          "summary": "2 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "hepatic_risk",
+              "rule_id": "Rx.risk.hepatic",
+              "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+              "correction": "Review Atorvastatin dose and indication in the context of hepatic impairment.",
+              "evidence": "Patient evidence: Jaundice | Medicine facts: Atorvastatin is contraindicated in active liver disease or unexplained persistent elevations of serum transaminases | Atorvastatin should be used with caution in patients who consume substantial quantities of alcohol or have a history of liver disease",
+              "confidence": "high",
+              "concern_level": "critical"
+            },
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "hepatic_risk",
+              "rule_id": "Rx.risk.hepatic",
+              "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+              "correction": "Review Paracetamol dose and indication in the context of hepatic impairment.",
+              "evidence": "Patient evidence: Jaundice | Medicine facts: Paracetamol should be given with caution to patients with impaired kidney or liver function",
+              "confidence": "high",
+              "concern_level": "major"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 14.244
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 12.148,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 12.057
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 53.333,
+          "output_tokens": 1001,
+          "output_chars": 4553,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 44.209,
+          "output_tokens": 820,
+          "output_chars": 2900,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 39.681,
+          "output_tokens": 736,
+          "output_chars": 2831,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 44.304,
+          "output_tokens": 820,
+          "output_chars": 2967,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 14.244,
+          "output_tokens": 246,
+          "output_chars": 1202,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 12.057,
+          "output_tokens": 213,
+          "output_chars": 762,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 64.469,
+          "output_tokens": 1200,
+          "output_chars": 4404,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 12.186,
+          "output_tokens": 223,
+          "output_chars": 1030,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 39.609,
+          "output_tokens": 736,
+          "output_chars": 2831,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 53.063,
+          "output_tokens": 985,
+          "output_chars": 3563,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 14.246,
+          "output_tokens": 246,
+          "output_chars": 1202,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 12.037,
+          "output_tokens": 213,
+          "output_chars": 762,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "needs_review",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Yellow discoloration of eyes for 1 week Loss of appetite",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "",
+            "section": "Dx",
+            "rule_name": "diagnosis_not_supported_by_chief_complaint",
+            "rule_id": "Dx.cc.1",
+            "why": "Acute viral hepatitis aligns with jaundice and loss of appetite, but dyslipidemia is unrelated to the presented complaints.",
+            "correction": "Review the need for Dyslipidaemia diagnosis given the presented complaints.",
+            "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Chief complaint: Yellow discoloration of eyes for 1 week Loss of appetite",
+            "confidence": "medium",
+            "concern_level": "moderate"
+          },
+          {
+            "candidate_id": "",
+            "section": "Dx",
+            "rule_name": "diagnosis_not_supported_by_clinical_findings",
+            "rule_id": "Dx.hs.1",
+            "why": "Acute viral hepatitis is supported by elevated SGPT and bilirubin, but dyslipidemia lacks supporting evidence from the provided clinical findings.",
+            "correction": "Review the need for Dyslipidaemia diagnosis given the available clinical findings.",
+            "evidence": "Entered diagnosis: Acute viral hepatitis, Dyslipidaemia",
+            "confidence": "medium",
+            "concern_level": "moderate"
+          },
+          {
+            "candidate_id": "Dx.cc.2:1",
+            "section": "Dx",
+            "rule_name": "dx_cc_2_protocol_review",
+            "rule_id": "Dx.cc.2",
+            "why": "The diagnosis is not contradicted by the complaints, examination, or investigation results.",
+            "correction": "No change needed.",
+            "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Dx.context.demo:1",
+            "section": "Dx",
+            "rule_name": "diagnosis_demographic_context",
+            "rule_id": "Dx.context.demo",
+            "why": "The diagnosis is compatible with the patient's age and gender.",
+            "correction": "No change needed.",
+            "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Age: 46 | Gender: M",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Inv.demo.1:1",
+            "section": "Inv",
+            "rule_name": "inv_demo_1_protocol_review",
+            "rule_id": "Inv.demo.1",
+            "why": "Age and gender are not relevant to the absence of investigations.",
+            "correction": "Review age and gender appropriateness of investigations.",
+            "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+            "confidence": "low",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Inv.demo.2:1",
+            "section": "Inv",
+            "rule_name": "inv_demo_2_protocol_review",
+            "rule_id": "Inv.demo.2",
+            "why": "Region is not relevant to the absence of investigations.",
+            "correction": "Review region-specific appropriateness of investigations.",
+            "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+            "confidence": "low",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Inv.cc:1",
+            "section": "Inv",
+            "rule_name": "inv_cc_protocol_review",
+            "rule_id": "Inv.cc",
+            "why": "Acute viral hepatitis diagnosis supports investigations.",
+            "correction": "Consider investigations to support the diagnosis of acute viral hepatitis.",
+            "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "Inv.hs:1",
+            "section": "Inv",
+            "rule_name": "inv_hs_protocol_review",
+            "rule_id": "Inv.hs",
+            "why": "Jaundice and elevated liver enzymes justify investigations.",
+            "correction": "Consider investigations to confirm or exclude acute viral hepatitis.",
+            "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "Inv.dx:1",
+            "section": "Inv",
+            "rule_name": "inv_dx_protocol_review",
+            "rule_id": "Inv.dx",
+            "why": "Diagnosis is not provisional, differential, suspected, query, or to-be-confirmed.",
+            "correction": "No confirmatory investigation is required.",
+            "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "hepatic_risk",
+            "rule_id": "Rx.risk.hepatic",
+            "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "correction": "Review Atorvastatin dose and indication in the context of hepatic impairment.",
+            "evidence": "Patient evidence: Jaundice | Medicine facts: Atorvastatin is contraindicated in active liver disease or unexplained persistent elevations of serum transaminases | Atorvastatin should be used with caution in patients who consume substantial quantities of alcohol or have a history of liver disease",
+            "confidence": "high",
+            "concern_level": "critical"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "hepatic_risk",
+            "rule_id": "Rx.risk.hepatic",
+            "why": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "correction": "Review Paracetamol dose and indication in the context of hepatic impairment.",
+            "evidence": "Patient evidence: Jaundice | Medicine facts: Paracetamol should be given with caution to patients with impaired kidney or liver function",
+            "confidence": "high",
+            "concern_level": "major"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Dx [Dx.cc.1]: Acute viral hepatitis aligns with jaundice and loss of appetite, but dyslipidemia is unrelated to the presented complaints.",
+          "Dx [Dx.cc.2]: The diagnosis is not contradicted by the complaints, examination, or investigation results.",
+          "Dx [Dx.context.demo]: The diagnosis is compatible with the patient's age and gender.",
+          "Dx [Dx.hs.1]: Acute viral hepatitis is supported by elevated SGPT and bilirubin, but dyslipidemia lacks supporting evidence from the provided clinical findings.",
+          "Rx [Rx.risk.hepatic]: Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+          "Rx [Rx.risk.hepatic]: Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review."
+        ],
+        "candidate_count": 34,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [
+          {
+            "section": "Rx",
+            "rule_id": "Rx.risk.hepatic",
+            "rule_name": "hepatic_risk",
+            "evidence_strength": "high",
+            "generic_id": "92",
+            "generic_name": "Atorvastatin Calcium",
+            "evidence": "Patient evidence: Jaundice | Medicine facts: Atorvastatin is contraindicated in active liver disease or unexplained persistent elevations of serum transaminases. | Atorvastatin should be used with caution in patients who consume substantial quantities of alcohol or have a history of liver disease.",
+            "why_candidate": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "needs_human_review": true
+          },
+          {
+            "section": "Rx",
+            "rule_id": "Rx.risk.hepatic",
+            "rule_name": "hepatic_risk",
+            "evidence_strength": "high",
+            "generic_id": "860",
+            "generic_name": "Paracetamol",
+            "evidence": "Patient evidence: Jaundice | Medicine facts: Paracetamol should be given with caution to patients with impaired kidney or liver function.",
+            "why_candidate": "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review.",
+            "needs_human_review": true
+          }
+        ],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [
+            {
+              "candidate_id": "Inv.demo.2:1",
+              "section": "Inv",
+              "rule_name": "inv_demo_2_protocol_review",
+              "rule_id": "Inv.demo.2",
+              "why": "Region is not relevant to the absence of investigations.",
+              "correction": "Review region-specific appropriateness of investigations.",
+              "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+              "confidence": "low",
+              "concern_level": "minor"
+            },
+            {
+              "candidate_id": "Inv.cc:1",
+              "section": "Inv",
+              "rule_name": "inv_cc_protocol_review",
+              "rule_id": "Inv.cc",
+              "why": "Acute viral hepatitis diagnosis supports investigations.",
+              "correction": "Consider investigations to support the diagnosis of acute viral hepatitis.",
+              "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "Inv.hs:1",
+              "section": "Inv",
+              "rule_name": "inv_hs_protocol_review",
+              "rule_id": "Inv.hs",
+              "why": "Jaundice and elevated liver enzymes justify investigations.",
+              "correction": "Consider investigations to confirm or exclude acute viral hepatitis.",
+              "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "Inv.dx:1",
+              "section": "Inv",
+              "rule_name": "inv_dx_protocol_review",
+              "rule_id": "Inv.dx",
+              "why": "Diagnosis is not provisional, differential, suspected, query, or to-be-confirmed.",
+              "correction": "No confirmatory investigation is required.",
+              "evidence": "Diagnosis: Acute viral hepatitis, Dyslipidaemia | Investigation: none | Investigation_Results: Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL | Chief_Complaint: Yellow discoloration of eyes for 1 week Loss of appetite | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | On_Examination: Jaundice (Present) | Systemic_Examination: none | Age: 46 | Gender: M",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "live_finding_count": 7,
+          "final_finding_count": 11
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792161200000",
+          "Patient_ID": "SYN-017",
+          "Visit_Date": "2026-10-16 14:33:20",
+          "Age": "46",
+          "Gender": "M",
+          "Chief_Complaint": "Yellow discoloration of eyes for 1 week\nLoss of appetite",
+          "Past_History": "",
+          "Health_Screening": "Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80",
+          "On_Examination": "Jaundice (Present)",
+          "Systemic_Examination": "",
+          "Investigation": "",
+          "Investigation_Results": "Sgpt: SGPT 480 U/L elevated, Bilirubin: Bilirubin 4.2 mg/dL",
+          "Diagnosis": "Acute viral hepatitis, Dyslipidaemia",
+          "Medication": "Atova 40 mg (0 + 0 + 1) - (Continue), Napa 500 mg (2 + 2 + 2) - (5 day(s))",
+          "Advice": "",
+          "ANC_Notes": ""
+        }
+      },
+      "timing": {
+        "total_seconds": 405.219,
+        "live_seconds": 208.766,
+        "final_seconds": 196.454,
+        "llm_seconds": 403.438,
+        "llm_calls": 12,
+        "output_tokens": 7439
+      },
+      "score": {
+        "final": {
+          "expected": 2,
+          "detected": 2,
+          "detected_ids": [
+            "statin_hepatitis",
+            "paracetamol_hepatitis"
+          ],
+          "missed_ids": [],
+          "critical_expected": 0,
+          "critical_detected": 0,
+          "findings": 12,
+          "correct_findings": 2,
+          "significant_findings": 6,
+          "correct_significant_findings": 2
+        },
+        "live": {
+          "expected": 2,
+          "detected": 2,
+          "detected_ids": [
+            "statin_hepatitis",
+            "paracetamol_hepatitis"
+          ],
+          "missed_ids": [],
+          "critical_expected": 0,
+          "critical_detected": 0,
+          "findings": 8,
+          "correct_findings": 2,
+          "significant_findings": 4,
+          "correct_significant_findings": 2
+        }
+      }
+    },
+    {
+      "case_id": "SYN-019",
+      "title": "Paracetamol 8 g per day",
+      "category": "dosing_error",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 42.053,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: High fever and body ache for 2 days",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 42.044
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 0.002,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 0
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 1.353,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 1.161
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 12.674,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 12.671
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 42.769,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 42.569
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 51.606,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "section": "Rx",
+              "rule_name": "dose_exceeds_usual_or_max",
+              "rule_id": "Rx.dose.high",
+              "why": "Calculated daily dose 8000 mg/day exceeds RAG-supported regimen-derived daily amount 4000 mg/day (1000 mg per dose, q6h_like).",
+              "correction": "Review the candidate and its supporting evidence.",
+              "evidence": "Napa 500 mg (4 + 4 + 4 + 4) - (5 day(s))",
+              "confidence": "needs_review",
+              "concern_level": "moderate"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 51.473
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 44.142,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 44.081
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 42.044,
+          "output_tokens": 787,
+          "output_chars": 3607,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 1.161,
+          "output_tokens": 13,
+          "output_chars": 43,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 12.671,
+          "output_tokens": 231,
+          "output_chars": 870,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 42.569,
+          "output_tokens": 793,
+          "output_chars": 2832,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 51.473,
+          "output_tokens": 960,
+          "output_chars": 3325,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 44.081,
+          "output_tokens": 820,
+          "output_chars": 3191,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 41.157,
+          "output_tokens": 777,
+          "output_chars": 2596,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 41.742,
+          "output_tokens": 787,
+          "output_chars": 3607,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 12.647,
+          "output_tokens": 231,
+          "output_chars": 870,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 42.082,
+          "output_tokens": 786,
+          "output_chars": 2818,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 53.541,
+          "output_tokens": 1000,
+          "output_chars": 3391,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 48.215,
+          "output_tokens": 894,
+          "output_chars": 3422,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "needs_review",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: High fever and body ache for 2 days",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Rx.region:1",
+            "section": "Rx",
+            "rule_name": "rx_region_protocol_review",
+            "rule_id": "Rx.region",
+            "why": "Rulebook check Rx.region: Treatment follows Bangladesh standard treatment guidelines.",
+            "correction": "Review treatment against Bangladesh standard treatment guidelines.",
+            "evidence": "Diagnosis: Viral fever | Medication: Napa 500 mg (4 + 4 + 4 + 4) - (5 day(s)) | Chief_Complaint: High fever and body ache for 2 days | Health_Screening: Temperature: 103 F, Pulse Rate: 108 bpm, Blood Pressure: 110/70 | Age: 29 | Gender: M",
+            "confidence": "low",
+            "concern_level": "moderate"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Rx [Rx.region]: Rulebook check Rx.region: Treatment follows Bangladesh standard treatment guidelines."
+        ],
+        "candidate_count": 30,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [
+          {
+            "section": "Rx",
+            "rule_id": "Rx.dose.high",
+            "rule_name": "dose_exceeds_usual_or_max",
+            "evidence_strength": "high",
+            "generic_id": "860",
+            "generic_name": "Paracetamol",
+            "evidence": "Napa 500 mg (4 + 4 + 4 + 4) - (5 day(s))",
+            "why_candidate": "Calculated daily dose 8000 mg/day exceeds RAG-supported regimen-derived daily amount 4000 mg/day (1000 mg per dose, q6h_like).",
+            "needs_human_review": true
+          }
+        ],
+        "live_audit_comparison": {
+          "status": "different",
+          "missing_from_final": [
+            {
+              "section": "Rx",
+              "rule_name": "dose_exceeds_usual_or_max",
+              "rule_id": "Rx.dose.high",
+              "why": "Calculated daily dose 8000 mg/day exceeds RAG-supported regimen-derived daily amount 4000 mg/day (1000 mg per dose, q6h_like).",
+              "correction": "Review the candidate and its supporting evidence.",
+              "evidence": "Napa 500 mg (4 + 4 + 4 + 4) - (5 day(s))",
+              "confidence": "needs_review",
+              "concern_level": "moderate"
+            }
+          ],
+          "new_in_final": [
+            {
+              "candidate_id": "Rx.region:1",
+              "section": "Rx",
+              "rule_name": "rx_region_protocol_review",
+              "rule_id": "Rx.region",
+              "why": "Rulebook check Rx.region: Treatment follows Bangladesh standard treatment guidelines.",
+              "correction": "Review treatment against Bangladesh standard treatment guidelines.",
+              "evidence": "Diagnosis: Viral fever | Medication: Napa 500 mg (4 + 4 + 4 + 4) - (5 day(s)) | Chief_Complaint: High fever and body ache for 2 days | Health_Screening: Temperature: 103 F, Pulse Rate: 108 bpm, Blood Pressure: 110/70 | Age: 29 | Gender: M",
+              "confidence": "low",
+              "concern_level": "moderate"
+            }
+          ],
+          "live_finding_count": 2,
+          "final_finding_count": 2
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792168400000",
+          "Patient_ID": "SYN-019",
+          "Visit_Date": "2026-10-16 16:33:20",
+          "Age": "29",
+          "Gender": "M",
+          "Chief_Complaint": "High fever and body ache for 2 days",
+          "Past_History": "",
+          "Health_Screening": "Temperature: 103 F, Pulse Rate: 108 bpm, Blood Pressure: 110/70",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "",
+          "Investigation_Results": "",
+          "Diagnosis": "Viral fever",
+          "Medication": "Napa 500 mg (4 + 4 + 4 + 4) - (5 day(s))",
+          "Advice": "Plenty of fluids",
+          "ANC_Notes": ""
+        }
+      },
+      "timing": {
+        "total_seconds": 434.529,
+        "live_seconds": 194.599,
+        "final_seconds": 239.929,
+        "llm_seconds": 433.383,
+        "llm_calls": 12,
+        "output_tokens": 8079
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 0,
+          "detected_ids": [],
+          "missed_ids": [
+            "pcm_overdose"
+          ],
+          "critical_expected": 1,
+          "critical_detected": 0,
+          "findings": 2,
+          "correct_findings": 0,
+          "significant_findings": 1,
+          "correct_significant_findings": 0
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "pcm_overdose"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 2,
+          "correct_findings": 1,
+          "significant_findings": 1,
+          "correct_significant_findings": 1
+        }
+      }
+    },
+    {
+      "case_id": "SYN-025",
+      "title": "Diagnosis unsupported by complaints",
+      "category": "diagnostic_error",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 42.02,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Itchy skin rash for 2 days",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 42.011
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 0.002,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 0
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 1.349,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 1.173
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 26.018,
+          "status": "critical",
+          "summary": "2 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Dx",
+              "rule_name": "diagnosis_not_supported_by_chief_complaint",
+              "rule_id": "Dx.cc.1",
+              "why": "Acute myocardial infarction is not a plausible explanation for an itchy skin rash for 2 days.",
+              "correction": "Review the diagnosis in light of the chief complaint.",
+              "evidence": "Diagnosis: Acute myocardial infarction | Chief complaint: Itchy skin rash for 2 days",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "Dx.cc.2:1",
+              "section": "Dx",
+              "rule_name": "dx_cc_2_protocol_review",
+              "rule_id": "Dx.cc.2",
+              "why": "The diagnosis contradicts the chief complaint of an itchy skin rash.",
+              "correction": "Review the diagnosis for consistency with the chief complaint.",
+              "evidence": "Diagnosis: Acute myocardial infarction | Chief_Complaint: Itchy skin rash for 2 days | Health_Screening: Temperature: 98.4 F, Pulse Rate: 76 bpm, Blood Pressure: 120/80 | Investigation_Results: none",
+              "confidence": "high",
+              "concern_level": "major"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 26.013
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 11.491,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 11.305
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 36.989,
+          "status": "critical",
+          "summary": "3 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "Rx.region:1",
+              "section": "Rx",
+              "rule_name": "rx_region_protocol_review",
+              "rule_id": "Rx.region",
+              "why": "Treatment does not align with Bangladesh standard treatment guidelines for acute myocardial infarction.",
+              "correction": "Review treatment against Bangladesh standard treatment guidelines.",
+              "evidence": "Diagnosis: Acute myocardial infarction | Medication: Fexo 120 mg (0 + 0 + 1) - (7 day(s)) | Chief_Complaint: Itchy skin rash for 2 days | Health_Screening: Temperature: 98.4 F, Pulse Rate: 76 bpm, Blood Pressure: 120/80 | Age: 27 | Gender: F",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "Rx.cc.sym:1",
+              "section": "Rx",
+              "rule_name": "rx_cc_sym_protocol_review",
+              "rule_id": "Rx.cc.sym",
+              "why": "Itchy skin rash is a symptom of acute myocardial infarction; no separate medicine is needed.",
+              "correction": "Assess if the itchy skin rash requires separate treatment or is managed by the acute myocardial infarction treatment.",
+              "evidence": "Diagnosis: Acute myocardial infarction | Medication: Fexo 120 mg (0 + 0 + 1) - (7 day(s)) | Chief_Complaint: Itchy skin rash for 2 days | Health_Screening: Temperature: 98.4 F, Pulse Rate: 76 bpm, Blood Pressure: 120/80 | Age: 27 | Gender: F",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "dose_exceeds_usual_or_max",
+              "rule_id": "Rx.dose.high",
+              "why": "Calculated daily dose 120 mg/day exceeds RAG-supported regimen-derived daily amount 60 mg/day.",
+              "correction": "Review dose; consider reducing to 60 mg daily.",
+              "evidence": "Fexo 120 mg (0 + 0 + 1) - (7 day(s))",
+              "confidence": "high",
+              "concern_level": "major"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 36.861
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 36.611,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 36.556
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 42.011,
+          "output_tokens": 787,
+          "output_chars": 3510,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 1.173,
+          "output_tokens": 13,
+          "output_chars": 43,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 26.013,
+          "output_tokens": 483,
+          "output_chars": 1932,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 11.305,
+          "output_tokens": 202,
+          "output_chars": 891,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 36.861,
+          "output_tokens": 682,
+          "output_chars": 2299,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 36.556,
+          "output_tokens": 680,
+          "output_chars": 2652,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 63.522,
+          "output_tokens": 1200,
+          "output_chars": 4239,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 42.041,
+          "output_tokens": 787,
+          "output_chars": 3510,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 26.002,
+          "output_tokens": 483,
+          "output_chars": 1932,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 11.305,
+          "output_tokens": 202,
+          "output_chars": 891,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 36.91,
+          "output_tokens": 682,
+          "output_chars": 2299,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 37.506,
+          "output_tokens": 693,
+          "output_chars": 2700,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "completed",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Itchy skin rash for 2 days",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "",
+            "section": "Dx",
+            "rule_name": "diagnosis_not_supported_by_chief_complaint",
+            "rule_id": "Dx.cc.1",
+            "why": "Acute myocardial infarction is not a plausible explanation for an itchy skin rash for 2 days.",
+            "correction": "Review the diagnosis in light of the chief complaint.",
+            "evidence": "Diagnosis: Acute myocardial infarction | Chief complaint: Itchy skin rash for 2 days",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "Dx.cc.2:1",
+            "section": "Dx",
+            "rule_name": "dx_cc_2_protocol_review",
+            "rule_id": "Dx.cc.2",
+            "why": "The diagnosis contradicts the chief complaint of an itchy skin rash.",
+            "correction": "Review the diagnosis for consistency with the chief complaint.",
+            "evidence": "Diagnosis: Acute myocardial infarction | Chief_Complaint: Itchy skin rash for 2 days | Health_Screening: Temperature: 98.4 F, Pulse Rate: 76 bpm, Blood Pressure: 120/80 | Investigation_Results: none",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "Rx.region:1",
+            "section": "Rx",
+            "rule_name": "rx_region_protocol_review",
+            "rule_id": "Rx.region",
+            "why": "Treatment does not align with Bangladesh standard treatment guidelines for acute myocardial infarction.",
+            "correction": "Review treatment against Bangladesh standard treatment guidelines.",
+            "evidence": "Diagnosis: Acute myocardial infarction | Medication: Fexo 120 mg (0 + 0 + 1) - (7 day(s)) | Chief_Complaint: Itchy skin rash for 2 days | Health_Screening: Temperature: 98.4 F, Pulse Rate: 76 bpm, Blood Pressure: 120/80 | Age: 27 | Gender: F",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "Rx.cc.sym:1",
+            "section": "Rx",
+            "rule_name": "rx_cc_sym_protocol_review",
+            "rule_id": "Rx.cc.sym",
+            "why": "Itchy skin rash is a symptom of acute myocardial infarction; no separate medicine is needed.",
+            "correction": "Assess if the itchy skin rash requires separate treatment or is managed by the acute myocardial infarction treatment.",
+            "evidence": "Diagnosis: Acute myocardial infarction | Medication: Fexo 120 mg (0 + 0 + 1) - (7 day(s)) | Chief_Complaint: Itchy skin rash for 2 days | Health_Screening: Temperature: 98.4 F, Pulse Rate: 76 bpm, Blood Pressure: 120/80 | Age: 27 | Gender: F",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "dose_exceeds_usual_or_max",
+            "rule_id": "Rx.dose.high",
+            "why": "Calculated daily dose 120 mg/day exceeds RAG-supported regimen-derived daily amount 60 mg/day.",
+            "correction": "Review dose; consider reducing to 60 mg daily.",
+            "evidence": "Fexo 120 mg (0 + 0 + 1) - (7 day(s))",
+            "confidence": "high",
+            "concern_level": "major"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Dx [Dx.cc.1]: Acute myocardial infarction is not a plausible explanation for an itchy skin rash for 2 days.",
+          "Dx [Dx.cc.2]: The diagnosis contradicts the chief complaint of an itchy skin rash.",
+          "Rx [Rx.dose.high]: Calculated daily dose 120 mg/day exceeds RAG-supported regimen-derived daily amount 60 mg/day."
+        ],
+        "candidate_count": 32,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [],
+          "live_finding_count": 6,
+          "final_finding_count": 6
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792190000000",
+          "Patient_ID": "SYN-025",
+          "Visit_Date": "2026-10-16 22:33:20",
+          "Age": "27",
+          "Gender": "F",
+          "Chief_Complaint": "Itchy skin rash for 2 days",
+          "Past_History": "",
+          "Health_Screening": "Temperature: 98.4 F, Pulse Rate: 76 bpm, Blood Pressure: 120/80",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "",
+          "Investigation_Results": "",
+          "Diagnosis": "Acute myocardial infarction",
+          "Medication": "Fexo 120 mg (0 + 0 + 1) - (7 day(s))",
+          "Advice": "",
+          "ANC_Notes": ""
+        }
+      },
+      "timing": {
+        "total_seconds": 372.3,
+        "live_seconds": 154.48,
+        "final_seconds": 217.819,
+        "llm_seconds": 371.205,
+        "llm_calls": 12,
+        "output_tokens": 6894
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "dx_cc_mismatch"
+          ],
+          "missed_ids": [],
+          "critical_expected": 0,
+          "critical_detected": 0,
+          "findings": 6,
+          "correct_findings": 2,
+          "significant_findings": 5,
+          "correct_significant_findings": 2
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "dx_cc_mismatch"
+          ],
+          "missed_ids": [],
+          "critical_expected": 0,
+          "critical_detected": 0,
+          "findings": 6,
+          "correct_findings": 2,
+          "significant_findings": 5,
+          "correct_significant_findings": 2
+        }
+      }
+    },
+    {
+      "case_id": "SYN-028",
+      "title": "Metronidazole added to ongoing warfarin (prior visit)",
+      "category": "followup_interaction",
+      "expected_count": 1,
+      "live_sections": [
+        {
+          "section": "chiefComplaints",
+          "recheck": false,
+          "seconds": 41.126,
+          "status": "moderate",
+          "summary": "1 concern requires review.",
+          "findings": [
+            {
+              "candidate_id": "CC.validity:1",
+              "section": "CC",
+              "rule_name": "complaint_not_clinical",
+              "rule_id": "CC.1",
+              "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+              "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+              "evidence": "Entered chief complaint: Loose stool with mucus for 4 days",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 41.117
+        },
+        {
+          "section": "pastHistory",
+          "recheck": false,
+          "seconds": 0.002,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 0
+        },
+        {
+          "section": "investigations",
+          "recheck": false,
+          "seconds": 51.902,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 51.498
+        },
+        {
+          "section": "diagnosis",
+          "recheck": false,
+          "seconds": 19.992,
+          "status": "moderate",
+          "summary": "2 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "Dx.cc.2:1",
+              "section": "Dx",
+              "rule_name": "dx_cc_2_protocol_review",
+              "rule_id": "Dx.cc.2",
+              "why": "The diagnosis is not contradicted by the complaints.",
+              "correction": "No change needed.",
+              "evidence": "Diagnosis: Amoebic dysentery | Chief_Complaint: Loose stool with mucus for 4 days | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | Investigation_Results: none",
+              "confidence": "high",
+              "concern_level": "minor"
+            },
+            {
+              "candidate_id": "Dx.code:1",
+              "section": "Dx",
+              "rule_name": "dx_code_protocol_review",
+              "rule_id": "Dx.code",
+              "why": "The diagnosis is consistent with the available clinical information.",
+              "correction": "No change needed.",
+              "evidence": "Diagnosis: Amoebic dysentery | Chief_Complaint: Loose stool with mucus for 4 days | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | Investigation_Results: none",
+              "confidence": "high",
+              "concern_level": "minor"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 19.984
+        },
+        {
+          "section": "investigations",
+          "recheck": true,
+          "seconds": 7.092,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 6.68
+        },
+        {
+          "section": "rx",
+          "recheck": false,
+          "seconds": 22.337,
+          "status": "critical",
+          "summary": "2 concerns require review.",
+          "findings": [
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "ddi_with_active_prior_medicine",
+              "rule_id": "Rx.followup.ddi",
+              "why": "A current medicine has RAG interaction evidence involving a still-active prior medicine.",
+              "correction": "Urgent clinician/pharmacist review for potential drug interaction between Flagyl and Warfarin. Monitor prothrombin time and adjust anticoagulant therapy as needed.",
+              "evidence": "Prior visit 2026-09-27 01:33:20: Warin 5 mg (0 + 0 + 1) - (Continue) (course_end=ongoing) | Current medicine: Flagyl 400 mg (1 + 1 + 1) - (7 day(s)) [after meal] | Medicine fact: Oral anticoagulant therapy (warfarin type): Potentiation of the anticoagulant effect and increased hemorrhagic risk caused by decreased hepatic catabolism. In case of co-administration, prothrombin time should be more frequently monitored and anticoagulant therapy adjusted during treatment with metronidazole",
+              "confidence": "high",
+              "concern_level": "major"
+            },
+            {
+              "candidate_id": "",
+              "section": "Rx",
+              "rule_name": "dose_exceeds_usual_or_max",
+              "rule_id": "Rx.dose.high",
+              "why": "Calculated daily dose 1200 mg/day exceeds RAG-supported regimen-derived daily amount 600 mg/day (200 mg per dose, q8h_like).",
+              "correction": "Review dosage; consider reducing the daily dose of Metronidazole to align with standard treatment guidelines.",
+              "evidence": "Flagyl 400 mg (1 + 1 + 1) - (7 day(s)) [after meal]",
+              "confidence": "high",
+              "concern_level": "major"
+            }
+          ],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 22.171
+        },
+        {
+          "section": "advice",
+          "recheck": false,
+          "seconds": 10.635,
+          "status": "clear",
+          "summary": "No anomaly detected from the available evidence.",
+          "findings": [],
+          "warnings": [],
+          "error": "",
+          "llm_seconds": 10.549
+        }
+      ],
+      "llm_calls": [
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 41.117,
+          "output_tokens": 769,
+          "output_chars": 3501,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 51.498,
+          "output_tokens": 960,
+          "output_chars": 3616,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 19.984,
+          "output_tokens": 369,
+          "output_chars": 1349,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 6.68,
+          "output_tokens": 117,
+          "output_chars": 506,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 22.171,
+          "output_tokens": 401,
+          "output_chars": 1460,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 10.549,
+          "output_tokens": 187,
+          "output_chars": 678,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "router/classifier",
+          "section": "Dx",
+          "seconds": 63.758,
+          "output_tokens": 1200,
+          "output_chars": 4247,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "CC",
+          "seconds": 41.069,
+          "output_tokens": 769,
+          "output_chars": 3501,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Dx",
+          "seconds": 19.929,
+          "output_tokens": 369,
+          "output_chars": 1349,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Inv",
+          "seconds": 6.671,
+          "output_tokens": 117,
+          "output_chars": 506,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Rx",
+          "seconds": 22.102,
+          "output_tokens": 401,
+          "output_chars": 1460,
+          "error": "",
+          "unsupported": false
+        },
+        {
+          "kind": "adjudication",
+          "section": "Adv",
+          "seconds": 10.483,
+          "output_tokens": 187,
+          "output_chars": 678,
+          "error": "",
+          "unsupported": false
+        }
+      ],
+      "final": {
+        "status": "needs_review",
+        "findings": [
+          {
+            "candidate_id": "CC.validity:1",
+            "section": "CC",
+            "rule_name": "complaint_not_clinical",
+            "rule_id": "CC.1",
+            "why": "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+            "correction": "Clarify and document the patient's actual symptom or reason for consultation.",
+            "evidence": "Entered chief complaint: Loose stool with mucus for 4 days",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Dx.cc.2:1",
+            "section": "Dx",
+            "rule_name": "dx_cc_2_protocol_review",
+            "rule_id": "Dx.cc.2",
+            "why": "The diagnosis is not contradicted by the complaints.",
+            "correction": "No change needed.",
+            "evidence": "Diagnosis: Amoebic dysentery | Chief_Complaint: Loose stool with mucus for 4 days | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | Investigation_Results: none",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "Dx.code:1",
+            "section": "Dx",
+            "rule_name": "dx_code_protocol_review",
+            "rule_id": "Dx.code",
+            "why": "The diagnosis is consistent with the available clinical information.",
+            "correction": "No change needed.",
+            "evidence": "Diagnosis: Amoebic dysentery | Chief_Complaint: Loose stool with mucus for 4 days | Health_Screening: Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80 | Investigation_Results: none",
+            "confidence": "high",
+            "concern_level": "minor"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "ddi_with_active_prior_medicine",
+            "rule_id": "Rx.followup.ddi",
+            "why": "A current medicine has RAG interaction evidence involving a still-active prior medicine.",
+            "correction": "Urgent clinician/pharmacist review for potential drug interaction between Flagyl and Warfarin. Monitor prothrombin time and adjust anticoagulant therapy as needed.",
+            "evidence": "Prior visit 2026-09-27 01:33:20: Warin 5 mg (0 + 0 + 1) - (Continue) (course_end=ongoing) | Current medicine: Flagyl 400 mg (1 + 1 + 1) - (7 day(s)) [after meal] | Medicine fact: Oral anticoagulant therapy (warfarin type): Potentiation of the anticoagulant effect and increased hemorrhagic risk caused by decreased hepatic catabolism. In case of co-administration, prothrombin time should be more frequently monitored and anticoagulant therapy adjusted during treatment with metronidazole",
+            "confidence": "high",
+            "concern_level": "major"
+          },
+          {
+            "candidate_id": "",
+            "section": "Rx",
+            "rule_name": "dose_exceeds_usual_or_max",
+            "rule_id": "Rx.dose.high",
+            "why": "Calculated daily dose 1200 mg/day exceeds RAG-supported regimen-derived daily amount 600 mg/day (200 mg per dose, q8h_like).",
+            "correction": "Review dosage; consider reducing the daily dose of Metronidazole to align with standard treatment guidelines.",
+            "evidence": "Flagyl 400 mg (1 + 1 + 1) - (7 day(s)) [after meal]",
+            "confidence": "high",
+            "concern_level": "major"
+          }
+        ],
+        "summary": [
+          "CC [CC.1]: This entry does not clearly describe a clinical symptom, health concern, or reason for consultation.",
+          "Dx [Dx.cc.2]: The diagnosis is not contradicted by the complaints.",
+          "Rx [Rx.dose.high]: Calculated daily dose 1200 mg/day exceeds RAG-supported regimen-derived daily amount 600 mg/day (200 mg per dose, q8h_like).",
+          "Rx [Rx.followup.ddi]: A current medicine has RAG interaction evidence involving a still-active prior medicine."
+        ],
+        "candidate_count": 32,
+        "warnings": [],
+        "rejected_high_evidence_candidates": [
+          {
+            "section": "Rx",
+            "rule_id": "Rx.followup.ddi",
+            "rule_name": "ddi_with_active_prior_medicine",
+            "evidence_strength": "high",
+            "generic_id": "",
+            "generic_name": "",
+            "evidence": "Prior visit 2026-09-27 01:33:20: Warin 5 mg (0 + 0 + 1) - (Continue) (course_end=ongoing) | Current medicine: Flagyl 400 mg (1 + 1 + 1) - (7 day(s)) [after meal] | Medicine fact: Oral anticoagulant therapy (warfarin type): Potentiation of the anticoagulant effect and increased hemorrhagic risk caused by decreased hepatic catabolism. In case of co-administration, prothrombin time should be more frequently monitored and anticoagulant therapy adjusted during treatment with metronidazole.",
+            "why_candidate": "A current medicine has RAG interaction evidence involving a still-active prior medicine.",
+            "needs_human_review": true
+          }
+        ],
+        "live_audit_comparison": {
+          "status": "consistent",
+          "missing_from_final": [],
+          "new_in_final": [],
+          "live_finding_count": 5,
+          "final_finding_count": 5
+        },
+        "pipeline_input": {
+          "Prescription_ID": "1792200800000",
+          "Patient_ID": "SYN-028",
+          "Visit_Date": "2026-10-17 01:33:20",
+          "Age": "60",
+          "Gender": "F",
+          "Chief_Complaint": "Loose stool with mucus for 4 days",
+          "Past_History": "",
+          "Health_Screening": "Temperature: 99 F, Pulse Rate: 88 bpm, Blood Pressure: 120/80",
+          "On_Examination": "",
+          "Systemic_Examination": "",
+          "Investigation": "Stool R/E",
+          "Investigation_Results": "",
+          "Diagnosis": "Amoebic dysentery",
+          "Medication": "Flagyl 400 mg (1 + 1 + 1) - (7 day(s)) [after meal]",
+          "Advice": "",
+          "ANC_Notes": ""
+        }
+      },
+      "timing": {
+        "total_seconds": 317.869,
+        "live_seconds": 153.086,
+        "final_seconds": 164.783,
+        "llm_seconds": 316.011,
+        "llm_calls": 12,
+        "output_tokens": 5846
+      },
+      "score": {
+        "final": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "followup_ddi_warfarin"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 5,
+          "correct_findings": 1,
+          "significant_findings": 2,
+          "correct_significant_findings": 1
+        },
+        "live": {
+          "expected": 1,
+          "detected": 1,
+          "detected_ids": [
+            "followup_ddi_warfarin"
+          ],
+          "missed_ids": [],
+          "critical_expected": 1,
+          "critical_detected": 1,
+          "findings": 5,
+          "correct_findings": 1,
+          "significant_findings": 2,
+          "correct_significant_findings": 1
+        }
+      }
+    }
+  ]
+}

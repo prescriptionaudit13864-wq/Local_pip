@@ -1,0 +1,43 @@
+aliases:
+  - aliases:
+      - "Acme's ORS"
+      - "Acme ORS"
+      - "ORS"
+      - "Oral Rehydration Salts"
+    generic_name_candidates:
+      - "Oral Rehydration Salt [Powder]"
+      - "Oral Rehydration Salt [Flavored]"
+      - "Oral Rehydration Salt [Rice Based]"
+    known_supportive_item: true
+    supportive_type: oral_rehydration
+    requires_meal_timing: false
+    dosage_form: Oral Powder
+
+  - aliases:
+      - "Medical Compresed Oxygen"
+      - "Medical Compressed Oxygen"
+      - "Oxygen"
+    generic_name_candidates:
+      - "Medical Compressed Oxygen"
+      - "Oxygen"
+    known_supportive_item: true
+    supportive_type: oxygen
+    requires_meal_timing: false
+
+  - aliases:
+      - "Tetanus toxoid"
+      - "TT vaccine"
+      - "Tetanus vaccine"
+    generic_name_candidates:
+      - "Adsorbed Tetanus Vaccine"
+    known_supportive_item: true
+    supportive_type: vaccine
+    requires_meal_timing: false
+
+  - aliases:
+      - "Amoxiclav"
+      - "Amoxiclav 625"
+      - "Co-amoxiclav"
+      - "Co amoxiclav"
+    generic_name_candidates:
+      - "Amoxicillin + Clavulanic Acid"

@@ -1,0 +1,267 @@
+source_no,category,display_name,canonical_name
+1,Biochemistry,BILIRUBIN D/I,Bilirubin direct and indirect
+2,Biochemistry,CKMB,Creatine kinase-MB
+3,Biochemistry,S. ACID PHOSPHATASE,Serum acid phosphatase
+4,Biochemistry,S. AG RATIO,Serum albumin-globulin ratio
+5,Biochemistry,S. ALBUMIN,Serum albumin
+6,Biochemistry,S. ALKALIN PHOSPHATASE,Serum alkaline phosphatase
+7,Biochemistry,S. AMYLASE,Serum amylase
+8,Biochemistry,S. ANTI CARDIOLIPIN AB,Serum anticardiolipin antibody
+9,Biochemistry,S. ANTI PHOSPHOLIPID AB,Serum antiphospholipid antibody
+10,Biochemistry,APTT,Activated partial thromboplastin time
+11,Biochemistry,B.N.P,B-type natriuretic peptide
+12,Biochemistry,S. BILIRUBIN (Total),Serum total bilirubin
+13,Biochemistry,S. BILIRUBIN (ADULT),Serum bilirubin adult
+14,Biochemistry,S. BILIRUBIN (INFANT),Serum bilirubin infant
+15,Biochemistry,BUN,Blood urea nitrogen
+16,Biochemistry,S. CALCIUM,Serum calcium
+17,Biochemistry,CALCIUM CREATININE RATIO,Urine calcium-creatinine ratio
+18,Biochemistry,CCR,Creatinine clearance rate
+19,Biochemistry,S. CHOLESTEROL,Serum cholesterol
+20,Biochemistry,CO2,Serum total carbon dioxide
+21,Biochemistry,CPK,Creatine phosphokinase
+22,Biochemistry,S. CREATININE (GOV.RATE),Serum creatinine
+23,Biochemistry,CSF ADA,Cerebrospinal fluid adenosine deaminase
+24,Biochemistry,CSF BIO-CHEM.,Cerebrospinal fluid biochemistry
+25,Biochemistry,CSF PROTEIN,Cerebrospinal fluid protein
+26,Biochemistry,CYTOLOGY,Cytology
+27,Biochemistry,eGFR,Estimated glomerular filtration rate
+28,Biochemistry,S. ELECTROLYTES,Serum electrolytes
+29,Biochemistry,FLUID FOR LDH,Body fluid lactate dehydrogenase
+30,Biochemistry,G.F.R.,Glomerular filtration rate
+31,Biochemistry,G.T.T (2 Sample),Glucose tolerance test two-sample
+32,Biochemistry,G.T.T (3 Sample),Glucose tolerance test three-sample
+33,Biochemistry,G.T.T (4 Sample),Glucose tolerance test four-sample
+34,Biochemistry,Gamma GT,Gamma-glutamyl transferase
+35,Biochemistry,GLOBULIN,Serum globulin
+36,Biochemistry,HDL,High-density lipoprotein cholesterol
+37,Biochemistry,ICT-HCV,Immunochromatographic test for hepatitis C virus
+38,Biochemistry,S. Iron Profile,Serum iron profile
+39,Biochemistry,K+,Serum potassium
+40,Biochemistry,KFT (Kidney Function Test),Kidney function tests
+41,Biochemistry,LDH,Lactate dehydrogenase
+42,Biochemistry,LDL,Low-density lipoprotein cholesterol
+43,Biochemistry,LFT,Liver function tests
+44,Biochemistry,LIPID PROFILE,Lipid profile
+45,Biochemistry,NA+,Serum sodium
+46,Biochemistry,OGTT,Oral glucose tolerance test
+47,Biochemistry,PO4 (IN.PHOS),Serum inorganic phosphate
+48,Biochemistry,PROTHOMBIN TIME,Prothrombin time
+49,Biochemistry,Rubella IGG,Rubella IgG antibody
+50,Biochemistry,Rubella IGM,Rubella IgM antibody
+51,Biochemistry,S. ACTH,Serum adrenocorticotropic hormone
+52,Biochemistry,S. Iron,Serum iron
+53,Biochemistry,S. Lipase,Serum lipase
+54,Biochemistry,S. Magnesium,Serum magnesium
+55,Biochemistry,S. Pro Calcitonin,Serum procalcitonin
+56,Biochemistry,S. FOLATE,Serum folate
+57,Biochemistry,S. Homocystein,Serum homocysteine
+58,Biochemistry,S. LITHIUM,Serum lithium
+59,Biochemistry,S. TOTAL PROTEIN,Serum total protein
+60,Biochemistry,SGOT,Aspartate aminotransferase
+61,Biochemistry,SGPT,Alanine aminotransferase
+62,Biochemistry,Sugar Profile,Blood glucose profile
+63,Biochemistry,Sugar Profile (6 Time),Six-point blood glucose profile
+64,Biochemistry,T.P.AG.RATIO,Total protein albumin-globulin ratio
+65,Biochemistry,TG,Triglycerides
+66,Biochemistry,TIBC,Total iron-binding capacity
+67,Biochemistry,Total Acid Phosphatase (F),Total acid phosphatase
+68,Biochemistry,UREA,Serum urea
+69,Biochemistry,URIC ACID,Serum uric acid
+70,Urine,URINE ELECTROLYTES 24 HRS.,Twenty-four-hour urine electrolytes
+71,Urine,URINE AMYLASE,Urine amylase
+72,Urine,URINE CREATININE,Urine creatinine
+73,Urine,Urine for ACR,Urine albumin-creatinine ratio
+74,Urine,URINE FOR SODIUM,Urine sodium
+75,Urine,URINE R/E ELECTROLYTES,Urine routine examination and electrolytes
+76,Urine,URINE R/E ELECTROLYTES 24 HRS.,Twenty-four-hour urine routine examination and electrolytes
+77,Urine,URINARY OSMOLARITY,Urine osmolality
+78,Biochemistry,Vit-D,Vitamin D
+79,Endoscopy,Colonoscopic Polypectomy double,Colonoscopic double polypectomy
+80,Endoscopy,Colonoscopic Polypectomy single,Colonoscopic single polypectomy
+81,Endoscopy,COLONOSCOPY (FULL),Full colonoscopy
+82,Endoscopy,COLONOSCOPY (SHORT),Short colonoscopy
+83,Vascular imaging,Doppler study of both upper limbs,Bilateral upper-limb Doppler study
+84,Vascular imaging,Duplex study of Neck Vessel,Neck-vessel duplex study
+85,Vascular imaging,Duplex study of venous system Both lower limb,Bilateral lower-limb venous duplex study
+86,Vascular imaging,Duplex study of venous system Left lower limb,Left lower-limb venous duplex study
+87,Vascular imaging,Duplex study of venous system Left upper limb,Left upper-limb venous duplex study
+88,Vascular imaging,Duplex study of venous system Right lower limb,Right lower-limb venous duplex study
+89,Vascular imaging,Duplex study of venous system Right upper limb,Right upper-limb venous duplex study
+90,Endoscopy,Colposcopy,Colposcopy
+91,Radiography,CR. Knee Jt. B/V,Bilateral-view knee-joint radiograph
+92,Radiography,CR. L/S Spine L/V,Lateral-view lumbosacral-spine radiograph
+93,Radiography,CR. Lt. Leg/Ft. B/V,Left leg and foot bilateral-view radiograph
+94,Radiography,CR. SI Joint B/V,Sacroiliac-joint bilateral-view radiograph
+95,Radiography,CR. Wrist B/V,Wrist bilateral-view radiograph
+96,Radiography,CR. Ankle Jt. B/V Rt/Lt,Right or left ankle-joint bilateral-view radiograph
+97,Radiography,CR. ARM B/V,Arm bilateral-view radiograph
+98,Radiography,CR. Ba. Enema,Barium enema radiograph
+99,Radiography,CR. Ba-Swallow,Barium swallow radiograph
+100,Radiography,CR. Both Knee Joint,Both-knee radiograph
+101,Radiography,CR. By Two film 100%,Two-film computed radiography
+102,Radiography,CR. C/Spine A/L/B Oblique,Cervical-spine AP lateral and oblique radiographs
+103,Radiography,CR. C/Spine AP,Cervical-spine AP radiograph
+104,Radiography,CR. C/Spine B/V,Cervical-spine bilateral-view radiograph
+105,Radiography,CR. Chest A/P,Chest AP radiograph
+106,Radiography,CR. Chest Lt. L/V,Left lateral-view chest radiograph
+107,Radiography,CR. Chest P/A,Chest PA radiograph
+108,Radiography,CR. Chest Rt. L/V,Right lateral-view chest radiograph
+109,Radiography,CR. D. Spine B/V,Dorsal-spine bilateral-view radiograph
+110,Radiography,CR. D.L. Spine B/V,Dorsolumbar-spine bilateral-view radiograph
+111,Radiography,CR. Elbow Jt. B/V,Elbow-joint bilateral-view radiograph
+112,Radiography,CR. Foot B/V,Foot bilateral-view radiograph
+113,Radiography,CR. Hand R/L,Right or left hand radiograph
+114,Radiography,CR. Heel Rt/Lt,Right or left heel radiograph
+115,Radiography,CR. IVU & MCU,Intravenous urography and micturating cystourethrogram
+116,Radiography,CR. IVU/IVP,Intravenous urography or pyelography
+117,Radiography,CR. Knee Joint,Knee-joint radiograph
+118,Radiography,CR. KUB 100%,Kidney ureter and bladder radiograph
+119,Radiography,CR. L/S Spine B/V 100%,Lumbosacral-spine bilateral-view radiograph
+120,Radiography,CR. Leg,Leg radiograph
+121,Radiography,CR. Leg/Ft B/V,Leg and foot bilateral-view radiograph
+122,Radiography,CR. Neck B/V,Neck bilateral-view radiograph
+123,Radiography,CR. NECK L/V,Neck lateral-view radiograph
+124,Radiography,CR. Nose,Nasal-bone radiograph
+125,Radiography,CR. Pelvis A/P,Pelvis AP radiograph
+126,Radiography,CR. Pelvis B/V,Pelvis bilateral-view radiograph
+127,Radiography,CR. PNS OM view,Paranasal-sinus occipitomental-view radiograph
+128,Radiography,CR. Shoulder AP,Shoulder AP radiograph
+129,Radiography,CR. Shoulder Jt. B/V,Shoulder-joint bilateral-view radiograph
+130,Radiography,CR. Skull B/V,Skull bilateral-view radiograph
+131,Radiography,CR. Wrist /ARM,Wrist or arm radiograph
+132,Radiography,X-Ray OPG,Orthopantomogram
+133,CT,CT-Abdominal Angiogram,CT abdominal angiography
+134,CT,CT-ANY joint,CT of any joint
+135,CT,CT of Ankle,CT of ankle
+136,CT,CT of Arm,CT of arm
+137,CT,CT of Shoulder Joint,CT of shoulder joint
+138,CT,CT of D/S Spine,CT of dorsal spine
+139,CT,"CT of Ear/Elbow, Face, Foot, Hand",CT of ear elbow face foot or hand
+140,CT,CT of Knee,CT of knee
+141,CT,CT of L/S Spine,CT of lumbosacral spine
+142,CT,CT Scan of HBS,CT of hepatobiliary system
+143,CT,CT Scan of Hip Joint,CT of hip joint
+144,CT,CT Scan of Knee Joint,CT of knee joint
+145,CT,CT Scan of Whole Body,Whole-body CT
+146,CT,CT Scan of W.B,Whole-body CT
+147,CT,CT Scan of Lower Abdomen,CT of lower abdomen
+148,CT,CT Scan of Upper Abdomen,CT of upper abdomen
+149,CT,CT-BRAIN/HEAD/SKULL,CT of brain head or skull
+150,CT,CT-CERVICAL SPINE,CT of cervical spine
+151,CT,CT-CHEST (GOVT.RATE),CT of chest
+152,CT,CT-CHEST HRCT,High-resolution CT of chest
+153,CT,CT-CT BIOPSY (CT+BIOPSY+PATH),CT-guided biopsy with histopathology
+154,CT,CT-NECK,CT of neck
+155,CT,CT-WHOLE ABDOMEN,CT of whole abdomen
+156,Cardiology,ECG,Electrocardiogram
+157,Cardiology,ECHO-CARDIOGRAM,Echocardiogram
+158,Immunoassay,A.FETO-PROTEIN,Alpha-fetoprotein
+159,Immunoassay,ALDOLASE,Serum aldolase
+160,Immunoassay,ANA,Antinuclear antibody
+161,Immunoassay,ANF,Antinuclear factor
+162,Immunoassay,ANTI CMV ANTI BODY IGG,Cytomegalovirus IgG antibody
+163,Immunoassay,ANTI CMV ANTI BODY IGM,Cytomegalovirus IgM antibody
+164,Immunoassay,ANTI DS DNA,Anti-double-stranded DNA antibody
+165,Immunoassay,Anti H Pylori IgG,Helicobacter pylori IgG antibody
+166,Immunoassay,Anti HBe,Hepatitis B e antibody
+167,Immunoassay,Anti HEV IgM,Hepatitis E IgM antibody
+168,Immunoassay,"Anti HIV-1,2",HIV-1 and HIV-2 antibody
+169,Immunoassay,ANTI-HCV,Hepatitis C virus antibody
+170,Immunoassay,Anti-HCV,Hepatitis C virus antibody
+171,Immunoassay,B-HCG,Beta human chorionic gonadotropin
+172,Immunoassay,C. Anca,C-ANCA
+173,Immunoassay,CA-15.3,Cancer antigen 15-3
+174,Immunoassay,CA-19.9,Cancer antigen 19-9
+175,Immunoassay,CEA,Carcinoembryonic antigen
+176,Immunoassay,CFT KALA AZAR,Complement fixation test for kala-azar
+177,Immunoassay,CORTISOL,Serum cortisol
+178,Immunoassay,Covid-19 Rapid Antigen Test,COVID-19 rapid antigen test
+179,Immunoassay,D-DIMAR (GOV.RATE),D-dimer
+180,Immunoassay,DENGU ANTIBODY (IgG & IgM),Dengue IgG and IgM antibodies
+181,Immunoassay,Ferritin (GOV.RATE),Serum ferritin
+182,Immunoassay,FSH,Follicle-stimulating hormone
+183,Immunoassay,FT3,Free triiodothyronine
+184,Immunoassay,FT3&FT4,Free T3 and free T4
+185,Immunoassay,FT4,Free thyroxine
+186,Immunoassay,HbA1C,Glycated hemoglobin
+187,Immunoassay,HBeAg,Hepatitis B e antigen
+188,Immunoassay,HBsAb,Hepatitis B surface antibody
+189,Immunoassay,HbsAg (Confirmatory),Hepatitis B surface antigen confirmatory test
+190,Immunoassay,High Sensitivity Troponin-I,High-sensitivity troponin I
+191,Immunoassay,HSV 1 & 2 IgG,Herpes simplex virus 1 and 2 IgG
+192,Immunoassay,HSV 1 & 2 IgM,Herpes simplex virus 1 and 2 IgM
+193,Immunoassay,IgA,Immunoglobulin A
+194,Immunoassay,IgE,Immunoglobulin E
+195,Immunoassay,IgG,Immunoglobulin G
+196,Immunoassay,NS1,Dengue NS1 antigen
+197,Immunoassay,P. Anca,P-ANCA
+198,Immunoassay,PSA,Prostate-specific antigen
+199,Immunoassay,RT-PCR (Covid-19) Test,COVID-19 RT-PCR
+200,Immunoassay,Rubella Antibody Titre,Rubella antibody titre
+201,Immunoassay,"Rubella IgG, IgM",Rubella IgG and IgM antibodies
+202,Immunoassay,S. Fibrinogen,Serum fibrinogen
+203,Immunoassay,S. Folic Acid,Serum folic acid
+204,Immunoassay,TB-IgG,Tuberculosis IgG antibody
+205,Immunoassay,TB-IgM,Tuberculosis IgM antibody
+206,Hormone,S. TESTOSTERONE,Serum testosterone
+207,Hormone,TSH,Thyroid-stimulating hormone
+208,Endoscopy,Endoscopy Band ligation,Endoscopic band ligation
+209,Endoscopy,Endoscopy Upper G.I,Upper gastrointestinal endoscopy
+210,Endoscopy,FOL,Fibreoptic laryngoscopy
+211,Endoscopy,Proctoscopy,Proctoscopy
+212,FNAC,FNAC MASS,Fine-needle aspiration cytology of mass
+213,FNAC,USG Guided FNAC,Ultrasound-guided fine-needle aspiration cytology
+214,Hematology,CBC,Complete blood count
+215,Hematology,ESR,Erythrocyte sedimentation rate
+216,Hematology,Hb Electrophoresis,Hemoglobin electrophoresis
+217,Hematology,Hb% TC DC ESR,Hemoglobin total count differential count and ESR
+218,Hematology,Protein Electrophoresis,Protein electrophoresis
+219,Histopathology,Histo appendix,Histopathology of appendix
+220,Histopathology,Histo Breast,Histopathology of breast
+221,Histopathology,Histo Breast Nodule,Histopathology of breast nodule
+222,Histopathology,Histo Breast with axillary lymph node,Histopathology of breast with axillary lymph node
+223,Histopathology,Histo Colonoscopy,Histopathology of colonoscopic biopsy
+224,Histopathology,Histo Gallbladder,Histopathology of gallbladder
+225,Histopathology,Histo Kidney,Histopathology of kidney
+226,Histopathology,Histo Lipoma,Histopathology of lipoma
+227,Immunology,PSA ratio,Prostate-specific antigen ratio
+228,Immunology,Quantiferon TB Gold Plus,QuantiFERON-TB Gold Plus
+229,Microbiology,Blood C/S (Fan Method),Blood culture and sensitivity fan method
+230,Microbiology,CSF FOR C/S,Cerebrospinal fluid culture and sensitivity
+231,Microbiology,CV Line Tip for C/S,Central venous line-tip culture and sensitivity
+232,Microbiology,HVS C/S,High vaginal swab culture and sensitivity
+233,Microbiology,NASAL SWAB C/S,Nasal-swab culture and sensitivity
+234,Microbiology,PUS FOR C/S,Pus culture and sensitivity
+235,Microbiology,SPUTUM C/S,Sputum culture and sensitivity
+236,Microbiology,STOOL C/S,Stool culture and sensitivity
+237,Microbiology,Th. Swab for C/S,Throat-swab culture and sensitivity
+238,Microbiology,URINE C/S,Urine culture and sensitivity
+239,MRI,MRA BRAIN,Magnetic resonance angiography of brain
+240,MRI,MRCP,Magnetic resonance cholangiopancreatography
+241,MRI,MRI Brain & MRV,Brain MRI and magnetic resonance venography
+242,MRI,MRI BRAIN & PNS,MRI of brain and paranasal sinuses
+243,MRI,MRI BREAST,Breast MRI
+244,MRI,MRI CERVICAL SPINE,Cervical-spine MRI
+245,MRI,MRI CERVICO-DORSAL,Cervicodorsal-spine MRI
+246,MRI,MRI CHEST,Chest MRI
+247,MRI,MRI DORSAL + CERVICAL SPINE,Dorsal and cervical-spine MRI
+248,MRI,MRI DORSAL + LUMBAR SPINE,Dorsal and lumbar-spine MRI
+249,MRI,MRI DORSAL SPINE,Dorsal-spine MRI
+250,Ultrasound,USG BREAST LT/RT (Color),Color ultrasound of right or left breast
+251,Ultrasound,USG Upper Abdomen,Ultrasound of upper abdomen
+252,Ultrasound,USG CHEST Lt/Rt COLOR,Color ultrasound of right or left chest
+253,Ultrasound,USG Fetal Anomaly Biophysical,Fetal anomaly and biophysical ultrasound
+254,Ultrasound,USG for TVS Colour,Color transvaginal ultrasound
+255,Ultrasound,USG H.R. PREGNANCY,High-risk pregnancy ultrasound
+256,Ultrasound,USG HBS & Pelvic Organ,Ultrasound of hepatobiliary system and pelvic organs
+257,Ultrasound,"USG HBS, KUB, Prostate & PVR",Ultrasound of hepatobiliary system KUB prostate and post-void residual
+258,Ultrasound,USG KUB REGION PVR,Ultrasound of KUB region with post-void residual
+259,Ultrasound,USG LOWER ABDOMEN,Ultrasound of lower abdomen
+260,Ultrasound,USG PELVIC ORGANS & KUB,Ultrasound of pelvic organs and KUB
+261,Ultrasound,USG Pregnancy Profile,Pregnancy-profile ultrasound
+262,Ultrasound,USG WHOLE ABDOMEN,Ultrasound of whole abdomen
+263,Radiography,X-Ray OPG,Orthopantomogram
+264,Pulmonary function,Bronchoprovocation test,Bronchoprovocation test
+265,Pulmonary function,Spirometry with Reversibility test,Spirometry with bronchodilator reversibility
+266,Urology,Uroflowmetry,Uroflowmetry

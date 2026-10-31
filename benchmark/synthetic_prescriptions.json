@@ -1,0 +1,3712 @@
+{
+  "description": "Synthetic PrescribeX prescriptions with known prescribing errors. Fictional patients; not medical advice. expected_errors lists the error(s) a reviewer should catch; clean_control cases should produce no clinically significant finding.",
+  "cases": [
+    {
+      "case_id": "SYN-001",
+      "title": "Male patient documented as pregnant",
+      "category": "demographic_conflict",
+      "patient": {
+        "id": 9000001,
+        "name": "Synthetic 001",
+        "serial": "SYN-001",
+        "ageValue": "32",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792103600000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Lower abdominal pain for 2 days"
+          },
+          {
+            "id": 2,
+            "text": "Nausea and vomiting in the morning"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [
+          {
+            "id": 1,
+            "text": "Pregnant, 20 weeks gestation"
+          }
+        ],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.6",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "84",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Hyperemesis gravidarum"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Folison",
+            "strength": "5 mg",
+            "dosage": "0+0+1",
+            "duration": "30 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Regular antenatal check-up"
+          }
+        ],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "male_pregnancy",
+          "section": "any",
+          "severity": "critical",
+          "description": "Pregnancy / ANC documented for a male patient",
+          "rule_ids": [
+            "Demo.1",
+            "CC.demo",
+            "Dx.demo",
+            "CC.context",
+            "Dx.context",
+            "Hx.context"
+          ],
+          "keywords": [
+            "pregnan"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-002",
+      "title": "Female-only diagnosis in a male patient",
+      "category": "demographic_conflict",
+      "patient": {
+        "id": 9000002,
+        "name": "Synthetic 002",
+        "serial": "SYN-002",
+        "ageValue": "41",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792107200000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Irregular menstruation for 6 months"
+          },
+          {
+            "id": 2,
+            "text": "Weight gain"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "78",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "130/85",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Polycystic ovary syndrome"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Comet",
+            "strength": "500 mg",
+            "dosage": "1+0+1",
+            "duration": "3 months",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "sex_specific_dx",
+          "section": "any",
+          "severity": "critical",
+          "description": "Ovarian/menstrual diagnosis in a male",
+          "rule_ids": [
+            "Dx.demo",
+            "CC.demo",
+            "Demo.1",
+            "Dx.context",
+            "CC.context"
+          ],
+          "keywords": [
+            "ovar",
+            "menstru",
+            "polycystic"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-003",
+      "title": "Erectile-dysfunction drug for a 4-year-old",
+      "category": "demographic_conflict",
+      "patient": {
+        "id": 9000003,
+        "name": "Synthetic 003",
+        "serial": "SYN-003",
+        "ageValue": "4",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792110800000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Fever for 1 day"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "101",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "110",
+            "unit": "bpm"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Erectile dysfunction"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Silagra",
+            "strength": "50 mg",
+            "dosage": "1+0+0",
+            "duration": "10 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "16",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "age_specific_dx",
+          "section": "Dx",
+          "severity": "critical",
+          "description": "Adult-only diagnosis in a 4-year-old",
+          "rule_ids": [
+            "Dx.demo",
+            "Dx.cc",
+            "Dx.context"
+          ],
+          "keywords": [
+            "age",
+            "child",
+            "pediatric",
+            "erectile"
+          ]
+        },
+        {
+          "id": "sildenafil_child",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Sildenafil prescribed to a child",
+          "rule_ids": [
+            "Rx.demo",
+            "Rx.risk.pediatric",
+            "Rx.dose",
+            "Rx.indication",
+            "Rx.cc"
+          ],
+          "keywords": [
+            "sildenafil",
+            "silagra",
+            "child",
+            "pediatric"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-004",
+      "title": "Clarithromycin with simvastatin",
+      "category": "drug_drug_interaction",
+      "patient": {
+        "id": 9000004,
+        "name": "Synthetic 004",
+        "serial": "SYN-004",
+        "ageValue": "58",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792114400000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Cough with yellow sputum for 5 days"
+          },
+          {
+            "id": 2,
+            "text": "Fever for 4 days"
+          }
+        ],
+        "pastHistory": [
+          {
+            "id": 1,
+            "text": "Hyperlipidaemia on simvastatin"
+          }
+        ],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "101.5",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "98",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "130/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "Chest X-ray P/A view"
+          },
+          {
+            "id": 2,
+            "text": "CBC"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Community acquired pneumonia"
+          },
+          {
+            "id": 2,
+            "text": "Hyperlipidaemia"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Clarin",
+            "strength": "500 mg",
+            "dosage": "1+0+1",
+            "duration": "7 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Novastin",
+            "strength": "10 mg",
+            "dosage": "0+0+1",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Plenty of fluids"
+          }
+        ],
+        "followUps": [
+          {
+            "id": 1,
+            "text": "Review after 7 days"
+          }
+        ],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "ddi_clarithro_simva",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Clarithromycin + simvastatin: rhabdomyolysis (contraindicated)",
+          "rule_ids": [
+            "Rx.ddi"
+          ],
+          "keywords": [
+            "simvastatin",
+            "clarithromycin",
+            "rhabdo",
+            "myopathy",
+            "interaction"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-005",
+      "title": "Triple antithrombotic therapy",
+      "category": "drug_drug_interaction",
+      "patient": {
+        "id": 9000005,
+        "name": "Synthetic 005",
+        "serial": "SYN-005",
+        "ageValue": "67",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792118000000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Palpitation for 1 week"
+          }
+        ],
+        "pastHistory": [
+          {
+            "id": 1,
+            "text": "Coronary stent 1 month ago"
+          }
+        ],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "112",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "140/90",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "ECG"
+          },
+          {
+            "id": 2,
+            "text": "INR"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Atrial fibrillation"
+          },
+          {
+            "id": 2,
+            "text": "Ischaemic heart disease"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Warin",
+            "strength": "5 mg",
+            "dosage": "0+0+1",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Ecosprin",
+            "strength": "75 mg",
+            "dosage": "0+1+0",
+            "duration": "Continue",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          },
+          {
+            "medicine": "Clopid",
+            "strength": "75 mg",
+            "dosage": "0+1+0",
+            "duration": "Continue",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 3
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "ddi_bleeding",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Warfarin + aspirin + clopidogrel: major bleeding risk",
+          "rule_ids": [
+            "Rx.ddi",
+            "Rx.ddi.bleeding"
+          ],
+          "keywords": [
+            "bleed",
+            "warfarin",
+            "interaction",
+            "anticoag"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-006",
+      "title": "Tramadol with sertraline",
+      "category": "drug_drug_interaction",
+      "patient": {
+        "id": 9000006,
+        "name": "Synthetic 006",
+        "serial": "SYN-006",
+        "ageValue": "39",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792121600000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Low back pain for 2 weeks"
+          }
+        ],
+        "pastHistory": [
+          {
+            "id": 1,
+            "text": "Major depressive disorder on sertraline"
+          }
+        ],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.2",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "80",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Mechanical low back pain"
+          },
+          {
+            "id": 2,
+            "text": "Depression"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Tramadol",
+            "strength": "50 mg",
+            "dosage": "1+1+1",
+            "duration": "10 days",
+            "instruction": "after meal",
+            "form": "Cap.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Andep",
+            "strength": "50 mg",
+            "dosage": "1+0+0",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Avoid heavy lifting"
+          }
+        ],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "ddi_serotonin",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Tramadol + SSRI: serotonin syndrome / seizure risk",
+          "rule_ids": [
+            "Rx.ddi"
+          ],
+          "keywords": [
+            "serotonin",
+            "tramadol",
+            "sertraline",
+            "seizure",
+            "interaction"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-007",
+      "title": "Sildenafil with isosorbide mononitrate",
+      "category": "drug_drug_interaction",
+      "patient": {
+        "id": 9000007,
+        "name": "Synthetic 007",
+        "serial": "SYN-007",
+        "ageValue": "62",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792125200000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Erectile difficulty for 6 months"
+          },
+          {
+            "id": 2,
+            "text": "Exertional chest pain"
+          }
+        ],
+        "pastHistory": [
+          {
+            "id": 1,
+            "text": "Stable angina"
+          }
+        ],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "76",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "130/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Erectile dysfunction"
+          },
+          {
+            "id": 2,
+            "text": "Stable angina"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Monocard",
+            "strength": "20 mg",
+            "dosage": "1+0+1",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Silagra",
+            "strength": "50 mg",
+            "dosage": "SOS",
+            "duration": "1 month",
+            "instruction": "1 hour before intercourse",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "ddi_nitrate_pde5",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Nitrate + PDE5 inhibitor: profound hypotension",
+          "rule_ids": [
+            "Rx.ddi"
+          ],
+          "keywords": [
+            "nitrate",
+            "hypotension",
+            "sildenafil",
+            "interaction"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-008",
+      "title": "ACE inhibitor + spironolactone + potassium with hyperkalaemia",
+      "category": "drug_drug_interaction",
+      "patient": {
+        "id": 9000008,
+        "name": "Synthetic 008",
+        "serial": "SYN-008",
+        "ageValue": "71",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792128800000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Shortness of breath on exertion"
+          },
+          {
+            "id": 2,
+            "text": "Leg swelling for 2 weeks"
+          }
+        ],
+        "pastHistory": [
+          {
+            "id": 1,
+            "text": "Chronic kidney disease"
+          }
+        ],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.0",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "64",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "110/70",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [
+          {
+            "term": "Serum Electrolytes",
+            "value": "Potassium 6.1 mmol/L"
+          },
+          {
+            "term": "Creatinine",
+            "value": "eGFR 35 mL/min"
+          }
+        ],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Heart failure"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Anapril",
+            "strength": "5 mg",
+            "dosage": "1+0+1",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Inospiron",
+            "strength": "25 mg",
+            "dosage": "1+0+0",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          },
+          {
+            "medicine": "Electro-K",
+            "strength": "500 mg/5 ml",
+            "dosage": "10 ml+0+10 ml",
+            "duration": "Continue",
+            "instruction": "after meal",
+            "form": "Syp.",
+            "generic": "",
+            "id": 3
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "hyperkalaemia",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "K-raising drugs with K+ 6.1 and CKD",
+          "rule_ids": [
+            "Rx.lab.hyperkalemia",
+            "Rx.ddi",
+            "Rx.risk.renal"
+          ],
+          "keywords": [
+            "potassium",
+            "hyperkal",
+            "k+"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-009",
+      "title": "Warfarin in early pregnancy",
+      "category": "pregnancy_contraindication",
+      "patient": {
+        "id": 9000009,
+        "name": "Synthetic 009",
+        "serial": "SYN-009",
+        "ageValue": "28",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792132400000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Left calf swelling and pain for 3 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [
+          {
+            "id": 1,
+            "text": "Pregnant, 10 weeks gestation"
+          }
+        ],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.6",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "92",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "110/70",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "Doppler USG of left leg"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Deep vein thrombosis"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Warin",
+            "strength": "5 mg",
+            "dosage": "0+0+1",
+            "duration": "3 months",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "warfarin_pregnancy",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Warfarin is teratogenic in the 1st trimester",
+          "rule_ids": [
+            "Rx.risk.pregnancy",
+            "Rx.demo"
+          ],
+          "keywords": [
+            "pregnan",
+            "teratogen",
+            "warfarin"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-010",
+      "title": "Misoprostol for gastric ulcer in pregnancy",
+      "category": "pregnancy_contraindication",
+      "patient": {
+        "id": 9000010,
+        "name": "Synthetic 010",
+        "serial": "SYN-010",
+        "ageValue": "26",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792136000000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Epigastric pain for 2 weeks"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [
+          {
+            "id": 1,
+            "text": "Pregnant, 14 weeks"
+          }
+        ],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "80",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "110/70",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Peptic ulcer disease"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Cytomis",
+            "strength": "200 mcg",
+            "dosage": "1+1+1",
+            "duration": "14 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Seclo",
+            "strength": "20 mg",
+            "dosage": "1+0+1",
+            "duration": "14 days",
+            "instruction": "before meal",
+            "form": "Cap.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "misoprostol_pregnancy",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Misoprostol is an abortifacient",
+          "rule_ids": [
+            "Rx.risk.pregnancy",
+            "Rx.demo"
+          ],
+          "keywords": [
+            "pregnan",
+            "abort",
+            "misoprostol"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-011",
+      "title": "Losartan for hypertension in pregnancy",
+      "category": "pregnancy_contraindication",
+      "patient": {
+        "id": 9000011,
+        "name": "Synthetic 011",
+        "serial": "SYN-011",
+        "ageValue": "31",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792139600000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Headache for 3 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [
+          {
+            "id": 1,
+            "text": "Pregnant, 26 weeks gestation"
+          }
+        ],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "88",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "150/100",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Gestational hypertension"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Angilock",
+            "strength": "50 mg",
+            "dosage": "1+0+0",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Low salt diet"
+          }
+        ],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "arb_pregnancy",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "ARBs are fetotoxic in 2nd/3rd trimester",
+          "rule_ids": [
+            "Rx.risk.pregnancy",
+            "Rx.demo",
+            "Rx.rag"
+          ],
+          "keywords": [
+            "pregnan",
+            "losartan",
+            "fetal",
+            "fetotox"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-012",
+      "title": "Doxycycline in pregnancy",
+      "category": "pregnancy_contraindication",
+      "patient": {
+        "id": 9000012,
+        "name": "Synthetic 012",
+        "serial": "SYN-012",
+        "ageValue": "24",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792143200000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Burning micturition for 3 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [
+          {
+            "id": 1,
+            "text": "Pregnant, 22 weeks"
+          }
+        ],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "99.5",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "90",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "110/70",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "Urine R/E"
+          },
+          {
+            "id": 2,
+            "text": "Urine C/S"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Urinary tract infection"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Doxacil",
+            "strength": "100 mg",
+            "dosage": "1+0+1",
+            "duration": "7 days",
+            "instruction": "",
+            "form": "Cap.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "tetracycline_pregnancy",
+          "section": "Rx",
+          "severity": "major",
+          "description": "Tetracyclines are contraindicated in pregnancy",
+          "rule_ids": [
+            "Rx.risk.pregnancy",
+            "Rx.demo",
+            "Rx.rag"
+          ],
+          "keywords": [
+            "pregnan",
+            "doxycycline",
+            "tetracycline"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-013",
+      "title": "Amiodarone in a breastfeeding mother",
+      "category": "pregnancy_contraindication",
+      "patient": {
+        "id": 9000013,
+        "name": "Synthetic 013",
+        "serial": "SYN-013",
+        "ageValue": "30",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792146800000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Palpitation for 3 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [
+          {
+            "id": 1,
+            "text": "Lactating mother, baby 2 months old"
+          }
+        ],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "132",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "110/70",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "ECG"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Atrial fibrillation"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Cordarone",
+            "strength": "200 mg",
+            "dosage": "1+1+1",
+            "duration": "7 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Continue breastfeeding"
+          }
+        ],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "amiodarone_lactation",
+          "section": "Rx",
+          "severity": "major",
+          "description": "Amiodarone is contraindicated while breastfeeding",
+          "rule_ids": [
+            "Rx.risk.lactation"
+          ],
+          "keywords": [
+            "lactat",
+            "breast",
+            "amiodarone"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-014",
+      "title": "Pregnancy danger signs without referral",
+      "category": "pregnancy_contraindication",
+      "patient": {
+        "id": 9000014,
+        "name": "Synthetic 014",
+        "serial": "SYN-014",
+        "ageValue": "23",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792150400000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Severe headache with pregnancy"
+          },
+          {
+            "id": 2,
+            "text": "Blurred vision with pregnancy"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [
+          {
+            "id": 1,
+            "text": "Pregnant, 34 weeks gestation"
+          },
+          {
+            "id": 2,
+            "text": "Bilateral leg oedema"
+          }
+        ],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.6",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "96",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "170/110",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Pre-eclampsia"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Napa",
+            "strength": "500 mg",
+            "dosage": "1+1+1",
+            "duration": "3 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Take rest"
+          }
+        ],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "preg_danger_no_referral",
+          "section": "Adv",
+          "severity": "critical",
+          "description": "Severe pre-eclampsia features without urgent referral",
+          "rule_ids": [
+            "Adv.preg.danger",
+            "Adv.refer",
+            "Adv.precau",
+            "Adv.cc"
+          ],
+          "keywords": [
+            "refer",
+            "hospital",
+            "danger",
+            "urgent"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-015",
+      "title": "Amoxicillin-clavulanate despite penicillin allergy",
+      "category": "allergy",
+      "patient": {
+        "id": 9000015,
+        "name": "Synthetic 015",
+        "serial": "SYN-015",
+        "ageValue": "35",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792154000000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Sore throat and fever for 3 days"
+          }
+        ],
+        "pastHistory": [
+          {
+            "id": 1,
+            "text": "Allergy to penicillin, rash and lip swelling"
+          }
+        ],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "101",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "96",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute tonsillitis"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Moxaclav",
+            "strength": "500 mg+125 mg",
+            "dosage": "1+1+1",
+            "duration": "7 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "penicillin_allergy",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Penicillin given to a penicillin-allergic patient",
+          "rule_ids": [
+            "Rx.risk.allergy"
+          ],
+          "keywords": [
+            "allerg",
+            "penicillin"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-016",
+      "title": "Metformin and NSAID in CKD stage 4",
+      "category": "organ_impairment",
+      "patient": {
+        "id": 9000016,
+        "name": "Synthetic 016",
+        "serial": "SYN-016",
+        "ageValue": "64",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792157600000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Knee pain for 1 month"
+          }
+        ],
+        "pastHistory": [
+          {
+            "id": 1,
+            "text": "Type 2 diabetes mellitus"
+          },
+          {
+            "id": 2,
+            "text": "Chronic kidney disease stage 4"
+          }
+        ],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "80",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "140/90",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [
+          {
+            "term": "Creatinine",
+            "value": "eGFR 22 mL/min"
+          }
+        ],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Osteoarthritis of knee"
+          },
+          {
+            "id": 2,
+            "text": "Type 2 diabetes mellitus"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Metfo",
+            "strength": "850 mg",
+            "dosage": "1+0+1",
+            "duration": "Continue",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Ibuflam",
+            "strength": "400 mg",
+            "dosage": "1+1+1",
+            "duration": "14 days",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "metformin_ckd",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Metformin contraindicated at eGFR < 30",
+          "rule_ids": [
+            "Rx.risk.renal"
+          ],
+          "keywords": [
+            "metformin"
+          ]
+        },
+        {
+          "id": "nsaid_ckd",
+          "section": "Rx",
+          "severity": "major",
+          "description": "NSAID in advanced CKD",
+          "rule_ids": [
+            "Rx.risk.renal.nsaid",
+            "Rx.risk.renal"
+          ],
+          "keywords": [
+            "ibuprofen",
+            "nsaid"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-017",
+      "title": "Statin with acute hepatitis",
+      "category": "organ_impairment",
+      "patient": {
+        "id": 9000017,
+        "name": "Synthetic 017",
+        "serial": "SYN-017",
+        "ageValue": "46",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792161200000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Yellow discoloration of eyes for 1 week"
+          },
+          {
+            "id": 2,
+            "text": "Loss of appetite"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "99",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "88",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [
+          {
+            "term": "Jaundice",
+            "value": "Present"
+          }
+        ],
+        "systemicExamination": [],
+        "investigationResults": [
+          {
+            "term": "SGPT",
+            "value": "SGPT 480 U/L elevated"
+          },
+          {
+            "term": "Bilirubin",
+            "value": "Bilirubin 4.2 mg/dL"
+          }
+        ],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute viral hepatitis"
+          },
+          {
+            "id": 2,
+            "text": "Dyslipidaemia"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Atova",
+            "strength": "40 mg",
+            "dosage": "0+0+1",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Napa",
+            "strength": "500 mg",
+            "dosage": "2+2+2",
+            "duration": "5 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "statin_hepatitis",
+          "section": "Rx",
+          "severity": "major",
+          "description": "Statin in active liver disease",
+          "rule_ids": [
+            "Rx.risk.hepatic"
+          ],
+          "keywords": [
+            "atorvastatin",
+            "statin"
+          ]
+        },
+        {
+          "id": "paracetamol_hepatitis",
+          "section": "Rx",
+          "severity": "major",
+          "description": "3 g/day paracetamol in acute hepatitis",
+          "rule_ids": [
+            "Rx.risk.hepatic",
+            "Rx.dose"
+          ],
+          "keywords": [
+            "paracetamol"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-018",
+      "title": "Methotrexate prescribed daily instead of weekly",
+      "category": "dosing_error",
+      "patient": {
+        "id": 9000018,
+        "name": "Synthetic 018",
+        "serial": "SYN-018",
+        "ageValue": "52",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792164800000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Joint pain and morning stiffness for 3 months"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "80",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "RA factor"
+          },
+          {
+            "id": 2,
+            "text": "Anti-CCP"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Rheumatoid arthritis"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Trexonate",
+            "strength": "10 mg",
+            "dosage": "1+0+0",
+            "duration": "30 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Folison",
+            "strength": "5 mg",
+            "dosage": "1+0+0",
+            "duration": "30 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "mtx_daily",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Methotrexate must be weekly; daily dosing is fatal",
+          "rule_ids": [
+            "Rx.dose",
+            "Rx.freq",
+            "Rx.instr"
+          ],
+          "keywords": [
+            "weekly",
+            "methotrexate",
+            "daily",
+            "dose"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-019",
+      "title": "Paracetamol 8 g per day",
+      "category": "dosing_error",
+      "patient": {
+        "id": 9000019,
+        "name": "Synthetic 019",
+        "serial": "SYN-019",
+        "ageValue": "29",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792168400000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "High fever and body ache for 2 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "103",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "108",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "110/70",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Viral fever"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Napa",
+            "strength": "500 mg",
+            "dosage": "4+4+4+4",
+            "duration": "5 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Plenty of fluids"
+          }
+        ],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "pcm_overdose",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Paracetamol 8 g/day exceeds 4 g max",
+          "rule_ids": [
+            "Rx.dose.max",
+            "Rx.dose.high",
+            "Rx.dose"
+          ],
+          "keywords": [
+            "maximum",
+            "paracetamol",
+            "dose",
+            "4 g",
+            "exceed"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-020",
+      "title": "Paracetamol syrup overdose by weight in an infant",
+      "category": "dosing_error",
+      "patient": {
+        "id": 9000020,
+        "name": "Synthetic 020",
+        "serial": "SYN-020",
+        "ageValue": "12",
+        "ageUnit": "months",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792172000000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Fever for 2 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "102",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "140",
+            "unit": "bpm"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute viral fever"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Napa",
+            "strength": "120 mg/5 ml",
+            "dosage": "10 ml+10 ml+10 ml+10 ml",
+            "duration": "5 days",
+            "instruction": "",
+            "form": "Syp.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "9",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "pcm_weight_dose",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "~133 mg/kg/day paracetamol for a 9 kg infant",
+          "rule_ids": [
+            "Rx.dose.weight",
+            "Rx.dose",
+            "Rx.risk.pediatric"
+          ],
+          "keywords": [
+            "mg/kg",
+            "weight",
+            "dose",
+            "paracetamol"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-021",
+      "title": "Missing frequency and duration",
+      "category": "documentation_error",
+      "patient": {
+        "id": 9000021,
+        "name": "Synthetic 021",
+        "serial": "SYN-021",
+        "ageValue": "36",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792175600000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Sore throat and fever for 3 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "100.8",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "94",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute bacterial pharyngitis"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Zimax",
+            "strength": "500 mg",
+            "dosage": "",
+            "duration": "",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Napa",
+            "strength": "500 mg",
+            "dosage": "1+1+1",
+            "duration": "",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "missing_freq",
+          "section": "Rx",
+          "severity": "moderate",
+          "description": "No frequency for azithromycin",
+          "rule_ids": [
+            "Rx.freq.missing",
+            "Rx.instr"
+          ],
+          "keywords": [
+            "frequency"
+          ]
+        },
+        {
+          "id": "missing_duration",
+          "section": "Rx",
+          "severity": "moderate",
+          "description": "No duration for antibiotic / paracetamol",
+          "rule_ids": [
+            "Rx.duration.missing",
+            "Rx.instr"
+          ],
+          "keywords": [
+            "duration"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-022",
+      "title": "Doxycycline and aspirin for a 6-year-old",
+      "category": "age_risk",
+      "patient": {
+        "id": 9000022,
+        "name": "Synthetic 022",
+        "serial": "SYN-022",
+        "ageValue": "6",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792179200000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Fever and cough for 3 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "101.5",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "112",
+            "unit": "bpm"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute viral fever"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Doxicap",
+            "strength": "100 mg",
+            "dosage": "1+0+1",
+            "duration": "7 days",
+            "instruction": "",
+            "form": "Cap.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Ecosprin",
+            "strength": "300 mg",
+            "dosage": "1+1+1",
+            "duration": "3 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "20",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "doxy_child",
+          "section": "Rx",
+          "severity": "major",
+          "description": "Tetracycline under 8 years (teeth staining)",
+          "rule_ids": [
+            "Rx.risk.pediatric",
+            "Rx.demo",
+            "Rx.dose"
+          ],
+          "keywords": [
+            "doxycycline",
+            "tetracycline"
+          ]
+        },
+        {
+          "id": "aspirin_child",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Aspirin in a child with viral illness (Reye syndrome)",
+          "rule_ids": [
+            "Rx.risk.pediatric",
+            "Rx.demo"
+          ],
+          "keywords": [
+            "aspirin",
+            "reye",
+            "salicylate"
+          ]
+        },
+        {
+          "id": "abx_viral",
+          "section": "Rx",
+          "severity": "moderate",
+          "description": "Antibiotic for a viral diagnosis",
+          "rule_ids": [
+            "Rx.indication",
+            "Rx.over",
+            "Rx.rag",
+            "Rx.cc"
+          ],
+          "keywords": [
+            "antibiotic",
+            "viral",
+            "indication"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-023",
+      "title": "Two benzodiazepines in an 82-year-old",
+      "category": "age_risk",
+      "patient": {
+        "id": 9000023,
+        "name": "Synthetic 023",
+        "serial": "SYN-023",
+        "ageValue": "82",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792182800000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Sleeplessness for 1 month"
+          }
+        ],
+        "pastHistory": [
+          {
+            "id": 1,
+            "text": "History of falls"
+          }
+        ],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "70",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "130/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Insomnia"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Sedil",
+            "strength": "5 mg",
+            "dosage": "0+0+1",
+            "duration": "1 month",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Rivotril",
+            "strength": "2 mg",
+            "dosage": "0+0+1",
+            "duration": "1 month",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "benzo_elderly",
+          "section": "Rx",
+          "severity": "major",
+          "description": "Benzodiazepine in elderly (Beers: falls, sedation)",
+          "rule_ids": [
+            "Rx.risk.elderly",
+            "Rx.demo"
+          ],
+          "keywords": [
+            "elderly",
+            "fall",
+            "beers",
+            "older"
+          ]
+        },
+        {
+          "id": "benzo_duplicate",
+          "section": "Rx",
+          "severity": "major",
+          "description": "Diazepam + clonazepam duplicate class",
+          "rule_ids": [
+            "Rx.dup",
+            "Rx.dup.class"
+          ],
+          "keywords": [
+            "duplicate",
+            "benzodiazepine",
+            "same class"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-024",
+      "title": "Two proton-pump inhibitors",
+      "category": "duplication",
+      "patient": {
+        "id": 9000024,
+        "name": "Synthetic 024",
+        "serial": "SYN-024",
+        "ageValue": "44",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792186400000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Burning epigastric pain for 1 month"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "76",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Gastro-oesophageal reflux disease"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Seclo",
+            "strength": "20 mg",
+            "dosage": "1+0+1",
+            "duration": "1 month",
+            "instruction": "before meal",
+            "form": "Cap.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Esoral",
+            "strength": "20 mg",
+            "dosage": "1+0+1",
+            "duration": "1 month",
+            "instruction": "before meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Avoid oily and spicy food"
+          }
+        ],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "ppi_duplicate",
+          "section": "Rx",
+          "severity": "major",
+          "description": "Omeprazole + esomeprazole duplicate",
+          "rule_ids": [
+            "Rx.dup",
+            "Rx.dup.class"
+          ],
+          "keywords": [
+            "duplicate",
+            "proton",
+            "ppi",
+            "same class"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-025",
+      "title": "Diagnosis unsupported by complaints",
+      "category": "diagnostic_error",
+      "patient": {
+        "id": 9000025,
+        "name": "Synthetic 025",
+        "serial": "SYN-025",
+        "ageValue": "27",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792190000000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Itchy skin rash for 2 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "76",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute myocardial infarction"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Fexo",
+            "strength": "120 mg",
+            "dosage": "0+0+1",
+            "duration": "7 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "dx_cc_mismatch",
+          "section": "Dx",
+          "severity": "major",
+          "description": "MI diagnosis with only a skin rash complaint",
+          "rule_ids": [
+            "Dx.cc",
+            "Dx.hs",
+            "Rx.indication",
+            "Rx.multi",
+            "Inv.dx"
+          ],
+          "keywords": [
+            "myocardial",
+            "complaint",
+            "support",
+            "rash",
+            "chest pain"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-026",
+      "title": "Antibiotic for the common cold",
+      "category": "irrational_prescribing",
+      "patient": {
+        "id": 9000026,
+        "name": "Synthetic 026",
+        "serial": "SYN-026",
+        "ageValue": "33",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792193600000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Runny nose and sneezing for 2 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "99",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "80",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Common cold"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Cef-3",
+            "strength": "200 mg",
+            "dosage": "1+0+1",
+            "duration": "7 days",
+            "instruction": "",
+            "form": "Cap.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Fexo",
+            "strength": "120 mg",
+            "dosage": "0+0+1",
+            "duration": "5 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "abx_cold",
+          "section": "Rx",
+          "severity": "moderate",
+          "description": "Cefixime for a viral URTI",
+          "rule_ids": [
+            "Rx.indication",
+            "Rx.over",
+            "Rx.rag",
+            "Rx.cc"
+          ],
+          "keywords": [
+            "antibiotic",
+            "viral",
+            "indication",
+            "cefixime"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-027",
+      "title": "Implausible temperature recorded",
+      "category": "documentation_error",
+      "patient": {
+        "id": 9000027,
+        "name": "Synthetic 027",
+        "serial": "SYN-027",
+        "ageValue": "40",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792197200000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Fever for 1 day"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "108",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "88",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Viral fever"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Napa",
+            "strength": "500 mg",
+            "dosage": "1+1+1",
+            "duration": "3 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": [
+        {
+          "id": "extreme_temp",
+          "section": "any",
+          "severity": "major",
+          "description": "108 F is implausible / hyperpyrexia emergency",
+          "rule_ids": [
+            "Dx.vital.extreme",
+            "CC.hs",
+            "Dx.hs",
+            "Adv.refer",
+            "Adv.hs"
+          ],
+          "keywords": [
+            "108",
+            "temperature",
+            "hyperpyrexia"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-028",
+      "title": "Metronidazole added to ongoing warfarin (prior visit)",
+      "category": "followup_interaction",
+      "patient": {
+        "id": 9000028,
+        "name": "Synthetic 028",
+        "serial": "SYN-028",
+        "ageValue": "60",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792200800000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Loose stool with mucus for 4 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "99",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "88",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "Stool R/E"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Amoebic dysentery"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Flagyl",
+            "strength": "400 mg",
+            "dosage": "1+1+1",
+            "duration": "7 days",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [
+        {
+          "chiefComplaints": [
+            {
+              "id": 1,
+              "text": "Irregular palpitation"
+            }
+          ],
+          "diagnosis": [
+            {
+              "id": 1,
+              "text": "Atrial fibrillation"
+            }
+          ],
+          "rxList": [
+            {
+              "medicine": "Warin",
+              "strength": "5 mg",
+              "dosage": "0+0+1",
+              "duration": "Continue",
+              "instruction": "",
+              "form": "Tab.",
+              "generic": "",
+              "id": 1
+            }
+          ],
+          "id": 1790472800000
+        }
+      ],
+      "expected_errors": [
+        {
+          "id": "followup_ddi_warfarin",
+          "section": "Rx",
+          "severity": "critical",
+          "description": "Metronidazole potentiates ongoing warfarin (INR rise, bleeding)",
+          "rule_ids": [
+            "Rx.followup.ddi",
+            "Rx.ddi"
+          ],
+          "keywords": [
+            "warfarin",
+            "bleed",
+            "inr",
+            "interaction"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-029",
+      "title": "Repeat azithromycin while prior course is active",
+      "category": "followup_duplication",
+      "patient": {
+        "id": 9000029,
+        "name": "Synthetic 029",
+        "serial": "SYN-029",
+        "ageValue": "34",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792204400000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Cough for 5 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "99.5",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "86",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute bronchitis"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Azithrocin",
+            "strength": "500 mg",
+            "dosage": "1+0+0",
+            "duration": "5 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [],
+        "followUps": [],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [
+        {
+          "chiefComplaints": [
+            {
+              "id": 1,
+              "text": "Cough and fever for 3 days"
+            }
+          ],
+          "diagnosis": [
+            {
+              "id": 1,
+              "text": "Acute bronchitis"
+            }
+          ],
+          "rxList": [
+            {
+              "medicine": "Zimax",
+              "strength": "500 mg",
+              "dosage": "1+0+0",
+              "duration": "5 days",
+              "instruction": "",
+              "form": "Tab.",
+              "generic": "",
+              "id": 1
+            }
+          ],
+          "id": 1792031600000
+        }
+      ],
+      "expected_errors": [
+        {
+          "id": "followup_dup_abx",
+          "section": "Rx",
+          "severity": "major",
+          "description": "Second azithromycin course while first is still running",
+          "rule_ids": [
+            "Rx.followup.dup",
+            "Rx.followup.abx",
+            "Rx.followup.class",
+            "Rx.dup"
+          ],
+          "keywords": [
+            "azithromycin",
+            "prior",
+            "duplicate",
+            "active"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "SYN-030",
+      "title": "Clean: viral fever, adult",
+      "category": "clean_control",
+      "patient": {
+        "id": 9000030,
+        "name": "Synthetic 030",
+        "serial": "SYN-030",
+        "ageValue": "30",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792208000000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Fever and body ache for 2 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "101",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "92",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Viral fever"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Napa",
+            "strength": "500 mg",
+            "dosage": "1+1+1",
+            "duration": "3 days",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Drink plenty of fluids"
+          },
+          {
+            "id": 2,
+            "text": "Take rest"
+          }
+        ],
+        "followUps": [
+          {
+            "id": 1,
+            "text": "Review after 3 days if fever persists"
+          }
+        ],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": []
+    },
+    {
+      "case_id": "SYN-031",
+      "title": "Clean: type 2 diabetes on metformin",
+      "category": "clean_control",
+      "patient": {
+        "id": 9000031,
+        "name": "Synthetic 031",
+        "serial": "SYN-031",
+        "ageValue": "48",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792211600000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Increased thirst and frequent urination for 1 month"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "78",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "125/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [
+          {
+            "term": "Blood Sugar",
+            "value": "HbA1c 8.1%"
+          },
+          {
+            "term": "Creatinine",
+            "value": "eGFR 92 mL/min"
+          }
+        ],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Type 2 diabetes mellitus"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Comet",
+            "strength": "500 mg",
+            "dosage": "1+0+1",
+            "duration": "Continue",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Diabetic diet"
+          },
+          {
+            "id": 2,
+            "text": "Walk 30 minutes daily"
+          }
+        ],
+        "followUps": [
+          {
+            "id": 1,
+            "text": "Review after 1 month with fasting blood sugar"
+          }
+        ],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": []
+    },
+    {
+      "case_id": "SYN-032",
+      "title": "Clean: antenatal folic acid",
+      "category": "clean_control",
+      "patient": {
+        "id": 9000032,
+        "name": "Synthetic 032",
+        "serial": "SYN-032",
+        "ageValue": "25",
+        "ageUnit": "years",
+        "gender": "Female"
+      },
+      "visit": {
+        "id": 1792215200000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Missed period for 2 months"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [
+          {
+            "id": 1,
+            "text": "Pregnant, 9 weeks gestation"
+          }
+        ],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "82",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "110/70",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "USG of pregnancy profile"
+          },
+          {
+            "id": 2,
+            "text": "Blood grouping"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Normal intrauterine pregnancy"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Folison",
+            "strength": "5 mg",
+            "dosage": "0+0+1",
+            "duration": "1 month",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Regular antenatal check-up"
+          },
+          {
+            "id": 2,
+            "text": "Come to hospital immediately if bleeding per vagina or severe abdominal pain"
+          }
+        ],
+        "followUps": [
+          {
+            "id": 1,
+            "text": "Antenatal visit after 4 weeks"
+          }
+        ],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": []
+    },
+    {
+      "case_id": "SYN-033",
+      "title": "Clean: child fever with weight-based paracetamol",
+      "category": "clean_control",
+      "patient": {
+        "id": 9000033,
+        "name": "Synthetic 033",
+        "serial": "SYN-033",
+        "ageValue": "8",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792218800000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Fever for 2 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "101",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "110",
+            "unit": "bpm"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute viral fever"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Napa",
+            "strength": "120 mg/5 ml",
+            "dosage": "10 ml+10 ml+10 ml",
+            "duration": "3 days",
+            "instruction": "",
+            "form": "Syp.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Tepid sponging"
+          },
+          {
+            "id": 2,
+            "text": "Plenty of fluids"
+          }
+        ],
+        "followUps": [
+          {
+            "id": 1,
+            "text": "Review after 3 days if fever persists"
+          }
+        ],
+        "weight": "25",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": []
+    },
+    {
+      "case_id": "SYN-034",
+      "title": "Clean: essential hypertension",
+      "category": "clean_control",
+      "patient": {
+        "id": 9000034,
+        "name": "Synthetic 034",
+        "serial": "SYN-034",
+        "ageValue": "60",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792222400000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Occasional headache for 2 weeks"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "98.4",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "80",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "160/100",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [
+          {
+            "id": 1,
+            "text": "Serum creatinine"
+          },
+          {
+            "id": 2,
+            "text": "Lipid profile"
+          },
+          {
+            "id": 3,
+            "text": "ECG"
+          }
+        ],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Essential hypertension"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Amdocal",
+            "strength": "5 mg",
+            "dosage": "1+0+0",
+            "duration": "Continue",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Restrict salt intake"
+          },
+          {
+            "id": 2,
+            "text": "Regular exercise"
+          }
+        ],
+        "followUps": [
+          {
+            "id": 1,
+            "text": "Review after 2 weeks with BP chart"
+          }
+        ],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": []
+    },
+    {
+      "case_id": "SYN-035",
+      "title": "Clean: bacterial pharyngitis",
+      "category": "clean_control",
+      "patient": {
+        "id": 9000035,
+        "name": "Synthetic 035",
+        "serial": "SYN-035",
+        "ageValue": "35",
+        "ageUnit": "years",
+        "gender": "Male"
+      },
+      "visit": {
+        "id": 1792226000000,
+        "chiefComplaints": [
+          {
+            "id": 1,
+            "text": "Sore throat and fever for 3 days"
+          }
+        ],
+        "pastHistory": [],
+        "ancPncNotes": [],
+        "healthScreening": [
+          {
+            "term": "Temperature",
+            "value": "101",
+            "unit": "F"
+          },
+          {
+            "term": "Pulse Rate",
+            "value": "96",
+            "unit": "bpm"
+          },
+          {
+            "term": "Blood Pressure",
+            "value": "120/80",
+            "unit": "mmHg"
+          }
+        ],
+        "onExamination": [
+          {
+            "term": "Tonsils",
+            "value": "Enlarged with exudate"
+          }
+        ],
+        "systemicExamination": [],
+        "investigationResults": [],
+        "investigations": [],
+        "diagnosis": [
+          {
+            "id": 1,
+            "text": "Acute bacterial pharyngitis"
+          }
+        ],
+        "rxList": [
+          {
+            "medicine": "Zimax",
+            "strength": "500 mg",
+            "dosage": "1+0+0",
+            "duration": "3 days",
+            "instruction": "",
+            "form": "Tab.",
+            "generic": "",
+            "id": 1
+          },
+          {
+            "medicine": "Napa",
+            "strength": "500 mg",
+            "dosage": "1+1+1",
+            "duration": "3 days",
+            "instruction": "after meal",
+            "form": "Tab.",
+            "generic": "",
+            "id": 2
+          }
+        ],
+        "adviceList": [
+          {
+            "id": 1,
+            "text": "Warm saline gargle"
+          }
+        ],
+        "followUps": [
+          {
+            "id": 1,
+            "text": "Review after 3 days"
+          }
+        ],
+        "weight": "",
+        "heightFeet": "",
+        "heightInch": "",
+        "bmi": "",
+        "bsa": ""
+      },
+      "history": [],
+      "expected_errors": []
+    }
+  ]
+}

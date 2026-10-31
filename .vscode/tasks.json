@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "LLM benchmark (all models, 10 prescriptions)",
+            "type": "process",
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": ["benchmark\\run_benchmark.py"],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": { "HF_HUB_DISABLE_SYMLINKS_WARNING": "1", "PYTHONIOENCODING": "utf-8" }
+            },
+            "presentation": { "reveal": "always", "panel": "dedicated", "focus": true, "clear": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "Add Gemma 4 (waits for the running benchmark)",
+            "type": "process",
+            "command": "powershell.exe",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\benchmark\\add_gemma4.ps1"],
+            "options": { "cwd": "${workspaceFolder}" },
+            "presentation": { "reveal": "always", "panel": "dedicated", "focus": true, "clear": true },
+            "problemMatcher": []
+        }
+    ]
+}

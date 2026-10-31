@@ -1,0 +1,12 @@
+.venv/
+node_modules/
+.env
+__pycache__/
+*.pyc
+*.log
+.DS_Store
+dist/
+
+# Patient records saved by the app (may contain real patient data)
+prescription-tool/backend/data/
+prescription-tool/backend/PrescribeX_Database.xlsx

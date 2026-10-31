@@ -1,0 +1,196 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  PRESCRIPTION AUDIT PROTOCOL — clinical rulebook (single source of truth)
+#  Column names match the output of your v3 normalise_df (underscore form).
+# ═══════════════════════════════════════════════════════════════════════
+version: "V.21"
+
+auditor_role: >
+  You are a clinical prescription auditor for Bangladesh general-practice prescriptions.
+
+  Evaluate ONE section at a time against its listed concerns, in order. Report ONLY clear, clinically meaningful errors supported by the prescription; for each, give the reason and a correction. Never invent problems or flag trivial, stylistic, or low-confidence issues. If evidence is insufficient, report no error.
+
+  Reason using the full prescription (demographics, complaints, past history, diagnosis, investigations, results, medications, advice, and all findings under Health Screening, On Examination, Systemic Examination). Past history modifies present reasoning and medicine safety but is not automatically a current diagnosis. A clinically significant finding is any abnormal current finding that may affect diagnosis, investigation, treatment, management, or follow-up. Treat findings marked Normal, NAD, Absent, Negative, or No Dehydration as normal unless clearly contradicted.
+
+  Judge medications and investigations against the DIAGNOSIS and overall picture, not each single complaint; several complaints may share one diagnosis and need not each have a separate diagnosis, investigation, or medicine. Visit type is a fixed fact given to you; never infer or change it.
+
+# ── Previous (longer) auditor_role kept for reference; the version above says
+#    the same rules in ~219 tokens instead of ~431, saving ~1,270 tokens per
+#    prescription (role is sent with all six section calls). To revert, swap
+#    the block above with this text.
+# auditor_role_OLD: >
+#   You are a clinical prescription auditor for general practice prescriptions in Bangladesh community healthcare.
+#   Your task is to evaluate one audit section at a time against a fixed list of predefined clinical concerns. Check every concern in the given order and report ONLY clear, clinically meaningful errors supported by the prescription. For every violated concern, explain why it is incorrect and provide an appropriate correction.
+#   Use the complete prescription context during reasoning, including patient demographics, chief complaints, diagnosis, investigations, investigation results, medications, advice, and all available clinical findings.
+#   Clinical findings refer to all patient findings documented under Health Screening, On Examination, and Systemic Examination.
+#   A clinically significant finding is any abnormal finding that may influence diagnosis, investigation, treatment, patient management, or follow-up.
+#   Findings explicitly documented as Normal, NAD, Absent, Negative, No Dehydration, or equivalent should generally be interpreted as normal unless contradicted by stronger clinical evidence elsewhere in the prescription.
+#   Medication and investigations should always be evaluated against the diagnosis and the complete clinical picture, not against each individual chief complaint. Multiple complaints may be explained by a single diagnosis and do not require separate diagnoses, investigations, or medications.
+#   The visit type is provided as a fixed fact. Never infer or modify the visit type yourself.
+#   Never invent a problem that is not supported by the prescription. Do not flag trivial, stylistic, speculative, or low-confidence issues. If the available evidence is insufficient, do not report an error.
+
+# Visit type is computed by YOUR classify_visit() in the notebook and passed in.
+# These concerns apply only when results exist (followup).
+followup_only_concerns: [Dx.inv.1]
+
+# ── V2 followup-context settings (prescription_db.build_followup_context) ──
+followup_lookback_days: 30          # how far back to look for prior visits
+followup_buffer_days: 0             # adherence grace period added to a course end
+
+# ── Investigation name normalisation ─────────────────────────────────────────
+# The Investigation / Investigation Result columns spell the same test several
+# ways. Keys are written EXACTLY as they appear in the data; values are the
+# canonical name used by every rule below. Anything not listed is canonicalised
+# by lowercasing + collapsing spaces + dropping a trailing '.', so short names
+# like "TSH" or "FBS" need no entry.
+investigation_aliases:
+  "urine routine and microscopic examination": "urine r/m/e"
+  "urine r/m/e": "urine r/m/e"
+  "urine rme": "urine r/m/e"
+  "urine culture": "urine culture"
+  "complete blood count": "cbc"
+  "cbc": "cbc"
+  "total platelet count": "platelet count"
+  "platelet count": "platelet count"
+  "random blood sugar": "random blood sugar"
+  "rbs": "random blood sugar"
+  "fbs": "fbs"
+  "fasting blood sugar": "fbs"
+  "blood grouping": "blood grouping"
+  "blood grouping and rh typing": "blood grouping"
+  "s.creatinine": "s.creatinine"
+  "serum creatinine": "s.creatinine"
+  "anti dengue ig g & ig m": "anti dengue igg igm"
+  "dengue ns1": "dengue ns1"
+
+# Investigation validity windows in DAYS - how long a prior RESULT stays
+# "current", so ordering the same test again inside this window is a redundant
+# repeat. Keys must be CANONICAL names (see investigation_aliases above).
+# A test with no entry uses investigation_validity_default.
+# Edit these with your physician.
+investigation_validity_default: 0     # 0 = unknown test, never judged redundant (safe default)
+investigation_validity:
+  "cbc": 14
+  "blood grouping": 3650              # effectively permanent, never redundant
+  "urine r/m/e": 14
+  "urine culture": 14
+  "platelet count": 1                 # see monitoring_investigations too
+  "random blood sugar": 7
+  "fbs": 7
+  "s.creatinine": 90
+  "lipid profile": 180
+  "tsh": 42
+  "ft4": 42
+  "hbsag screening": 365
+  "vdrl": 365
+  "pregnancy test": 30
+  "dengue ns1": 3
+  "anti dengue igg igm": 7
+  "x-ray": 90
+
+# Test/diagnosis pairs where FREQUENT repeat testing is the standard of care
+# (e.g. platelet trend during dengue) - these are NEVER redundant. 'test' must
+# be a CANONICAL name; diagnosis_keyword is matched case-insensitively against
+# TODAY's diagnosis text.
+monitoring_investigations:
+  - {test: "platelet count", diagnosis_keyword: "dengue"}
+  - {test: "cbc", diagnosis_keyword: "dengue"}
+  - {test: "cbc", diagnosis_keyword: "gravida"}   # repeat CBC for anaemia monitoring in pregnancy
+  - {test: "random blood sugar", diagnosis_keyword: "diabetes"}
+  - {test: "fbs", diagnosis_keyword: "diabetes"}
+
+sections:
+  Demo: "Demographic"
+  CC:   "Chief Complaints"
+  Hx:   "Past History"
+  Dx:   "Diagnosis"
+  Inv:  "Investigation"
+  Rx:   "Treatment"
+  Adv:  "Advice"
+
+# Fields each agent reads — UNDERSCORE names, as produced by normalise_df.
+agent_fields:
+  Demo: [Age, Gender, Weight, Name]
+  CC:   [Age, Gender, Chief_Complaint, Health_Screening, On_Examination, Systemic_Examination]
+  Hx:   [Age, Gender, Past_History, Chief_Complaint, Health_Screening, On_Examination, Systemic_Examination, "Investigation Results", ANC_Notes]
+  Dx:   [Age, Gender, Past_History, Chief_Complaint, Health_Screening, On_Examination, Systemic_Examination, Investigation, "Investigation Results", Diagnosis]
+  Inv:  [Age, Gender, Past_History, Chief_Complaint, Health_Screening, On_Examination, Systemic_Examination, Investigation, "Investigation Results", Diagnosis, Advice]
+  Rx:   [Age, Gender, Past_History, Chief_Complaint, Health_Screening, On_Examination, Systemic_Examination, Investigation, "Investigation Results", Diagnosis, Medication, Advice]
+  Adv:  [Age, Gender, Past_History, Chief_Complaint, Health_Screening, On_Examination, Systemic_Examination, Investigation, "Investigation Results", Diagnosis, Medication, Advice]
+
+# Sections that additionally receive a followup-context block (built by
+# prescription_db.build_followup_context, injected in code - see audit_engine.py).
+# Every agent runs in PARALLEL and gets only the prior-visit slice its own
+# concerns need (followup_utils.format_followup_block decides the slice):
+#   Rx  -> still-active prior medicines            (duplicate / interaction)
+#   Inv -> prior tests: still-valid results, and ordered-but-never-done
+#   Adv -> both of the above (what today's advice may need to address)
+#   Dx  -> still-valid prior RESULTS with values   (diagnosis must interpret them)
+followup_context_sections: [Rx, Inv, Adv, Dx]
+
+concerns:
+  Demo:
+    - {id: Demo.1, concern: "Age and gender are present, valid, and internally consistent with the clinical picture. An age recorded as 0 is INVALID and must be flagged - for an infant the age must be given in months, days, or hours, not 0. Do NOT flag a missing name; name is not clinically required.", example: "'Age: 0' is an error; it should read e.g. '6 months' or '12 days'. Pregnancy in a male is inconsistent."}
+    - {id: Demo.2, concern: "Weight is available EITHER explicitly OR derivable from a BMI value in Health Screening. Only flag if BOTH are absent AND a weight-based dosing decision depends on it. Do NOT flag missing weight when BMI is recorded.", example: "BMI present in Health Screening means weight is NOT missing."}
+  CC:
+    - {id: CC.term.unclear, concern: "Chief-complaint text should be understandable and free of clear typographical or transcription errors that change or obscure clinical meaning. Accept common Bengali/English wording, transliteration, colloquial symptoms, and established shorthand; suggest a correction only when sufficiently confident.", example: "Flag a clear misspelling that obscures a symptom, but do not rewrite understandable patient language for style."}
+    - {id: CC.demo, concern: "Demographic and clinical data relevant to the complaint.", example: "Overweight while complaint is weight loss."}
+    - {id: CC.1, concern: "Each entry states a recognizable symptom, clinical concern, or valid reason for encounter. Do NOT flag common understandable symptom wording, Bengali/English transliteration, established shorthand, report collection, or follow-up. A grammatically understandable sentence about an ordinary activity is still not a clinical complaint, and adding a duration does not make it one.", example: "'Feverish feeling' is valid; an ordinary statement such as 'the patient ate breakfast for two days' requires clarification because it does not state a complaint."}
+    - {id: CC.2, concern: "Severity mentioned where relevant.", example: "Pain degree mild, moderate or severe."}
+    - {id: CC.3, concern: "Duration is mentioned for a clinical symptom (most common CC error). EXCEPTION: do NOT require duration for administrative or non-symptom visits such as 'report collection', 'follow up', 'came for blood group test', or a pregnancy-only registration with no symptom.", example: "'Runny nose for 3 days' is correct, 'runny nose' is not. 'Report collection' needs no duration."}
+    - {id: CC.4, concern: "Description complete with site or source.", example: "Name the discharge site."}
+    - {id: CC.hs, concern: "Clinically significant clinical findings should be consistent with the chief complaints and may provide supporting evidence.", example: "Low BMI relevant in weight loss."}
+  Hx:
+    - {id: Hx.term.unclear, concern: "Past-history text is understandable in Bengali, English, mixed language, transliteration, or accepted clinical shorthand; only clinically important ambiguity or typographical error is flagged.", example: "Clarify an unrecognizable condition name without rewriting understandable patient language."}
+    - {id: Hx.context.demo, concern: "Past history is compatible with age, sex/gender, reproductive context, and relevant anatomy, while unusual but possible histories are treated as clarification needs rather than impossibilities.", example: "Request verification of a genuinely incompatible demographic-history combination."}
+    - {id: Hx.detail, concern: "Status, onset, stage, severity, site, procedure, allergen, or reaction is documented only when the missing detail materially changes current clinical or medication decisions.", example: "An allergy history should identify the allergen and reaction when known; every chronic condition does not require every possible attribute."}
+    - {id: Hx.time.plausibility, concern: "Historical timing is clinically plausible and sufficiently clear for current use.", example: "Clarify an internally implausible onset without declaring an unusual history impossible."}
+    - {id: Hx.context.conflict, concern: "Past history does not directly contradict current complaints, screening, examination, obstetric context, or actual results after active, resolved, intermittent, and treated states are considered.", example: "A normal current lung examination does not disprove historical asthma."}
+    - {id: Hx.duplicate, concern: "Duplicate synonyms and incompatible history statuses are reconciled without treating synonymous wording as separate diseases.", example: "Consolidate 'high pressure' and 'hypertension'; clarify simultaneous active and explicitly absent status."}
+  Dx:
+    - {id: Dx.term.unclear, concern: "Diagnosis text should identify an understandable clinical condition without a clear typographical or transcription error. Accept valid ICD wording, parent or unspecified diagnoses, Bengali/English clinical terminology, and established abbreviations; do not invent a diagnosis when correction is uncertain.", example: "Suggest a high-confidence spelling correction, otherwise request clarification."}
+    - {id: Dx.demo, concern: "Demographic data and diagnosis match.", example: "A male cannot be pregnant."}
+    - {id: Dx.cc.1, concern: "The diagnosis plausibly accounts for the chief complaints TAKEN TOGETHER. Multiple complaints may map to one diagnosis, and broader wording is acceptable only when it remains anatomically and clinically compatible. Flag an explicit site or organ-system conflict: back/spine is axial anatomy and is not interchangeable with limb/extremity; likewise chest, abdomen, head, skin, respiratory, urinary, and other named systems should not be substituted for one another. Do not flag a valid broader diagnosis within the SAME site/system.", example: "'Musculoskeletal pain' may explain back pain, but 'pain in limb' does not identify back/spinal pain; a respiratory diagnosis does not explain a purely skin complaint."}
+    - {id: Dx.cc.2, concern: "Diagnosis is not contradicted by the complaints.", example: "Scabies diagnosed without scabies symptoms."}
+    - {id: Dx.hs.1, concern: "Diagnosis is compatible with all clinically significant clinical findings and does not contradict them. Ignore findings explicitly documented as normal unless contradicted elsewhere.", example: "Underweight diagnosed obese."}
+    - {id: Dx.hs.2, concern: "The diagnosis should reasonably explain all clinically significant clinical findings and should not omit important abnormalities.", example: "High temperature not called fever."}
+    - {id: Dx.inv.1, concern: "Diagnosis correctly interprets the investigation results.", example: "Pus cells plenty in urine R/M/E should be diagnosed as UTI."}
+    - {id: Dx.followup, concern: "If a prior-visit block below lists results that are STILL CURRENT, today's diagnosis must account for any abnormal value in them, exactly as it must for today's own results. Flag only when a clearly abnormal still-current result is left unexplained by today's diagnosis. Never flag the investigation itself here, and never invent a result that is not listed.", example: "A still-current CBC from 7 days ago showing Hb 8.7 g/dL, but today's diagnosis does not mention anaemia."}
+    - {id: Dx.code, concern: "A selected ICD-11 MMS code is valid for the configured release and does not plainly contradict the diagnosis. Do NOT flag a valid parent or unspecified category merely because a more specific descendant exists.", example: "Only flag an invalid code or a code whose official condition conflicts with the written diagnosis."}
+  Inv:
+    - {id: Inv.term.unrecognized, concern: "Each entered investigation should unambiguously identify a recognizable laboratory test, imaging study, diagnostic procedure, established abbreviation, or clearly understood local test name. An unfamiliar abbreviation, ambiguous local term, likely typo, or meaningless text should receive a clarification warning even when the probable intended test can be guessed; do not silently autocorrect it.", example: "Established abbreviations may pass, but an unfamiliar abbreviation or likely typo should be clarified rather than silently converted to a guessed test."}
+    - {id: Inv.demo.1, concern: "Age and gender specific investigations present.", example: "Elderly comorbidity needs NCD workup."}
+    - {id: Inv.demo.2, concern: "Region specific investigations present.", example: "Consider dengue and TB in Bangladesh."}
+    - {id: Inv.cc, concern: "Investigations support working up the DIAGNOSIS. A complaint does not need its own investigation if the diagnosis already explains it. A settled clinical diagnosis does NOT require any confirmatory test; only flag a missing investigation when the diagnosis is explicitly written as provisional, differential, suspected, query, or to-be-ruled-out. Do NOT recommend tests merely to be cautious or thorough.", example: "Do not demand a foot X-ray for a settled 'pain in joint' diagnosis."}
+    - {id: Inv.hs, concern: "Investigations should be requested only when clinically significant clinical findings justify confirmation, exclusion, monitoring, or further evaluation. Do NOT request a test to confirm a finding already recorded as normal or absent (e.g. do not ask for CBC when anaemia is recorded as Absent).", example: "CBC is unnecessary solely to confirm anaemia when Anaemia is already documented as Absent."}
+    - {id: Inv.dx, concern: "A confirmatory investigation is required ONLY when the diagnosis is explicitly provisional, differential, suspected, query, or to-be-confirmed. A settled clinical diagnosis needs no confirmatory test; do NOT demand one to rule out alternatives the clinician did not raise. NEVER call an investigation unnecessary or recommend removing it if its result is abnormal or clinically revealing - a test that found something was a useful test, and the issue (if any) is that the diagnosis failed to act on the result, not the test itself.", example: "A provisional UTI needs urine R/M/E; a settled clinical diagnosis does not. Pus cells found on a urine test mean the test was useful - never recommend removing it."}
+    - {id: Inv.followup.redundant, concern: "If a 'Recent valid result from a related visit' block below shows the SAME investigation already has a still-valid result from a recent related visit, and today orders that same investigation again, this is redundant testing - flag it, naming the prior result date. EXCEPTION: do not flag if today's Advice or CC indicates the prior test was not actually completed, or if the concern is a monitoring test explicitly marked as exempt below. Only reason from the block explicitly provided; never assume a prior result exists if none is given.", example: "CBC repeated today when a valid CBC result from 6 days ago is still within its validity window and nothing indicates the prior test wasn't done."}
+  Rx:
+    - {id: Rx.term.unclear, concern: "A medicine entry that cannot be confidently mapped to one catalog identity should be reviewed for a typographical error, ambiguous product name, or uncatalogued medicine. Suggest a catalog-supported correction only when the match is reliable; never silently substitute a medicine.", example: "An unmatched brand-like entry should be clarified; a unique high-confidence catalog match may be suggested."}
+    - {id: Rx.followup.dup, concern: "MANDATORY FIRST CHECK if a followup-context block is present below. A PRIOR VISIT (see 'Active medications from a recent related visit') may show a medicine whose course is STILL ACTIVE today. Compare EVERY medicine in today's Rx, one by one, against that list by name. If today's Rx repeats the SAME medicine while that prior course is still running, this is a duplicate-dosing risk - flag it, naming the prior visit date and the course end date. Only flag when the prior medicine list explicitly says still_active/course_end has not passed; do not flag anything about a prior visit if no such list is given.", example: "Feofol PN prescribed today while a Feofol PN course from 5 days ago (30-day course) is still running - patient risks double-dosing."}
+    - {id: Rx.followup.ddi, concern: "MANDATORY FIRST CHECK if a followup-context block is present below. Compare EVERY medicine in today's Rx against EVERY medicine in the 'Active medications from a recent related visit' list for a clinically meaningful interaction or contraindication (e.g. calcium blocking iron absorption, two drugs of the same or conflicting class, a serious interaction). If a medicine from that STILL-ACTIVE prior list would interact with or be contraindicated alongside a medicine prescribed TODAY, and today's Advice does NOT mention omitting/stopping the prior medicine, flag this under Rx (the omission itself is checked separately under Adv.followup). Only reason from prior medicines explicitly listed as still active; never invent a prior medicine.", example: "An active anticoagulant from a still-running prior course plus a new NSAID today, with no advice to pause either - flag the interaction. A still-active iron supplement plus a new calcium supplement today with no separation advice - flag the interaction."}
+    - {id: Rx.demo, concern: "Dose, duration and form fit age and weight.", example: "1-year-old needs syrup not tablet."}
+    - {id: Rx.region, concern: "Treatment follows Bangladesh standard treatment guidelines.", example: "Antibiotic choice and duration per guideline."}
+    - {id: Rx.cc.sym, concern: "Treatment addresses the DIAGNOSIS. A complaint does not need its own medicine if it is a symptom of the diagnosis already being treated. FLAG UNDER-TREATMENT: if a diagnosed condition (or a clearly active condition such as anaemia, infection, or pain) has NO corresponding medicine at all, that is a missing-medicine error. EXCEPTION: a follow-up or report-only visit where the plan is observation, not prescribing, is not under-treatment.", example: "Moderate anaemia diagnosed but no iron prescribed is a missing-medicine error. A follow-up with no new drug is fine."}
+    - {id: Rx.cc.mis, concern: "No medicine contradicts the diagnosis or complaints. When the diagnosis only partially matches the picture, check that the chosen generic is still appropriate for the condition being treated.", example: "Domperidone contraindicated in diarrhoea; a wrong-class drug for the diagnosis is an error."}
+    - {id: Rx.dup, concern: "No duplicate or same class polypharmacy.", example: "Propranolol and atenolol together."}
+    - {id: Rx.hs, concern: "Clinically significant clinical findings requiring management should be appropriately reflected in the treatment plan.", example: "Severe anaemia needs iron."}
+    - {id: Rx.multi, concern: "Each diagnosis treated when several exist.", example: "Only fever treated, not cough."}
+    - {id: Rx.over, concern: "No medicine is prescribed that the diagnosis and findings do not justify (over-prescribing). Flag a drug that has no matching condition in the prescription, even if it is not directly harmful. Do NOT flag a reasonable symptomatic medicine for a real symptom.", example: "An antibiotic for a viral cold, or a drug for a condition the patient does not have, is over-prescribing."}
+    - {id: Rx.timing, concern: "Before or after meal timing specified (most common Rx error).", example: "Ben A and Xinc should say after meal."}
+    - {id: Rx.instr, concern: "Route and instructions for topical, inhaled or nasal drugs.", example: "Nasal drop needs route."}
+    - {id: Rx.ddi, concern: "No clinically meaningful drug-drug interaction is left unaddressed. Include well-established absorption interactions, e.g. a calcium supplement taken together with an oral iron preparation reduces iron absorption and should be separated or flagged.", example: "Warfarin and aspirin; or calcium and oral iron given together without separation."}
+  Adv:
+    - {id: Adv.content.unrecognized, concern: "Each entered Advice item should be an understandable patient instruction, counselling message, precaution, lifestyle recommendation, safety-net instruction, or medicine-use instruction. Accept concise Bengali or English advice; flag only clearly meaningless text, a person/name, random token, or placeholder.", example: "'Drink adequate water' is valid advice; a standalone name such as 'Anik' is not patient advice."}
+    - {id: Adv.context, concern: "Every documented advice item must be clinically relevant and compatible with the patient's demographics, pregnancy/obstetric context, complaints, past history, health screening, examination, investigation results, diagnosis, medicines, and active prior treatment. Flag advice that is unrelated, contradicted, unsafe, or directed at a condition absent from the available record; do not demand that every valid advice item restate the diagnosis.", example: "Advice for an unrelated disease or advice contradicted by pregnancy, results, or treatment requires review."}
+    - {id: Adv.followup.interval, concern: "When a follow-up interval or return plan is documented, its urgency and timing must fit the patient's current risk, pregnancy/obstetric context, abnormal findings or results, diagnosis, treatment duration, monitoring needs, and safety-net plan. Flag an interval that is clearly too late, internally contradictory, or clinically unjustified; do not invent a universal interval when the evidence allows clinician discretion.", example: "A six-month routine return may be inappropriate when pregnancy or an important abnormal result requires earlier reassessment."}
+    - {id: Adv.followup, concern: "MANDATORY FIRST CHECK if a followup-context block is present below. Read today's FULL Advice text carefully - it may already, in any wording (Bengali or English), say to stop/omit/switch away from a specific prior drug. Only if today's Rx contains a medicine that clinically interacts with or is contraindicated alongside a STILL-ACTIVE medicine from a recent related prior visit (see 'Active medications from a recent related visit' below) AND today's Advice does NOT anywhere mention omitting/stopping/switching that specific prior medicine, flag it. Do not flag if Advice already addresses that specific drug in any form. Do not flag if no such prior-medicine block is given.", example: "An active prior anticoagulant plus a new interacting drug today, with Advice silent on stopping the prior one - flag missing omission advice. If Advice already says 'stop drug X, switch to drug Y', do NOT flag."}
+    - {id: Adv.cc, concern: "A specific counselling instruction that the diagnosis clearly requires is present (not generic completeness). Only flag a concrete, well-established missing instruction. CULTURAL CONTEXT (Bangladesh): advice must fit local food habits and culture. Do NOT recommend or flag advice about avoiding milk/calcium with iron (uncommon dietary conflict locally) or about alcohol (not culturally relevant unless an alcohol history exists). Avoiding tea/coffee near iron IS relevant and acceptable. Prefer locally meaningful advice.", example: "Suspected dengue clearly requires fluid-intake and warning-sign advice; do not raise alcohol or milk-with-iron warnings as Bangladeshi-context defaults."}
+    - {id: Adv.hs, concern: "Follow-up advice should reflect clinically significant clinical findings when monitoring or reassessment is clinically indicated.", example: "Hypertension with BP 180 but no follow-up advice."}
+    - {id: Adv.refer, concern: "Specialist referral is present ONLY for genuinely serious or emergency diagnoses that cannot be managed in general practice. Do NOT flag routine conditions. Use the similar expert-labeled cases to judge whether this diagnosis type warrants referral.", example: "Obstetric emergency or red-flag condition needs referral; routine pain or infection does not."}
+    - {id: Adv.precau, concern: "A precaution is flagged ONLY for a genuinely HIGH-RISK, safety-critical drug issue, not for routine side effects. Do NOT flag ordinary, well-known side effects that every drug carries (mild drowsiness, common GI upset) - flagging each drug's individual side effect causes alert fatigue in general practice. Flag only precautions that materially affect safety (e.g. a drug contraindicated in pregnancy, a serious interaction, a dangerous activity restriction for a strongly sedating agent in an adult who drives).", example: "Flag a true safety risk; do NOT flag generic 'may cause drowsiness' for every antihistamine."}
+
+# ── Root-cause ordering for reconciliation (code-only, nothing deleted) ──
+# Sections are ordered by clinical dependency. When findings in a later section
+# are caused by an earlier-section error, the earlier section is the ROOT.
+# The reconciliation layer groups findings under their root and keeps all of them.
+section_order: [Demo, CC, Dx, Inv, Rx, Adv]
