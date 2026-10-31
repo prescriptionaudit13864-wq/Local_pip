@@ -14,6 +14,7 @@ Run from the project root (the folder that holds ``audit_pipeline``)::
     .venv\\Scripts\\python.exe benchmark\\run_benchmark.py --models Qwen/Qwen2.5-7B-Instruct microsoft/phi-4
     .venv\\Scripts\\python.exe benchmark\\run_benchmark.py --models rules-only      # no LLM: rule engine baseline / dry run
     .venv\\Scripts\\python.exe benchmark\\run_benchmark.py --cases my_rx.json --limit 5 --no-live
+    .venv\\Scripts\\python.exe benchmark\\run_benchmark.py --model-list benchmark\\models_top5.json --cases FILE
 
 Input (``--cases``): a JSON list, or ``{"cases": [...]}``. Each case is either
 ``{"case_id", "patient", "visit", "history", "expected_errors"}`` (see synthetic_prescriptions_all.json) or any file
@@ -424,8 +425,8 @@ def slug(model: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]+", "__", model)
 
 
-def default_models() -> list[str]:
-    config = json.loads((BENCH / "models.json").read_text(encoding="utf-8"))
+def default_models(model_list: Path = BENCH / "models.json") -> list[str]:
+    config = json.loads(model_list.read_text(encoding="utf-8"))
     return [m["id"] for m in config["models"] if m.get("run")]
 
 
@@ -475,6 +476,8 @@ def write_summary(run_dir: Path) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--models", nargs="+", help=f"HF model ids (default: models.json entries with run=true); '{RULES_ONLY}' = no LLM")
+    parser.add_argument("--model-list", default=str(BENCH / "models.json"),
+                        help="JSON model list used when --models is not given (entries with run=true)")
     parser.add_argument("--cases", default=str(BENCH / "test_prescriptions.json"),
                         help="default: the 10-case set; use synthetic_prescriptions_all.json for all 35")
     parser.add_argument("--limit", type=int, help="only the first N cases (quick test)")
@@ -489,7 +492,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.worker:
         return run_worker(args.models[0], cases_path, Path(args.out), args.limit, not args.no_live)
 
-    models = args.models or default_models()
+    models = args.models or default_models(Path(args.model_list))
     run_dir = Path(args.out) if args.out else BENCH / "results" / datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir.mkdir(parents=True, exist_ok=True)
     if any(m != RULES_ONLY for m in models):

@@ -80,3 +80,22 @@ Metrics per model: precision, recall, F1, critical-error recall, live-audit reca
 tokens/s, malformed-output rate, peak VRAM and load time.
 
 The synthetic prescriptions use fictional patients and are for evaluation only, not medical advice.
+
+## Evaluation on real prescriptions
+
+The top 5 models from the synthetic benchmark (`benchmark/models_top5.json`: Qwen3-32B, Gemma-4-12B QAT, Phi-4,
+Gemma-3-27B, Gemma-3-12B, plus the rules-only baseline) are re-tested on real prescriptions annotated by a doctor.
+
+1. Copy `benchmark/real_prescriptions/annotation_template.xlsx` into `benchmark/real_prescriptions/data/` and fill it
+   in: prescriptions, medicines (current and previous visit), and one row per error the doctor finds, with its
+   section, error type, severity and the key words (drug names, terms) a correct finding should mention.
+2. Run the VS Code tasks in order, or:
+
+```powershell
+.venv\Scripts\python benchmark\real_prescriptions.py convert
+.venv\Scripts\python benchmark\run_benchmark.py --model-list benchmark\models_top5.json --cases benchmark\real_prescriptions\data\real_prescriptions.json --out benchmark\results_real\top5
+.venv\Scripts\python benchmark\export_doctor_review.py --run benchmark\results_real\top5 --cases benchmark\real_prescriptions\data\real_prescriptions.json
+```
+
+`benchmark/real_prescriptions/data/` and `benchmark/results_real/` hold patient data and are excluded from git.
+Use prescription IDs (for example `RX-001`) instead of patient names.

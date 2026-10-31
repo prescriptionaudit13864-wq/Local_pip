@@ -5,21 +5,120 @@
             "label": "Benchmark: run all models",
             "type": "process",
             "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-            "args": ["benchmark\\run_benchmark.py"],
+            "args": [
+                "benchmark\\run_benchmark.py"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}",
-                "env": { "HF_HUB_DISABLE_SYMLINKS_WARNING": "1", "PYTHONIOENCODING": "utf-8" }
+                "env": {
+                    "HF_HUB_DISABLE_SYMLINKS_WARNING": "1",
+                    "PYTHONIOENCODING": "utf-8"
+                }
             },
-            "presentation": { "reveal": "always", "panel": "dedicated", "focus": true, "clear": true },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            },
             "problemMatcher": []
         },
         {
             "label": "Benchmark: export doctor review files",
             "type": "process",
             "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-            "args": ["benchmark\\export_doctor_review.py"],
-            "options": { "cwd": "${workspaceFolder}", "env": { "PYTHONIOENCODING": "utf-8" } },
-            "presentation": { "reveal": "always", "panel": "dedicated", "focus": true, "clear": true },
+            "args": [
+                "benchmark\\export_doctor_review.py"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "PYTHONIOENCODING": "utf-8"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Real prescriptions: 1. convert doctor's workbook",
+            "type": "process",
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": [
+                "benchmark/real_prescriptions.py",
+                "convert"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "HF_HUB_DISABLE_SYMLINKS_WARNING": "1",
+                    "PYTHONIOENCODING": "utf-8"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Real prescriptions: 2. run top 5 models",
+            "type": "process",
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": [
+                "benchmark/run_benchmark.py",
+                "--model-list",
+                "benchmark/models_top5.json",
+                "--cases",
+                "benchmark/real_prescriptions/data/real_prescriptions.json",
+                "--out",
+                "benchmark/results_real/top5"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "HF_HUB_DISABLE_SYMLINKS_WARNING": "1",
+                    "PYTHONIOENCODING": "utf-8"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Real prescriptions: 3. export doctor review",
+            "type": "process",
+            "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "args": [
+                "benchmark/export_doctor_review.py",
+                "--run",
+                "benchmark/results_real/top5",
+                "--cases",
+                "benchmark/real_prescriptions/data/real_prescriptions.json"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "HF_HUB_DISABLE_SYMLINKS_WARNING": "1",
+                    "PYTHONIOENCODING": "utf-8"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            },
             "problemMatcher": []
         }
     ]

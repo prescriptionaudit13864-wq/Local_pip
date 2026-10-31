@@ -1,0 +1,24 @@
+{
+  "note": "Top 5 models by F1 on the synthetic test set (results/2026-10-30_model_comparison), plus the rules-only baseline. Used for the evaluation on real, doctor-annotated prescriptions: run_benchmark.py --model-list benchmark/models_top5.json",
+  "models": [
+    {"id": "rules-only", "run": true,
+     "synthetic": {"f1": 0.19, "precision": 0.11, "recall": 1.0, "critical_recall": 1.0, "seconds_per_case": 1.6},
+     "why": "Baseline with no LLM: shows what the rule engine alone catches on real prescriptions."},
+
+    {"id": "unsloth/Qwen3-32B-bnb-4bit", "run": true,
+     "synthetic": {"f1": 0.56, "precision": 0.40, "recall": 0.91, "critical_recall": 0.88, "seconds_per_case": 558},
+     "why": "Highest F1 and precision; slowest of the five."},
+    {"id": "unsloth/gemma-4-12B-it-qat-q4_0-unquantized", "run": true,
+     "synthetic": {"f1": 0.53, "precision": 0.36, "recall": 1.0, "critical_recall": 1.0, "seconds_per_case": 163},
+     "why": "Caught every planted error, including all critical ones, at about 3x the speed of Qwen3-32B."},
+    {"id": "unsloth/phi-4-bnb-4bit", "run": true,
+     "synthetic": {"f1": 0.51, "precision": 0.37, "recall": 0.82, "critical_recall": 0.75, "seconds_per_case": 278},
+     "why": "Second-best precision; lower critical recall."},
+    {"id": "unsloth/gemma-3-27b-it-bnb-4bit", "run": true,
+     "synthetic": {"f1": 0.48, "precision": 0.33, "recall": 0.91, "critical_recall": 1.0, "seconds_per_case": 205},
+     "why": "Caught every critical error."},
+    {"id": "unsloth/gemma-3-12b-it-bnb-4bit", "run": true,
+     "synthetic": {"f1": 0.47, "precision": 0.31, "recall": 0.91, "critical_recall": 0.88, "seconds_per_case": 321},
+     "why": "Fifth by F1; a smaller model to compare against the 27B."}
+  ]
+}

@@ -1,9 +1,9 @@
 """Export benchmark results as CSV + Excel files for a doctor to cross-check.
 
 Writes into ``<run folder>/doctor_review/``:
-  test_prescriptions.csv / .xlsx   one row per test prescription: what was written and which error was planted
+  <cases file>.csv / .xlsx    one row per test prescription: what was written and which errors are expected
   <model>.csv / .xlsx            one row per finding the model flagged, per high-evidence candidate it rejected,
-                                 and per planted error it missed; with blank "Doctor" columns to fill in
+                                 and per expected error it missed; with blank "Doctor" columns to fill in
 
 Usage:  .venv\\Scripts\\python.exe benchmark\\export_doctor_review.py [--run benchmark\\results\\<folder>] [--cases FILE]
 Reads only the result JSONs; nothing in the pipeline or the results is changed.
@@ -28,13 +28,13 @@ DROPPED = {"m42-health/Llama3-Med42-8B", "unsloth/Qwen2.5-32B-Instruct-bnb-4bit"
 SECTION_NAMES = {"CC": "Chief complaints", "Hx": "Past history", "Inv": "Investigations", "Dx": "Diagnosis",
                  "Rx": "Medicines (Rx)", "Adv": "Advice", "Demo": "Patient details"}
 
-DOCTOR_PRESCRIPTION_COLUMNS = ["Doctor: is the planted error a real error? (Yes/No)",
+DOCTOR_PRESCRIPTION_COLUMNS = ["Doctor: is the expected error a real error? (Yes/No)",
                                "Doctor: other errors in this prescription", "Doctor: comments"]
 DOCTOR_FINDING_COLUMNS = ["Doctor: is this correct? (Agree/Disagree/Unsure)", "Doctor: comments"]
 
 HEADER_FILL = PatternFill("solid", fgColor="1F4E78")
 DOCTOR_FILL = PatternFill("solid", fgColor="FFF2CC")
-ROW_FILLS = {"Missed planted error": PatternFill("solid", fgColor="F8CBAD"),
+ROW_FILLS = {"Missed expected error": PatternFill("solid", fgColor="F8CBAD"),
              "Not reported (rejected)": PatternFill("solid", fgColor="EDEDED")}
 
 
@@ -137,10 +137,10 @@ def new_book() -> Workbook:
 PRESCRIPTION_COLUMNS = ["Case ID", "Title", "Error category", "Age", "Sex", "Chief complaints", "Past history",
                         "ANC/PNC notes", "Vitals", "On examination", "Systemic examination", "Investigations ordered",
                         "Investigation results", "Diagnosis", "Medicines (Rx)", "Advice", "Follow-up",
-                        "Previous visits", "Planted error(s)", "Severity"] + DOCTOR_PRESCRIPTION_COLUMNS
+                        "Previous visits", "Expected error(s)", "Severity"] + DOCTOR_PRESCRIPTION_COLUMNS
 
 
-def export_prescriptions(cases: list[dict[str, Any]], out: Path) -> None:
+def export_prescriptions(cases: list[dict[str, Any]], out: Path, name: str) -> None:
     rows = []
     for case in cases:
         p, v = case["patient"], case["visit"]
@@ -158,25 +158,25 @@ def export_prescriptions(cases: list[dict[str, Any]], out: Path) -> None:
             "Diagnosis": texts(v.get("diagnosis")), "Medicines (Rx)": medicines(v.get("rxList")),
             "Advice": texts(v.get("adviceList")), "Follow-up": results(v.get("followUps")),
             "Previous visits": previous_visits(case.get("history")),
-            "Planted error(s)": "\n".join(f"{n}. {e['description']}" for n, e in enumerate(expected, 1)) or "None (clean case)",
+            "Expected error(s)": "\n".join(f"{n}. {e['description']}" for n, e in enumerate(expected, 1)) or "None (clean case)",
             "Severity": "\n".join(e.get("severity", "") for e in expected),
         })
-    write_csv(out / "test_prescriptions.csv", PRESCRIPTION_COLUMNS, rows)
+    write_csv(out / f"{name}.csv", PRESCRIPTION_COLUMNS, rows)
     book = new_book()
     widths = {"Title": 30, "Chief complaints": 30, "Past history": 25, "Diagnosis": 25, "Medicines (Rx)": 40,
-              "Advice": 25, "Previous visits": 35, "Planted error(s)": 40, "Vitals": 28,
+              "Advice": 25, "Previous visits": 35, "Expected error(s)": 40, "Vitals": 28,
               **{c: 30 for c in DOCTOR_PRESCRIPTION_COLUMNS}}
     add_sheet(book, "Prescriptions", PRESCRIPTION_COLUMNS, rows, widths, DOCTOR_PRESCRIPTION_COLUMNS,
               {DOCTOR_PRESCRIPTION_COLUMNS[0]: "Yes,No,Unsure"})
-    book.save(out / "test_prescriptions.xlsx")
+    book.save(out / f"{name}.xlsx")
 
 
 # --------------------------------------------------------------------------- per-model findings
-FINDING_COLUMNS = ["Case ID", "Case title", "Planted error(s)", "Model decision", "Section", "Rule", "Concern level",
-                   "Confidence", "Model's reason", "Evidence", "Suggested correction", "Matches planted error"] \
+FINDING_COLUMNS = ["Case ID", "Case title", "Expected error(s)", "Model decision", "Section", "Rule", "Concern level",
+                   "Confidence", "Model's reason", "Evidence", "Suggested correction", "Matches expected error"] \
                   + DOCTOR_FINDING_COLUMNS
-CASE_COLUMNS = ["Case ID", "Case title", "Planted errors", "Caught", "Missed", "Findings flagged",
-                "Findings matching a planted error", "Seconds for the whole prescription", "Error"]
+CASE_COLUMNS = ["Case ID", "Case title", "Expected errors", "Caught", "Missed", "Findings flagged",
+                "Findings matching a expected error", "Seconds for the whole prescription", "Error"]
 
 
 def export_model(data: Mapping[str, Any], cases_by_id: Mapping[str, Any], out: Path) -> str:
@@ -186,7 +186,7 @@ def export_model(data: Mapping[str, Any], cases_by_id: Mapping[str, Any], out: P
         case = cases_by_id.get(result["case_id"], {})
         expected = case.get("expected_errors") or []
         planted = "\n".join(e["description"] for e in expected)
-        base = {"Case ID": result["case_id"], "Case title": result.get("title", ""), "Planted error(s)": planted}
+        base = {"Case ID": result["case_id"], "Case title": result.get("title", ""), "Expected error(s)": planted}
         final = result.get("final") or {}
         for f in final.get("findings", []):
             hit = [e["description"] for e in expected if matches(f, e)]
@@ -195,26 +195,26 @@ def export_model(data: Mapping[str, Any], cases_by_id: Mapping[str, Any], out: P
                 "Rule": f.get("rule_id", ""), "Concern level": f.get("concern_level", ""),
                 "Confidence": f.get("confidence", ""), "Model's reason": f.get("why", ""),
                 "Evidence": f.get("evidence", ""), "Suggested correction": f.get("correction", ""),
-                "Matches planted error": "Yes: " + "; ".join(hit) if hit else "No"}))
+                "Matches expected error": "Yes: " + "; ".join(hit) if hit else "No"}))
         for c in final.get("rejected_high_evidence_candidates") or []:
             hit = [e["description"] for e in expected if matches({**c, "why": c.get("why_candidate", "")}, e)]
             rows.append(dict(base, **{
                 "Model decision": "Not reported (rejected)", "Section": section_name(c.get("section", "")),
                 "Rule": c.get("rule_id", ""), "Model's reason": "(rule engine) " + c.get("why_candidate", ""),
                 "Evidence": c.get("evidence", ""),
-                "Matches planted error": "Yes: " + "; ".join(hit) if hit else "No"}))
+                "Matches expected error": "Yes: " + "; ".join(hit) if hit else "No"}))
         score = (result.get("score") or {}).get("final") or {}
         missed = [e for e in expected if e["id"] in score.get("missed_ids", [])] if score else \
             (expected if result.get("error") else [])
         for e in missed:
             rows.append(dict(base, **{
-                "Model decision": "Missed planted error", "Section": e.get("section", ""),
+                "Model decision": "Missed expected error", "Section": e.get("section", ""),
                 "Concern level": e.get("severity", ""), "Model's reason": "(not reported by the model)",
-                "Evidence": e["description"], "Matches planted error": "Missed"}))
+                "Evidence": e["description"], "Matches expected error": "Missed"}))
         case_rows.append({
-            "Case ID": result["case_id"], "Case title": result.get("title", ""), "Planted errors": len(expected),
+            "Case ID": result["case_id"], "Case title": result.get("title", ""), "Expected errors": len(expected),
             "Caught": score.get("detected", ""), "Missed": len(missed),
-            "Findings flagged": score.get("findings", ""), "Findings matching a planted error": score.get("correct_findings", ""),
+            "Findings flagged": score.get("findings", ""), "Findings matching a expected error": score.get("correct_findings", ""),
             "Seconds for the whole prescription": (result.get("timing") or {}).get("total_seconds", ""),
             "Error": result.get("error", "")})
 
@@ -225,8 +225,8 @@ def export_model(data: Mapping[str, Any], cases_by_id: Mapping[str, Any], out: P
     write_csv(out / f"{stem}.csv", FINDING_COLUMNS, rows)
 
     book = new_book()
-    widths = {"Case title": 28, "Planted error(s)": 32, "Model decision": 18, "Rule": 20, "Model's reason": 45,
-              "Evidence": 45, "Suggested correction": 40, "Matches planted error": 28,
+    widths = {"Case title": 28, "Expected error(s)": 32, "Model decision": 18, "Rule": 20, "Model's reason": 45,
+              "Evidence": 45, "Suggested correction": 40, "Matches expected error": 28,
               **{c: 28 for c in DOCTOR_FINDING_COLUMNS}}
     add_sheet(book, "Findings", FINDING_COLUMNS, rows, widths, DOCTOR_FINDING_COLUMNS,
               {DOCTOR_FINDING_COLUMNS[0]: "Agree,Disagree,Unsure"}, fill_by="Model decision")
@@ -237,7 +237,7 @@ def export_model(data: Mapping[str, Any], cases_by_id: Mapping[str, Any], out: P
              ("Critical recall", s.get("critical_recall")), ("Avg seconds per prescription", s.get("avg_case_seconds")),
              ("Peak VRAM (GB)", s.get("peak_vram_gb")), ("Load error", load_error or ""),
              ("How to review", "Findings sheet: one row per error the model flagged (white), each strong rule-engine "
-                               "candidate that was rejected and not reported (grey) and each planted error it missed (red). "
+                               "candidate that was rejected and not reported (grey) and each expected error it missed (red). "
                                "Fill in the yellow Doctor columns.")]
     add_sheet(book, "About", ["Item", "Value"], [{"Item": k, "Value": "" if v is None else v} for k, v in about],
               {"Item": 28, "Value": 90})
@@ -257,7 +257,7 @@ def main() -> None:
 
     raw = json.loads(args.cases.read_text(encoding="utf-8"))
     cases = raw["cases"] if isinstance(raw, dict) else raw
-    export_prescriptions(cases, out)
+    export_prescriptions(cases, out, args.cases.stem)
     print(f"prescriptions: {len(cases)} rows")
     cases_by_id = {c["case_id"]: c for c in cases}
     for file in sorted(run.glob("*.json")):
