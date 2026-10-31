@@ -14,7 +14,7 @@ import argparse
 import csv
 import json
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -94,7 +94,7 @@ def write_csv(path: Path, columns: list[str], rows: list[dict[str, Any]]) -> Non
 
 
 def add_sheet(book: Workbook, title: str, columns: list[str], rows: list[dict[str, Any]],
-              widths: Mapping[str, int], doctor_columns: list[str] = (), choices: Mapping[str, str] = {},
+              widths: Mapping[str, int], doctor_columns: Sequence[str] = (), choices: Mapping[str, str] = {},
               fill_by: str = "") -> None:
     sheet = book.create_sheet(title)
     sheet.append(columns)
@@ -129,7 +129,7 @@ def add_sheet(book: Workbook, title: str, columns: list[str], rows: list[dict[st
 
 def new_book() -> Workbook:
     book = Workbook()
-    book.remove(book.active)
+    book.remove(book.worksheets[0])  # the default empty sheet
     return book
 
 

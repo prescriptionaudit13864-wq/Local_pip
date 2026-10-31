@@ -98,7 +98,7 @@ def sheet(book: Workbook, title: str, columns: list[str], rows: list[list[Any]],
 def write_template() -> None:
     FOLDER.mkdir(exist_ok=True)
     book = Workbook()
-    guide = book.active
+    guide = book.worksheets[0]
     guide.title = "How to fill"
     for line in [
         "Real prescription annotation sheet",
