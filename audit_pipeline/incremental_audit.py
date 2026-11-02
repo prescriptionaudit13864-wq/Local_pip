@@ -11,6 +11,8 @@ import os
 import re
 from typing import Any, Mapping
 
+from .patient_context import CLINICAL_WARNING_MESSAGES
+
 
 SECTION_PROFILES: dict[str, tuple[str, ...]] = {
     "chiefComplaints": ("CC",),
@@ -182,7 +184,19 @@ def summarize_live_report(
         if str(item.get("section", "")).strip() and str(item.get("rule_id", "")).strip()
     }
     metadata = report.get("metadata", {}) or {}
-    warnings = list(metadata.get("warnings", []) or [])
+    all_warnings = [str(item) for item in (metadata.get("warnings", []) or [])]
+    # Patient-context notes such as a male patient with pregnancy evidence are likely errors in the
+    # prescription itself: show them as "possible errors" and count them as concerns. They concern the
+    # demographics, so only the chief-complaint check shows them, not every section.
+    # The rest are pipeline/technical notes.
+    possible_errors = (
+        list(dict.fromkeys(
+            CLINICAL_WARNING_MESSAGES[item] for item in all_warnings if item in CLINICAL_WARNING_MESSAGES
+        ))
+        if "CC" in domains
+        else []
+    )
+    warnings = [item for item in all_warnings if item not in CLINICAL_WARNING_MESSAGES]
     rejected = [
         dict(item)
         for item in (metadata.get("rejected_high_evidence_candidates", []) or [])
@@ -223,10 +237,10 @@ def summarize_live_report(
     if report.get("status") == "partial_failed":
         status = "error"
         summary = _live_failure_summary(warnings)
-    elif not findings and warnings:
+    elif not findings and not possible_errors and warnings:
         status = "moderate"
         summary = "The live audit completed with pipeline notes that require review."
-    elif not findings:
+    elif not findings and not possible_errors:
         status = "clear"
         summary = "No anomaly detected from the available evidence."
     else:
@@ -235,12 +249,14 @@ def summarize_live_report(
             default=2,
         )
         status = "critical" if strongest >= _LEVEL_RANK["major"] else "moderate"
-        if total_findings == 1:
+        total_concerns = total_findings + len(possible_errors)
+        shown = len(findings) + len(possible_errors)
+        if total_concerns == 1:
             summary = "1 concern requires review."
-        elif total_findings > len(findings):
-            summary = f"{total_findings} concerns found; the {len(findings)} most important are shown (the final AI Audit lists all)."
+        elif total_concerns > shown:
+            summary = f"{total_concerns} concerns found; the {shown} most important are shown (the final AI Audit lists all)."
         else:
-            summary = f"{len(findings)} concerns require review."
+            summary = f"{total_concerns} concerns require review."
 
     return {
         "section": section,
@@ -249,6 +265,7 @@ def summarize_live_report(
         "status": status,
         "summary": summary,
         "findings": findings,
+        "possible_errors": possible_errors,
         "warnings": warnings,
     }
 

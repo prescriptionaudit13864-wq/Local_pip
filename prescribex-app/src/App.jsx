@@ -618,6 +618,22 @@ const SectionAuditBadge = ({ audit, onRetry }) => {
               )}
             </div>
           ))}
+          {(state.possible_errors || []).length > 0 && (
+            <div className="mt-3 rounded-xl bg-[#FFF7E6] p-3">
+              <p className="text-[10px] font-bold uppercase text-[#B87400]">Possible error{state.possible_errors.length > 1 ? 's' : ''}</p>
+              {state.possible_errors.map((message, index) => (
+                <p key={index} className="mt-1 text-xs text-[#2B324B] break-words">{message}</p>
+              ))}
+            </div>
+          )}
+          {state.status !== 'error' && (state.warnings || []).length > 0 && (
+            <details className="mt-3 text-[10px] text-[#808493]">
+              <summary className="cursor-pointer font-semibold">Pipeline notes</summary>
+              {state.warnings.map((warning, index) => (
+                <p key={index} className="mt-1 break-words">{warning}</p>
+              ))}
+            </details>
+          )}
           {(state.status === 'stale' || state.status === 'error') && (
             <button type="button" onClick={() => { setOpen(false); onRetry?.(); }} className="mt-3 rounded-full bg-[#0CAAFF] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#4264D0]">
               Run live check
@@ -2907,12 +2923,6 @@ export default function App() {
   const [rxList, setRxList] = useState([{ id: 1, medicine: '', dosage: '', duration: '', instruction: '' }]);
   const [adviceList, setAdviceList] = useState([{ id: 1, text: '' }]);
   const [followUps, setFollowUps] = useState([{ id: 1, text: '' }]);
-
-  const handleNavigateHome = () => {
-    setCurrentPage('dashboard');
-    setActivePatient(null);
-    setSelectedPatient(null);
-  };
 
   const handleNavigateToPatients = () => {
     setCurrentPage('patients');

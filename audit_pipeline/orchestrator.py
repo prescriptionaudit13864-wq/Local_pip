@@ -104,14 +104,6 @@ def standardize_prescription(row: Mapping[str, Any]) -> dict[str, Any]:
     return standardized
 
 
-def _candidate_key(candidate: Mapping[str, Any]) -> tuple[str, str, str]:
-    return (
-        str(candidate.get("rule_id", "") or ""),
-        str(candidate.get("generic_id", "") or ""),
-        str(candidate.get("evidence", "") or ""),
-    )
-
-
 def _prune_candidates_for_model(
     candidates_by_section: Mapping[str, Sequence[Mapping[str, Any]]],
 ) -> dict[str, list[dict[str, Any]]]:

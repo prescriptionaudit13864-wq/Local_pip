@@ -98,7 +98,7 @@ class RulesOnlyProvider:
         self.last_response_text_preview = ""
 
     def audit(self, *, system: str, prompt: str, max_tokens: int) -> dict[str, Any]:
-        from audit_pipeline.gemma_provider import UnsupportedPrompt
+        from audit_pipeline.finetune_prompt import UnsupportedPrompt, flatten_candidates
 
         if "TASK_JSON=" not in prompt:
             raise UnsupportedPrompt("rules-only baseline does not answer router/classifier prompts")
@@ -110,7 +110,7 @@ class RulesOnlyProvider:
              "why": "Accepted by the rules-only baseline without any language model review of this candidate.",
              "evidence": c.get("evidence", ""),
              "confidence": "high" if c.get("evidence_strength") == "high" else "medium"}
-            for c in task.get("candidates", []) or [] if isinstance(c, Mapping)
+            for c in flatten_candidates(task.get("candidates"))
         ]
         return {"section": task.get("section", ""), "findings": findings}
 

@@ -386,6 +386,19 @@ def _deduplicate_risks(risks: Sequence[Mapping[str, Any]]) -> list[dict[str, Any
     return result
 
 
+AGE_MISSING_WARNING = "age is missing or could not be parsed"
+MALE_PREGNANCY_WARNING = (
+    "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review "
+    "but pregnancy-specific guidance was not activated"
+)
+# Patient-context warnings that describe a likely documentation error in the prescription itself (not a
+# pipeline problem), with the wording shown to the clinician as a "possible error".
+CLINICAL_WARNING_MESSAGES = {
+    AGE_MISSING_WARNING: "Age is missing or unreadable. Record the patient's age (months or days for an infant).",
+    MALE_PREGNANCY_WARNING: "Pregnancy is documented for a male patient. Verify the recorded gender or the pregnancy entry.",
+}
+
+
 def build_patient_context(
     prescription: Mapping[str, Any],
     clinical_evidence: Sequence[Mapping[str, Any]] | None = None,
@@ -400,7 +413,7 @@ def build_patient_context(
     warnings: list[str] = []
     age_years = _parse_age_years(record.get("Age", ""))
     if age_years is None:
-        warnings.append("age is missing or could not be parsed")
+        warnings.append(AGE_MISSING_WARNING)
     gender = _normalize_gender(record.get("Gender", ""))
 
     pregnancy_evidence = _flag_evidence(
@@ -421,9 +434,7 @@ def build_patient_context(
     pregnancy_conflict = gender == "M" and bool(pregnancy_evidence)
     effective_pregnancy_evidence = [] if pregnancy_conflict else pregnancy_evidence
     if pregnancy_conflict:
-        warnings.append(
-            "male gender conflicts with pregnancy evidence; evidence was preserved for demographic review but pregnancy-specific guidance was not activated"
-        )
+        warnings.append(MALE_PREGNANCY_WARNING)
 
     is_child = age_years is not None and age_years < 18
     is_elderly = age_years is not None and age_years >= 60
@@ -472,4 +483,4 @@ def build_patient_context(
     }
 
 
-__all__ = ["build_patient_context"]
+__all__ = ["CLINICAL_WARNING_MESSAGES", "build_patient_context"]
