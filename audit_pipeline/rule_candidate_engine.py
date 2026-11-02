@@ -1714,7 +1714,6 @@ def generate_rule_candidates(
                     trigger_source="live_section_review",
                 ))
 
-    combined_prescription_text = " ".join(_text(value) for value in prescription.values())
     medication_text = _field(prescription, "Medication")
 
     # Do not infer an indication error merely because a medicine's monograph

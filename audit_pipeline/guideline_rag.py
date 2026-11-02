@@ -423,21 +423,3 @@ def medicine_query_text(raw_medication_text: str = "", normalized_medicines: lis
                     if candidate.get(key):
                         parts.append(str(candidate[key]))
     return " ".join(dict.fromkeys(part.strip() for part in parts if part and part.strip()))
-
-def retrieve_guideline_facts(
-    row: dict[str, Any],
-    *,
-    facts_path: str | Path = "audit_pipeline/data/rag/guideline_facts_merged.jsonl",
-    section: str | None = None,
-    limit: int = 20,
-    normalized_medicines: list[dict[str, Any]] | None = None,
-) -> dict[str, Any]:
-    rag = GuidelineRAG(facts_path)
-    return rag.retrieve(
-        diagnosis=row.get("Diagnosis") or row.get("diagnosis") or "",
-        chief_complaint=row.get("Chief_Complaint") or row.get("Chief Complaint") or "",
-        clinical_text=" ".join(str(row.get(k) or "") for k in ["Health_Screening", "Health Screening", "On_Examination", "On Examination", "Systemic_Examination", "Systemic Examination", "Investigation", "Investigation_Results", "Investigation Results", "Advice"]),
-        medication_text=medicine_query_text(row.get("Medication") or row.get("medication") or "", normalized_medicines),
-        section=section,
-        limit=limit,
-    ).to_dict()

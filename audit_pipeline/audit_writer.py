@@ -37,6 +37,46 @@ def _final_rule_name(value: Any) -> str:
     return name[: -len("_candidate")] if name.endswith("_candidate") else name
 
 
+def _group_candidates_for_prompt(candidates: list[Any]) -> list[Any]:
+    """Group sibling candidates that share identical evidence text into one prompt entry.
+
+    rule_candidate_engine.py deliberately raises several narrow candidates (different
+    rule_id, same evidence) for one piece of text, e.g. a single chief-complaint line gets
+    separate severity/site/demographic/temporal candidates. Sending that evidence once per
+    candidate repeats the same sentence 4-5 times in the prompt. This groups them into
+    {"evidence": ..., "checks": [...]} so the model reads the evidence once and judges each
+    check against it. It is a prompt-rendering change only: every check keeps its own
+    candidate_id/rule_id/rule_name untouched, and matching in _select_candidate /
+    _normalize_findings runs against the ORIGINAL ungrouped task["candidates"], never
+    against this grouped view, so confirm/reject/scoring behavior cannot be affected by it.
+    """
+    groups: dict[str, list[Mapping[str, Any]]] = {}
+    order: list[str] = []
+    for item in candidates:
+        if not isinstance(item, Mapping):
+            key = f"__non_mapping__\x00{id(item)}"  # unique key: never grouped
+            order.append(key)
+            groups[key] = [item]
+            continue
+        evidence = str(item.get("evidence", "") or "").strip()
+        section = str(item.get("section", "") or "").strip()
+        key = f"{section}\x00{evidence}" if evidence else f"__ungrouped__\x00{id(item)}"
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(item)
+    result: list[Any] = []
+    for key in order:
+        items = groups[key]
+        if len(items) == 1 or not isinstance(items[0], Mapping):
+            result.append(items[0])
+            continue
+        shared = {"section", "evidence"}
+        checks = [{k: v for k, v in item.items() if k not in shared} for item in items]
+        result.append({"section": items[0].get("section"), "evidence": items[0].get("evidence"), "checks": checks})
+    return result
+
+
 def _compact_task(task: Mapping[str, Any]) -> dict[str, Any]:
     keys = (
         "prescription_id",
@@ -56,7 +96,9 @@ def _compact_task(task: Mapping[str, Any]) -> dict[str, Any]:
     # and needlessly increased live-check latency.
     if str(task.get("section", "") or "").strip() == "CC":
         compact.pop("instructions", None)
-    compact["candidates"] = [_compact_candidate(item) for item in task.get("candidates", []) or []]
+    compact["candidates"] = _group_candidates_for_prompt(
+        [_compact_candidate(item) for item in task.get("candidates", []) or []]
+    )
     return compact
 
 
@@ -133,6 +175,7 @@ def build_audit_prompt(task: Mapping[str, Any], repair_instruction: str = "") ->
             "Audit the chief-complaint candidates only; do not invent a new candidate.",
             "Interpret Bengali, English, mixed language, and nonstandard Romanized Bangla/Banglish literally. Do not invent an unstated symptom.",
             "Evaluate every candidate independently and return every supported finding.",
+            'Some candidates appear grouped as {"evidence":...,"checks":[...]}: every entry in checks shares that one evidence text. Judge each entry in checks independently against it, exactly as you would an ungrouped candidate, and return a separate finding (with that entry\'s own candidate_id and rule_id) for each one that is supported. Omit any entry in checks that is not supported.',
             "MANDATORY FIRST DECISION FOR EACH CC.1: Does the literal text state an abnormal symptom, health problem, clinical concern, or valid encounter reason? If NO, include that CC.1 candidate in findings.",
             "A statement containing only a name/pronoun and an ordinary action such as eating, sleeping, walking, playing, or working is not a clinical complaint unless the text explicitly says unable, reduced, excessive, painful, difficult, or changed. Duration alone does not make it clinical.",
             "CC.term.unclear: flag only genuinely unrecognizable or clearly mistyped text; accept understandable colloquial and transliterated wording.",
@@ -164,6 +207,7 @@ def build_audit_prompt(task: Mapping[str, Any], repair_instruction: str = "") ->
         "Confirm, reject, or refine candidates using the provided evidence.",
         "When a candidate_id is supplied, copy that exact candidate_id into its finding.",
         "Omit every candidate that is not supported.",
+        'Some candidates appear grouped as {"evidence":...,"checks":[...]}: every entry in checks shares that one evidence text. Judge each entry in checks independently against it, exactly as you would an ungrouped candidate, and return a separate finding (with that entry\'s own candidate_id and rule_id) for each one that is supported. Omit any entry in checks that is not supported.',
         "Never return a finding merely to state that the current item is "
         "appropriate, clinically relevant, or requires no action; reject that "
         "candidate by omitting it.",
@@ -612,6 +656,7 @@ def _provider_rejected_candidate(raw: Mapping[str, Any], why: str, correction: s
         r"no\s+correction\s+needed|"
         r"no\s+(?:further\s+)?action\s+(?:is\s+)?required|"
         r"no\s+(?:further\s+)?action\s+needed|"
+        r"no\s+(?:further\s+)?changes?\s+(?:is\s+|are\s+)?(?:needed|required)|"
         r"omit\s+(?:this\s+)?candidate"
         r")\b",
         combined,
@@ -623,7 +668,8 @@ def _provider_rejected_candidate(raw: Mapping[str, Any], why: str, correction: s
         r"(?:violations?|issues?|concerns?|errors?|gaps?|problems?|mismatch(?:es)?|contraindications?|discrepanc(?:y|ies))\b"
         r"|\bwithout\s+(?:any\s+)?(?:contradict|conflict)"
         r"|\b(?:does|do|did)\s+not\s+(?:contradict|violate|conflict)\b"
-        r"|\bnothing\s+(?:is\s+)?(?:wrong|missing)\b",
+        r"|\bnothing\s+(?:is\s+)?(?:wrong|missing|to\s+(?:flag|report|note|add))\b"
+        r"|\bno\s+concerns?\s+(?:noted|identified|found)\b",
         combined,
     ):
         return True
@@ -634,19 +680,37 @@ def _provider_rejected_candidate(raw: Mapping[str, Any], why: str, correction: s
         r"|\b(?:single|only|one)\s+diagnosis\b",
         combined,
     ) and not re.search(
-        r"\b(?:not|never|without|insufficient|lacks?|missing|inadequately|partially|unaddressed|unsupported)\b",
+        # "no" added: a model phrasing a real gap as "No site is documented" (negator before the
+        # subject, not before the verb) was wrongly matching "is documented" above and getting
+        # rejected as if the candidate were confirmed-fine. The sibling check just below this one
+        # already includes "no" in its own exclusion list; this one was missing it.
+        r"\b(?:not|no|never|without|insufficient|lacks?|missing|inadequately|partially|unaddressed|unsupported)\b",
         combined,
     ):
         return True
     # A finding whose own explanation says the item is fine is a rejection in disguise
     # (weaker models often "confirm" a candidate while describing it as relevant/appropriate).
     if re.search(
-        r"\b(?:is|are|was|were|seems|appears)\s+(?:clinically\s+|directly\s+)?"
-        r"(?:relevant|indicated|appropriate|justified|reasonable|acceptable|adequate|consistent|correct|valid)\b",
+        # (?:\w+ly\s+)? allows any adverb before the adjective (clinically, physiologically,
+        # generally, ...), not just the two that were hardcoded -- "is physiologically plausible"
+        # was slipping through before because "physiologically" wasn't "clinically" or "directly".
+        r"\b(?:is|are|was|were|seems|appears)\s+(?:\w+ly\s+)?"
+        r"(?:relevant|indicated|appropriate|justified|reasonable|acceptable|adequate|consistent|correct|valid|"
+        r"plausible|typical|expected|unremarkable)\b",
         combined,
     ) and not re.search(
         r"\b(?:not|no|never|unrelated|irrelevant|lacks?|missing|without|inappropriate|incorrect|invalid|"
         r"inconsistent|unjustified|insufficient|mismatch)\b",
+        combined,
+    ):
+        return True
+    if re.search(
+        r"\b(?:not\s+clinically\s+significant|clinically\s+insignificant|"
+        r"not\s+a\s+(?:true\s+)?concern|non[-\s]?issue)\b",
+        combined,
+    ) and not re.search(
+        r"\b(?:no|missing|omits|lacks|contraindicat|avoid|exceeds|mismatch|inappropriate|unsafe|"
+        r"not\s+recommended|requires\s+review|risk|interaction|duplicate|overlap)\b",
         combined,
     ):
         return True
@@ -669,7 +733,7 @@ def _provider_rejected_candidate(raw: Mapping[str, Any], why: str, correction: s
         combined,
     )
     if supportive and review_only and not re.search(
-        r"\b(missing|omits|lacks|contraindicat|avoid|exceeds|mismatch|inappropriate|unsafe|not\s+recommended|requires\s+review|risk)\b",
+        r"\b(no|missing|omits|lacks|contraindicat|avoid|exceeds|mismatch|inappropriate|unsafe|not\s+recommended|requires\s+review|risk)\b",
         combined,
     ):
         return True
@@ -684,6 +748,59 @@ def _is_echo(text: str, reference: str) -> bool:
     if a == b or a in b or b in a:
         return len(a) >= 0.7 * len(b) or len(b) >= 0.7 * len(a)
     return SequenceMatcher(None, a, b).ratio() >= 0.8
+
+
+# Rule IDs that different candidate generators raise from a different angle, but that in
+# practice confirm together for the SAME underlying fact once it's genuinely true -- e.g.
+# CC.context.demo ("does this complaint fit the patient's demographics") and
+# CC.context.conflict ("does this complaint contradict other context") both legitimately fire,
+# worded differently, for one real conflict such as a male patient with a pregnancy complaint.
+# This is a short, reviewed list of rule_id pairs actually observed double-firing -- not a
+# generic text-similarity guess -- so extending it means adding a pair you've confirmed
+# overlaps, not changing behavior for everything. When 2+ of a group are confirmed for the
+# same section/task, only the single most severe one is kept; the rest are dropped as the
+# same concern restated.
+_OVERLAPPING_RULE_GROUPS: tuple[frozenset[str], ...] = (
+    frozenset({"CC.context.demo", "CC.context.conflict"}),
+    frozenset({"Dx.cc.1", "Dx.cc.2"}),
+    frozenset({"Dx.hs.1", "Dx.hs.2"}),
+    # Observed double-firing together for an investigation that doesn't fit the patient (e.g. a
+    # pregnancy ultrasound for a 49-year-old male): Inv.demo.1 asks "is this age/gender
+    # appropriate", Inv.relevance asks "is this clinically relevant to the patient" -- same
+    # underlying mismatch from two angles.
+    frozenset({"Inv.demo.1", "Inv.relevance"}),
+)
+_CONCERN_RANK = {"minor": 1, "moderate": 2, "major": 3, "critical": 4}
+
+
+def _consolidate_overlapping_findings(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Keep only the most severe finding from each overlapping rule-id group (see above)."""
+    def group_for(rule_id: str) -> frozenset[str] | None:
+        for group in _OVERLAPPING_RULE_GROUPS:
+            if rule_id in group:
+                return group
+        return None
+
+    kept_by_group: dict[frozenset[str], dict[str, Any]] = {}
+    result: list[dict[str, Any]] = []
+    for item in findings:
+        rule_id = str(item.get("rule_id", "")).strip()
+        group = group_for(rule_id)
+        if group is None:
+            result.append(item)
+            continue
+        current = kept_by_group.get(group)
+        if current is None:
+            kept_by_group[group] = item
+            result.append(item)
+            continue
+        new_rank = _CONCERN_RANK.get(str(item.get("concern_level", "")).casefold(), 0)
+        current_rank = _CONCERN_RANK.get(str(current.get("concern_level", "")).casefold(), 0)
+        if new_rank > current_rank:
+            result[result.index(current)] = item
+            kept_by_group[group] = item
+        # else: new item is the same or a weaker restatement of the one already kept -- drop it.
+    return result
 
 
 def _normalize_findings(
@@ -804,7 +921,7 @@ def _normalize_findings(
                 "concern_level": _concern_level(raw.get("concern_level"), candidate),
             }
         )
-    return findings
+    return _consolidate_overlapping_findings(findings)
 
 
 def _provider_model_name(provider: ModelProvider) -> str:
@@ -954,7 +1071,7 @@ def write_audit_sections(
                         "parse_error": parse_error,
                     }
                 )
-            if success or _is_non_retryable_provider_error(last_error) or attempt >= max_retries:
+            if success or (last_error is not None and _is_non_retryable_provider_error(last_error)) or attempt >= max_retries:
                 break
         if last_error is not None:
             warnings.append(

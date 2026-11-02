@@ -46,7 +46,11 @@ $env:PYTHONDONTWRITEBYTECODE = "1"
 function Wait-Ready($url, $what, $proc, $seconds, $log) {
     Write-Host "Waiting for $what"
     for ($i = 0; $i -lt $seconds; $i++) {
-        try { if ((Invoke-RestMethod $url -TimeoutSec 2).ok) { Write-Host "  ready."; return } } catch {}
+        $health = $null
+        try { $health = Invoke-RestMethod $url -TimeoutSec 2 } catch {}
+        if ($health -and $health.ok) { Write-Host "  ready."; return }
+        # The server answers but could not load the model (wrong HF_MODEL, missing package...): retrying cannot fix it.
+        if ($health -and $health.error) { throw "$what failed to start: $($health.error)" }
         if ($proc -and $proc.HasExited) {
             if ($log -and (Test-Path $log)) { Get-Content $log -Tail 8 | ForEach-Object { Write-Host "  $_" } }
             throw "$what stopped (details above and in $log)."

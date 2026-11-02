@@ -864,11 +864,6 @@ _MG_RANGE = re.compile(
 )
 
 
-def _weight_kg(patient_context: Mapping[str, Any]) -> float | None:
-    match = re.search(r"\b(weight|wt)\b.{0,20}?(\d+(?:\.\d+)?)\s*kg\b", _text(patient_context), re.IGNORECASE)
-    return float(match.group(2)) if match else None
-
-
 def _pediatric_dose_candidate(
     medicine: Mapping[str, Any],
     facts: Sequence[Mapping[str, str]],
@@ -1132,26 +1127,6 @@ def _class_terms_for_generic(facts: Sequence[Mapping[str, str]]) -> set[str]:
     # "Non-opioid" contains the token "opioid" but is the opposite class.
     if re.search(r"\bnon[ -]?opioid\b", class_text, re.IGNORECASE):
         terms.discard("opioid")
-    return terms
-
-
-_INDICATION_STOPWORDS = {
-    "acid", "associated", "caused", "chronic", "disease", "diseases", "drug",
-    "following", "general", "indicated", "infection", "infections", "long",
-    "management", "patients", "prophylaxis", "related", "severe", "syndrome",
-    "treatment", "used", "with",
-}
-
-
-def _indication_terms(facts: Sequence[Mapping[str, str]]) -> set[str]:
-    terms: set[str] = set()
-    for fact in facts:
-        if fact.get("fact_type") != "indication":
-            continue
-        for token in re.findall(r"[a-z][a-z-]{3,}", fact["text"].casefold()):
-            token = token.strip("-")
-            if token not in _INDICATION_STOPWORDS:
-                terms.add(token)
     return terms
 
 

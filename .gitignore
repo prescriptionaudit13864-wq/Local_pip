@@ -10,3 +10,8 @@ dist/
 # Patient records saved by the app (may contain real patient data)
 prescribex-app/backend/data/
 prescribex-app/backend/PrescribeX_Database.xlsx
+
+# Real prescriptions and their benchmark results (patient data)
+benchmark/real_prescriptions/data/
+benchmark/results_real/
+PROJECT_CONTEXT.md

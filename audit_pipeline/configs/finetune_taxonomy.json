@@ -1,0 +1,277 @@
+{
+  "CC": {
+    "section_name": "Chief complaint",
+    "instruction": "Review only the Chief complaint section. Select every matching CC error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "allowed_error_types": [
+      {
+        "rule_id": "CC.1",
+        "rule_name": "unrecognizable_or_empty_complaint",
+        "concern": "Chief complaint is empty, not clinically understandable, or not usable as a complaint."
+      },
+      {
+        "rule_id": "CC.2",
+        "rule_name": "severity_missing",
+        "concern": "Severity should be documented for pain or clinically severity-dependent complaints."
+      },
+      {
+        "rule_id": "CC.3",
+        "rule_name": "duration_missing",
+        "concern": "Duration is mentioned for a clinical symptom (most common CC error). EXCEPTION: do NOT require duration for administrative or non-symptom visits such as 'report collection', 'follow up', 'came for blood group test', or a pregnancy-only registration with no symptom."
+      },
+      {
+        "rule_id": "CC.4",
+        "rule_name": "site_or_source_missing",
+        "concern": "Site, source, or affected body location should be documented when needed to interpret the complaint."
+      },
+      {
+        "rule_id": "CC.demo",
+        "rule_name": "chief_complaint_demographic_mismatch",
+        "concern": "Chief complaint demographic mismatch"
+      },
+      {
+        "rule_id": "CC.hs",
+        "rule_name": "clinical_finding_complaint_mismatch",
+        "concern": "Chief complaint should align with clinically significant screening or examination findings."
+      }
+    ],
+    "context_keys": [
+      "Age",
+      "Gender",
+      "Chief_Complaint",
+      "Health_Screening",
+      "On_Examination",
+      "Systemic_Examination"
+    ]
+  },
+  "Dx": {
+    "section_name": "Diagnosis",
+    "instruction": "Review only the Diagnosis section. Select every matching Dx error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "allowed_error_types": [
+      {
+        "rule_id": "Dx.cc.1",
+        "rule_name": "diagnosis_complaint_mismatch",
+        "concern": "Diagnosis should plausibly explain the chief complaint as a whole."
+      },
+      {
+        "rule_id": "Dx.cc.1",
+        "rule_name": "diagnosis_does_not_explain_complaint",
+        "concern": "The diagnosis plausibly accounts for the chief complaints TAKEN TOGETHER. Multiple complaints may map to a single diagnosis; do NOT require a separate diagnosis per complaint. Do NOT flag a diagnosis for being less specific than the complaint, nor for using a related code within the SAME body region or system (e.g. 'pain in joint' for 'pain in the left foot' is acceptable - both are musculoskeletal). Only flag when a complaint is genuinely UNRELATED to the diagnosis or the diagnosis points to a clearly WRONG organ system (e.g. a respiratory diagnosis for a purely skin complaint)."
+      },
+      {
+        "rule_id": "Dx.cc.2",
+        "rule_name": "diagnosis_contradicted_by_complaint",
+        "concern": "Diagnosis should not contradict the chief complaint."
+      },
+      {
+        "rule_id": "Dx.code",
+        "rule_name": "icd_code_wrong",
+        "concern": "Icd code wrong"
+      },
+      {
+        "rule_id": "Dx.demo",
+        "rule_name": "diagnosis_demographic_mismatch",
+        "concern": "Diagnosis demographic mismatch"
+      },
+      {
+        "rule_id": "Dx.hs.1",
+        "rule_name": "diagnosis_contradicts_clinical_findings",
+        "concern": "Diagnosis correctly interprets the investigation results."
+      },
+      {
+        "rule_id": "Dx.hs.2",
+        "rule_name": "diagnosis_omits_significant_clinical_finding",
+        "concern": "Diagnosis should not omit significant clinical findings."
+      },
+      {
+        "rule_id": "Dx.inv.1",
+        "rule_name": "diagnosis_misinterprets_investigation_result",
+        "concern": "Diagnosis correctly interprets the investigation results."
+      }
+    ],
+    "context_keys": [
+      "Age",
+      "Gender",
+      "Chief_Complaint",
+      "Health_Screening",
+      "On_Examination",
+      "Systemic_Examination",
+      "Investigation",
+      "Investigation_Results",
+      "Diagnosis"
+    ]
+  },
+  "Adv": {
+    "section_name": "Advice / counseling",
+    "instruction": "Review only the Advice / counseling section. Select every matching Adv error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "allowed_error_types": [
+      {
+        "rule_id": "Adv.cc",
+        "rule_name": "diagnosis_specific_counseling_missing",
+        "concern": "Diagnosis correctly interprets the investigation results."
+      },
+      {
+        "rule_id": "Adv.hs",
+        "rule_name": "followup_advice_missing_for_significant_finding",
+        "concern": "Follow-up or advice should address significant screening or examination finding."
+      },
+      {
+        "rule_id": "Adv.precau",
+        "rule_name": "high_risk_precaution_missing",
+        "concern": "High-risk precaution counseling should be documented when clinically required."
+      },
+      {
+        "rule_id": "Adv.refer",
+        "rule_name": "referral_missing_for_serious_condition",
+        "concern": "Specialist referral is present ONLY for genuinely serious or emergency diagnoses that cannot be managed in general practice. Do NOT flag routine conditions. Use the similar expert-labeled cases to judge whether this diagnosis type warrants referral."
+      }
+    ],
+    "context_keys": [
+      "Age",
+      "Gender",
+      "Chief_Complaint",
+      "Diagnosis",
+      "Medication",
+      "Advice",
+      "ANC_Notes",
+      "Health_Screening",
+      "On_Examination"
+    ]
+  },
+  "Rx": {
+    "section_name": "Treatment / medication",
+    "instruction": "Review only the Treatment / medication section. Select every matching Rx error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "allowed_error_types": [
+      {
+        "rule_id": "Rx.cc.mis",
+        "rule_name": "medicine_contradicts_diagnosis_or_complaint",
+        "concern": "Diagnosis correctly interprets the investigation results."
+      },
+      {
+        "rule_id": "Rx.cc.sym",
+        "rule_name": "required_medication_missing",
+        "concern": "Required treatment should not be omitted when complaint or diagnosis clearly requires it."
+      },
+      {
+        "rule_id": "Rx.ddi",
+        "rule_name": "drug_drug_interaction_unaddressed",
+        "concern": "Clinically important drug-drug interaction should be addressed."
+      },
+      {
+        "rule_id": "Rx.demo",
+        "rule_name": "dose_duration_or_form_age_weight_mismatch",
+        "concern": "Dose, duration and form fit age and weight."
+      },
+      {
+        "rule_id": "Rx.dup",
+        "rule_name": "duplicate_or_same_class_polypharmacy",
+        "concern": "Avoid duplicate or same-class unnecessary polypharmacy."
+      },
+      {
+        "rule_id": "Rx.hs",
+        "rule_name": "treatment_missing_for_significant_finding",
+        "concern": "Treatment should address clinically significant findings when required."
+      },
+      {
+        "rule_id": "Rx.instr",
+        "rule_name": "medicine_route_or_instruction_incomplete",
+        "concern": "Route and instructions for topical, inhaled or nasal drugs."
+      },
+      {
+        "rule_id": "Rx.multi",
+        "rule_name": "one_of_multiple_diagnoses_not_treated",
+        "concern": "One of multiple diagnoses not treated"
+      },
+      {
+        "rule_id": "Rx.over",
+        "rule_name": "overprescribing_without_matching_condition",
+        "concern": "Avoid medicine without matching complaint, diagnosis, or clinical indication."
+      },
+      {
+        "rule_id": "Rx.region",
+        "rule_name": "treatment_not_following_bangladesh_guideline",
+        "concern": "Treatment should follow relevant Bangladesh or local guideline when applicable."
+      },
+      {
+        "rule_id": "Rx.timing",
+        "rule_name": "medicine_timing_missing",
+        "concern": "Before or after meal timing specified (most common Rx error)."
+      }
+    ],
+    "context_keys": [
+      "Age",
+      "Gender",
+      "Chief_Complaint",
+      "Health_Screening",
+      "On_Examination",
+      "Systemic_Examination",
+      "Investigation",
+      "Investigation_Results",
+      "Diagnosis",
+      "Medication",
+      "Advice"
+    ]
+  },
+  "Inv": {
+    "section_name": "Investigation",
+    "instruction": "Review only the Investigation section. Select every matching Inv error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "allowed_error_types": [
+      {
+        "rule_id": "Inv.cc",
+        "rule_name": "investigation_not_aligned_with_diagnosis_workup",
+        "concern": "Investigation should align with complaint and diagnostic workup."
+      },
+      {
+        "rule_id": "Inv.demo.1",
+        "rule_name": "age_gender_specific_investigation_missing",
+        "concern": "Age or gender specific investigation should be considered when clinically required."
+      },
+      {
+        "rule_id": "Inv.demo.2",
+        "rule_name": "region_specific_investigation_missing",
+        "concern": "Region specific investigation should be considered when clinically required."
+      },
+      {
+        "rule_id": "Inv.dx",
+        "rule_name": "confirmatory_investigation_missing_or_unnecessary",
+        "concern": "A confirmatory investigation is required ONLY when the diagnosis is explicitly provisional, differential, suspected, query, or to-be-confirmed. A settled clinical diagnosis needs no confirmatory test; do NOT demand one to rule out alternatives the clinician did not raise. NEVER call an investigation unnecessary or recommend removing it if its result is abnormal or clinically revealing - a test that found something was a useful test, and the issue (if any) is that the diagnosis failed to act on the result, not the test itself."
+      },
+      {
+        "rule_id": "Inv.hs",
+        "rule_name": "investigation_not_aligned_with_findings",
+        "concern": "Investigations should be requested only when clinically significant clinical findings justify confirmation, exclusion, monitoring, or further evaluation. Do NOT request a test to confirm a finding already recorded as normal or absent (e.g. do not ask for CBC when anaemia is recorded as Absent)."
+      }
+    ],
+    "context_keys": [
+      "Age",
+      "Gender",
+      "Chief_Complaint",
+      "Health_Screening",
+      "On_Examination",
+      "Systemic_Examination",
+      "Investigation",
+      "Investigation_Results",
+      "Diagnosis",
+      "Advice"
+    ]
+  },
+  "Demo": {
+    "section_name": "Demographics",
+    "instruction": "Review only the Demographics section. Select every matching Demo error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "allowed_error_types": [
+      {
+        "rule_id": "Demo.1",
+        "rule_name": "age_gender_invalid_or_inconsistent",
+        "concern": "Age or gender should be valid and clinically consistent."
+      },
+      {
+        "rule_id": "Demo.2",
+        "rule_name": "weight_missing_when_needed_for_dosing",
+        "concern": "Weight is available EITHER explicitly OR derivable from a BMI value in Health Screening. Only flag if BOTH are absent AND a weight-based dosing decision depends on it. Do NOT flag missing weight when BMI is recorded."
+      }
+    ],
+    "context_keys": [
+      "Age",
+      "Gender"
+    ]
+  }
+}
