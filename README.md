@@ -91,6 +91,16 @@ With the app running:
 .venv\Scripts\python -m benchmark.live_review_probe   # both layers: doctor + suite + 8 correct prescriptions
 ```
 
+## Code quality
+
+Python code is linted and formatted with [ruff](https://docs.astral.sh/ruff/) (settings in `pyproject.toml`):
+
+```powershell
+.venv\Scripts\pip install ruff
+.venv\Scripts\python -m ruff check .     # lint
+.venv\Scripts\python -m ruff format .    # format
+```
+
 ## Model benchmark
 
 `benchmark/` also replays prescriptions through the pipeline section by section with different local models, and
