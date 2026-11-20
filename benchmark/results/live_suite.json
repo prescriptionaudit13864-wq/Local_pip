@@ -2,7 +2,7 @@
  "totals": {
   "caught": 9,
   "missed": 3,
-  "wrong": 1
+  "wrong": 0
  },
  "results": [
   {
@@ -14,15 +14,15 @@
    "alerts": [
     {
      "section": "chiefComplaints",
-     "rule_id": "CC.3",
-     "evidence": "Complaint: vaginal cramp; Complaint: fever",
-     "why": "Duration is not documented for multiple patient-reported complaints."
+     "rule_id": "CC.context.demo",
+     "evidence": "Complaint: pregnancy for two days",
+     "why": "'pregnancy' does not fit a male patient: check the complaint and the recorded sex."
     },
     {
      "section": "chiefComplaints",
-     "rule_id": "CC.context.demo",
-     "evidence": "Complaint: pregnancy for two days",
-     "why": "'Pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+     "rule_id": "CC.3",
+     "evidence": "Complaint: vaginal cramp; Complaint: fever",
+     "why": "Duration is not documented for multiple patient-reported complaints."
     },
     {
      "section": "pastHistory",
@@ -87,7 +87,7 @@
      "section": "diagnosis",
      "rule_id": "Dx.cc.1",
      "evidence": "Diagnosis: Acute bronchitis | Chief complaint: Itching all over body for 7 days",
-     "why": "Itching all over the body is the complaint, but bronchitis does not explain it."
+     "why": "Itching all over body is the complaint, but bronchitis does not explain it."
     }
    ]
   },
@@ -102,23 +102,10 @@
   {
    "case": "Suspected dengue without NS1",
    "known_gap": false,
-   "caught": 1,
-   "missed": 0,
+   "caught": 0,
+   "missed": 1,
    "wrong": [],
-   "alerts": [
-    {
-     "section": "investigations",
-     "rule_id": "Inv.relevance",
-     "evidence": "Ordered investigation: Chest X-ray",
-     "why": "No chest symptom or finding is recorded, so the reason for the chest X-ray is not clear."
-    },
-    {
-     "section": "investigations",
-     "rule_id": "Inv.hs",
-     "evidence": "Diagnosis: none | Investigation: Chest X-ray | Investigation_Results: none | Chief_Complaint: Fever for 3 days Headache for 3 days | Health_Screening: none | On_Examination: none | Systemic_Examination: none | Age: 25 | Gender: F",
-     "why": "No chest symptom or finding is recorded, so the reason for the chest X-ray is not clear."
-    }
-   ]
+   "alerts": []
   },
   {
    "case": "Clean diabetes tests",
@@ -131,10 +118,23 @@
   {
    "case": "Adult paracetamol dose for a 4-year-old",
    "known_gap": false,
-   "caught": 0,
-   "missed": 1,
+   "caught": 1,
+   "missed": 0,
    "wrong": [],
-   "alerts": []
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.dose.weight",
+     "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old needs about 125 mg per dose."
+    },
+    {
+     "section": "rx",
+     "rule_id": "Rx.demo",
+     "evidence": "Diagnosis: Fever | Medication: Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal] | Chief_Complaint: Fever for 2 days | Health_Screening: none | Age: 4 | Gender: M",
+     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old needs about 125 mg per dose."
+    }
+   ]
   },
   {
    "case": "Hyperlipidaemia without diet advice",
@@ -149,203 +149,170 @@
    "known_gap": false,
    "caught": 0,
    "missed": 0,
-   "wrong": [
-    [
-     "rx",
-     "Rx.cc.sym",
-     "Diagnosis: Acute cystitis | Medication: Ciprocin 500 mg (1 + 0 + 1) - (5 day(s)) [After meal] | Chief_Complaint: Burning micturition for 3 days | Health_Screening: none | Age: 35 | Gender: M"
-    ]
-   ],
-   "alerts": [
-    {
-     "section": "rx",
-     "rule_id": "Rx.cc.sym",
-     "evidence": "Diagnosis: Acute cystitis | Medication: Ciprocin 500 mg (1 + 0 + 1) - (5 day(s)) [After meal] | Chief_Complaint: Burning micturition for 3 days | Health_Screening: none | Age: 35 | Gender: M",
-     "why": "Burning micturition is a complaint, but no antibiotic for urinary infection is prescribed."
-    }
-   ]
+   "wrong": [],
+   "alerts": []
   },
   {
    "case": "Impossible duration",
    "known_gap": true,
-   "caught": 1,
-   "missed": 0,
+   "caught": 0,
+   "missed": 1,
    "wrong": [],
-   "alerts": [
-    {
-     "section": "chiefComplaints",
-     "rule_id": "CC.time.plausibility",
-     "evidence": "Complaint: Weight loss for 1 day",
-     "why": "'Weight loss for 1 day': this is not plausible in that time; check the entry."
-    }
-   ]
+   "alerts": []
   },
   {
    "case": "Infant cold, no danger-sign advice",
    "known_gap": true,
    "caught": 0,
    "missed": 1,
-   "wrong": [
-    [
-     "rx",
-     "Rx.cc.sym",
-     "Diagnosis: Common cold | Medication: Antista 2 mg/5 ml (1/2 tsp twice) - (5 day(s)) [After meal] | Chief_Complaint: Runny nose for 2 days | Health_Screening: none | Age: 23 months | Gender: M"
-    ]
-   ],
-   "alerts": [
-    {
-     "section": "rx",
-     "rule_id": "Rx.cc.sym",
-     "evidence": "Diagnosis: Common cold | Medication: Antista 2 mg/5 ml (1/2 tsp twice) - (5 day(s)) [After meal] | Chief_Complaint: Runny nose for 2 days | Health_Screening: none | Age: 23 months | Gender: M",
-     "why": "Runny nose is a complaint, but nothing is given for it."
-    }
-   ]
+   "wrong": [],
+   "alerts": []
   }
  ],
  "timings": [
   [
    "chiefComplaints",
-   14.43559660000028
+   14.51949199999217
   ],
   [
    "pastHistory",
-   15.04904230000102
+   8.747954300022684
   ],
   [
    "chiefComplaints",
-   2.4788938000056078
+   2.0891382999834605
   ],
   [
    "pastHistory",
-   7.953906100003223
+   8.161262099980377
   ],
   [
    "chiefComplaints",
-   2.2519583999965107
+   2.5595266000018455
   ],
   [
    "pastHistory",
-   2.612352700001793
+   2.6932608000352047
   ],
   [
    "chiefComplaints",
-   2.2838424000001396
+   2.550374499987811
   ],
   [
    "pastHistory",
-   8.549769900004321
+   9.396301800035872
   ],
   [
    "chiefComplaints",
-   2.43114880000212
+   2.6988086000201292
   ],
   [
    "diagnosis",
-   8.18898540000373
+   8.067947599978652
   ],
   [
    "chiefComplaints",
-   2.2965552999958163
+   2.725977099966258
   ],
   [
    "diagnosis",
-   2.322210399994219
+   2.7337449000333436
   ],
   [
    "chiefComplaints",
-   2.5741463000013027
+   2.502074000018183
   ],
   [
    "investigations",
-   8.86721160000161
+   2.3279633999918588
   ],
   [
    "diagnosis",
-   2.3921214000001783
+   2.0792905000271276
   ],
   [
    "chiefComplaints",
-   2.5460385999977007
+   2.131994700001087
   ],
   [
    "investigations",
-   2.5897955000036745
+   2.2547051000292413
   ],
   [
    "diagnosis",
-   2.5344980000008945
+   2.080513399967458
   ],
   [
    "chiefComplaints",
-   2.389961000000767
+   2.0875478999805637
   ],
   [
    "diagnosis",
-   2.561202200005937
+   2.074826199968811
   ],
   [
    "rx",
-   2.5946572000029846
+   9.968569800024852
   ],
   [
    "advice",
-   2.3828336999940802
+   2.0755046000122093
   ],
   [
    "chiefComplaints",
-   2.4383165999970515
+   2.1117213999968953
   ],
   [
    "diagnosis",
-   2.0196346000011545
+   3.072528399992734
   ],
   [
    "rx",
-   2.096262700004445
+   2.464089300017804
   ],
   [
    "advice",
-   5.153838199999882
+   2.082312600046862
   ],
   [
    "chiefComplaints",
-   1.8231049000023631
+   2.0954554000054486
   ],
   [
    "investigations",
-   1.9293953999949736
+   2.2355467000161298
   ],
   [
    "diagnosis",
-   1.7614102999941679
+   2.0704247999819927
   ],
   [
    "rx",
-   6.214564900001278
+   2.2731680999859236
   ],
   [
    "advice",
-   1.774420400004601
+   2.100071699998807
   ],
   [
    "chiefComplaints",
-   5.7604041999948095
+   2.1151203000335954
   ],
   [
    "chiefComplaints",
-   1.8272163000001456
+   2.0808249000110663
   ],
   [
    "diagnosis",
-   1.7521963000035612
+   2.057286199997179
   ],
   [
    "rx",
-   5.873336600001494
+   2.26228429999901
   ],
   [
    "advice",
-   1.7564741000023787
+   2.0927984999725595
   ]
  ]
 }

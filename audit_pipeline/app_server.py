@@ -476,9 +476,9 @@ def serve(service: AuditService, host: str, port: int) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    logging.basicConfig(
-        level=os.getenv("AUDIT_LOG_LEVEL", "INFO").upper(), format="%(message)s", stream=sys.stdout, force=True
-    )
+    # Libraries (httpx, huggingface_hub, ...) log at WARNING only; the pipeline's own lines use AUDIT_LOG_LEVEL.
+    logging.basicConfig(level=logging.WARNING, format="%(message)s", stream=sys.stdout, force=True)
+    logging.getLogger("audit_pipeline").setLevel(os.getenv("AUDIT_LOG_LEVEL", "INFO").upper())
     parser = argparse.ArgumentParser(prog="python -m audit_pipeline.app_server")
     parser.add_argument("--provider", help="azure, groq or gemma (default: AUDIT_PROVIDER from .env)")
     parser.add_argument(
