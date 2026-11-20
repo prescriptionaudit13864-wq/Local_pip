@@ -32,7 +32,9 @@ log = logging.getLogger(__name__)
 
 _KNOWLEDGE_SYSTEM = "You are a careful clinical documentation reviewer."
 DEFAULT_QUESTION_RULES = "CC.2,CC.4,CC.term.unclear,CC.context.conflict,Hx.term.unclear,Hx.context.conflict"
-DEFAULT_ENGINE_CONFIRMED = ""  # the model judges every rule; e.g. "CC.3,Rx.timing" lets the rule engine confirm those alone
+DEFAULT_ENGINE_CONFIRMED = (
+    ""  # the model judges every rule; e.g. "CC.3,Rx.timing" lets the rule engine confirm those alone
+)
 # Sections whose candidates name one entered line, and the field that holds those lines.
 _LINE_FIELDS = {"CC": "Chief_Complaint", "Hx": "Past_History"}
 _LINE_LABELS = {"CC": "Complaint: ", "Hx": "Past history: "}
@@ -45,7 +47,9 @@ def _trained_rule(rule_id: Any) -> str:
     return RULE_ALIASES.get(rule, (rule,))[0]
 
 
-def _model_finding(section: str, rule: str, entry: Mapping[str, Any], why: str, correction: str, evidence: str) -> dict[str, Any]:
+def _model_finding(
+    section: str, rule: str, entry: Mapping[str, Any], why: str, correction: str, evidence: str
+) -> dict[str, Any]:
     return {
         "candidate_id": f"model:{rule}",
         "rule_name": str(entry.get("rule_name", "") or ""),
@@ -56,10 +60,12 @@ def _model_finding(section: str, rule: str, entry: Mapping[str, Any], why: str, 
         "confidence": "medium",
         "model_first": True,
     }
+
+
 # Where a trained answer starts copying a rule description (json.dumps layout, as in training).
 _CONCERN_OPEN = '"concern": "'
 _FAST_ROUND_TOKENS = 140  # cap per fast-answer round (see _answer_finetune); room for a "why" sentence
-_THINK_BLOCK_RE =re.compile(r"<think\b[^>]*>.*?</think>", re.IGNORECASE | re.DOTALL)
+_THINK_BLOCK_RE = re.compile(r"<think\b[^>]*>.*?</think>", re.IGNORECASE | re.DOTALL)
 
 
 def strip_think_blocks(text: str) -> str:
@@ -160,9 +166,7 @@ def _resolve_quant(model: str, token: str | None) -> tuple[str, str]:
         quant_cfg = None
     if quant_cfg is None:
         return "4bit", "auto-detected: not pre-quantized on the Hub"
-    method = (
-        quant_cfg.get("quant_method") if isinstance(quant_cfg, Mapping) else getattr(quant_cfg, "quant_method", "")
-    )
+    method = quant_cfg.get("quant_method") if isinstance(quant_cfg, Mapping) else getattr(quant_cfg, "quant_method", "")
     method = str(getattr(method, "value", method) or "quantized")
     return "none", f"auto-detected: already {method} on the Hub"
 
@@ -244,7 +248,6 @@ class AzureOpenAIProvider:
         return parse_json_object(content)
 
 
-
 DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"
 GROQ_OPENAI_BASE_URL = "https://api.groq.com/openai/v1"
 
@@ -263,6 +266,7 @@ class GroqProvider:
             raise RuntimeError("Missing Groq configuration: GROQ_API_KEY")
 
         from openai import OpenAI
+
         self.model = (model or os.getenv("GROQ_MODEL") or DEFAULT_GROQ_MODEL).strip()
         if not self.model:
             self.model = DEFAULT_GROQ_MODEL
@@ -294,8 +298,6 @@ class GroqProvider:
         return parse_json_value(content)
 
 
-
-
 class LocalChatProvider:
     """A Hugging Face model run in this process, or any OpenAI-compatible server (Ollama, LM Studio, vLLM...).
 
@@ -314,15 +316,16 @@ class LocalChatProvider:
         token = (os.getenv("HF_TOKEN") or "").strip() or None
         self.prompt_mode, mode_reason = _resolve_prompt_mode(self.model, self.base_url, token)
         self.unsupported_policy = (
-            os.getenv("FINETUNE_UNSUPPORTED") or os.getenv("GEMMA_UNSUPPORTED") or "confirm_high"
-        ).strip().casefold()
+            (os.getenv("FINETUNE_UNSUPPORTED") or os.getenv("GEMMA_UNSUPPORTED") or "confirm_high").strip().casefold()
+        )
         if self.unsupported_policy not in UNSUPPORTED_POLICIES:
             raise RuntimeError("FINETUNE_UNSUPPORTED must be confirm_high, omit, or confirm")
         # Checks the fine-tune was never taught: in finetune mode each of these is also asked as a plain YES/NO
         # question, answered from the model's own medical knowledge. Comma-separated; empty turns it off.
         self.question_rules = {
             item.strip()
-            for item in os.getenv("FINETUNE_QUESTION_RULES", DEFAULT_QUESTION_RULES).split(",") if item.strip()
+            for item in os.getenv("FINETUNE_QUESTION_RULES", DEFAULT_QUESTION_RULES).split(",")
+            if item.strip()
         }
         # Rules whose rule-engine candidate is already the finding (a complaint line with no duration, a medicine
         # with no meal timing): confirmed without waiting for the model, which answers per section and can leave
@@ -335,22 +338,35 @@ class LocalChatProvider:
         # Write known concern text instead of decoding it (see _answer_finetune). Checked against normal decoding
         # on 18 validation rows: same rules on all, about 40% less time (benchmark/fast_concerns_check.py).
         # FINETUNE_FAST_CONCERNS=0 turns it off.
-        self.fast_concerns = (os.getenv("FINETUNE_FAST_CONCERNS") or "1").strip().casefold() not in {"0", "false", "no", "off"}
+        self.fast_concerns = (os.getenv("FINETUNE_FAST_CONCERNS") or "1").strip().casefold() not in {
+            "0",
+            "false",
+            "no",
+            "off",
+        }
         # Model-first: a rule the model flags is reported even when no rule-engine check proposed it
         # (see _model_first_findings). FINETUNE_MODEL_FIRST=0 restores "the model only confirms candidates".
-        self.model_first = (os.getenv("FINETUNE_MODEL_FIRST") or "1").strip().casefold() not in {"0", "false", "no", "off"}
+        self.model_first = (os.getenv("FINETUNE_MODEL_FIRST") or "1").strip().casefold() not in {
+            "0",
+            "false",
+            "no",
+            "off",
+        }
         # Rules the model may not raise on its own because the live test showed it cannot judge them yet. Rx.timing:
         # the training medicines never show meal timing (it is not in the exported data), so the model flags
         # timing even on "[After meal]" medicines (3 false alarms in benchmark/live_suite, Nov 2026). Remove a
         # rule from this list once a model trained on examples with written timing passes the live test.
         self.model_first_exclude = {
-            item.strip() for item in (os.getenv("FINETUNE_MODEL_FIRST_EXCLUDE") or "Rx.timing").split(",")
+            item.strip()
+            for item in (os.getenv("FINETUNE_MODEL_FIRST_EXCLUDE") or "Rx.timing").split(",")
             if item.strip() and item.strip().casefold() != "none"
         }
         self.fast_fallbacks = 0  # answers the fast path handed back to normal decoding
         log.info("[local] %s: prompt_mode=%s (%s)", self.model, self.prompt_mode, mode_reason)
         if self.prompt_mode == "finetune" and self.engine_confirmed:
-            log.info("[local] confirmed from the rule engine without the model: %s", ", ".join(sorted(self.engine_confirmed)))
+            log.info(
+                "[local] confirmed from the rule engine without the model: %s", ", ".join(sorted(self.engine_confirmed))
+            )
         if self.prompt_mode == "finetune" and self.question_rules:
             log.info("[local] YES/NO questions for checks: %s", ", ".join(sorted(self.question_rules)))
         if not self.base_url:
@@ -358,8 +374,9 @@ class LocalChatProvider:
             self._tokenizer, self._model = self._load_in_process()
             self.always_prefill = not getattr(self._tokenizer, "chat_template", None)
             if self.always_prefill and self.prompt_mode == "standard":
-                log.warning("%s has no chat template (base model). Use the -Instruct version for reliable audits.",
-                            self.model)
+                log.warning(
+                    "%s has no chat template (base model). Use the -Instruct version for reliable audits.", self.model
+                )
             return
 
         from openai import OpenAI
@@ -404,12 +421,15 @@ class LocalChatProvider:
 
             kwargs["quantization_config"] = (
                 BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
-                if quant == "4bit" else BitsAndBytesConfig(load_in_8bit=True)
+                if quant == "4bit"
+                else BitsAndBytesConfig(load_in_8bit=True)
             )
         cached = Path(self.model).is_dir() or _is_cached_locally(self.model)
         log.info("[local] %s: quantization=%s (%s)", self.model, quant, quant_reason)
-        log.info("[local] %s ...", "found in local cache, loading from disk" if cached
-                 else "not cached yet, downloading from Hugging Face")
+        log.info(
+            "[local] %s ...",
+            "found in local cache, loading from disk" if cached else "not cached yet, downloading from Hugging Face",
+        )
         tokenizer = AutoTokenizer.from_pretrained(self.model, token=token)
         model = AutoModelForCausalLM.from_pretrained(self.model, **kwargs)
         if adapter:
@@ -442,7 +462,7 @@ class LocalChatProvider:
                     self.start = start
 
                 def __call__(self, input_ids, scores, **kwargs):  # noqa: ANN001
-                    tails = tokenizer.batch_decode(input_ids[:, max(self.start, input_ids.shape[1] - 8):])
+                    tails = tokenizer.batch_decode(input_ids[:, max(self.start, input_ids.shape[1] - 8) :])
                     return torch.tensor([stop in tail for tail in tails], device=input_ids.device)
 
             extra = {"stopping_criteria": StoppingCriteriaList([_TailStop(0)])}
@@ -455,8 +475,9 @@ class LocalChatProvider:
             if extra:  # only look at newly generated tokens, never the prompt's own text
                 extra["stopping_criteria"][0].start = inputs["input_ids"].shape[1]
             with torch.inference_mode():
-                output = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False,
-                                        pad_token_id=tokenizer.pad_token_id, **extra)
+                output = model.generate(
+                    **inputs, max_new_tokens=max_tokens, do_sample=False, pad_token_id=tokenizer.pad_token_id, **extra
+                )
         finally:
             tokenizer.padding_side, tokenizer.pad_token = side, pad
         start = inputs["input_ids"].shape[1]
@@ -475,10 +496,12 @@ class LocalChatProvider:
         if raw:
             text = prompt
         elif getattr(tokenizer, "chat_template", None):
+
             def render(msgs: list) -> str:
                 try:
                     return tokenizer.apply_chat_template(
-                        msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False)
+                        msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False
+                    )
                 except TypeError:
                     return tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
 
@@ -495,7 +518,7 @@ class LocalChatProvider:
         inputs = tokenizer(text, return_tensors="pt", add_special_tokens=False).to(model.device)
         with torch.inference_mode():
             output = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False)
-        return prefix + tokenizer.decode(output[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+        return prefix + tokenizer.decode(output[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True)
 
     def _audit_finetune(self, prompt: str, max_tokens: int) -> dict[str, Any]:
         """Ask a fine-tuned section classifier in its training format and map its answer onto the candidates."""
@@ -513,8 +536,9 @@ class LocalChatProvider:
             if lines and self.client is None:
                 # The section answer and every line's own answer in one GPU batch: about the time of one answer,
                 # instead of the line re-checks running after it (past history took 8-14 s that way).
-                answers = (self._answer_finetune if self.fast_concerns else
-                           lambda t, b, _s: self._generate_raw_batch(t, b))([text, *lines.values()], budget, section)
+                answers = (
+                    self._answer_finetune if self.fast_concerns else lambda t, b, _s: self._generate_raw_batch(t, b)
+                )([text, *lines.values()], budget, section)
                 content = answers[0]
                 line_answers = {}
                 for line, answer in zip(lines, answers[1:], strict=False):
@@ -530,13 +554,18 @@ class LocalChatProvider:
         excluded = self._unflagged_lines(section, fields, candidates, flagged, budget, line_answers)
         findings = findings_from_detected(
             [c for c in candidates if str(c.get("candidate_id", "")) not in excluded],
-            flagged, in_scope, self.unsupported_policy, engine_confirmed=self.engine_confirmed,
+            flagged,
+            in_scope,
+            self.unsupported_policy,
+            engine_confirmed=self.engine_confirmed,
         )
         if line_answers:  # a line confirmed by its own answer gets that answer's explanation, not the section's
             label = _LINE_LABELS.get(section, "")
             for f in findings:
                 line = str(f.get("evidence", "")).split(" | ", 1)[0].removeprefix(label).strip()
-                own = str((line_answers.get(line) or {}).get(_trained_rule(f.get("rule_id", "")), {}).get("why", "") or "").strip()
+                own = str(
+                    (line_answers.get(line) or {}).get(_trained_rule(f.get("rule_id", "")), {}).get("why", "") or ""
+                ).strip()
                 if own:
                     f["why"] = own
         if self.model_first:
@@ -558,8 +587,11 @@ class LocalChatProvider:
         For complaint and history lines only lines the model flags when asked about that line alone count, so a
         problem seen elsewhere in the prescription is not pinned on them.
         """
-        covered = {t for c in candidates for t in RULE_ALIASES.get(str(c.get("rule_id", "")).strip(),
-                                                                   (str(c.get("rule_id", "")).strip(),))}
+        covered = {
+            t
+            for c in candidates
+            for t in RULE_ALIASES.get(str(c.get("rule_id", "")).strip(), (str(c.get("rule_id", "")).strip(),))
+        }
         out = []
         field = _LINE_FIELDS.get(section)
         for rule, entry in flagged.items():
@@ -570,10 +602,18 @@ class LocalChatProvider:
                 for line, rules in (line_answers or {}).items():
                     if rule in rules:
                         own = str(rules[rule].get("why", "") or "").strip()
-                        out.append(_model_finding(section, rule, entry, own or why, correction, f"{_LINE_LABELS[section]}{line}"))
+                        out.append(
+                            _model_finding(
+                                section, rule, entry, own or why, correction, f"{_LINE_LABELS[section]}{line}"
+                            )
+                        )
                 continue
             evidence = str(fields.get(_SECTION_FIELD.get(section, ""), "") or "")
-            out.append(_model_finding(section, rule, entry, str(entry.get("why", "") or "").strip() or why, correction, evidence))
+            out.append(
+                _model_finding(
+                    section, rule, entry, str(entry.get("why", "") or "").strip() or why, correction, evidence
+                )
+            )
         return out
 
     def _complete_raw(self, text: str, budget: int, section: str = "") -> str:
@@ -607,7 +647,9 @@ class LocalChatProvider:
                 break
             # A healthy round writes the rest of one word, the closing, and the next rule's id and name (or the end
             # of the answer): far fewer tokens than this cap. A longer round has gone off its trained text.
-            outs = self._generate_raw_batch([texts[i] + written[i] for i in active], _FAST_ROUND_TOKENS, stop=_CONCERN_OPEN)
+            outs = self._generate_raw_batch(
+                [texts[i] + written[i] for i in active], _FAST_ROUND_TOKENS, stop=_CONCERN_OPEN
+            )
             rounds += 1
             still = []
             for i, out in zip(active, outs, strict=False):
@@ -620,7 +662,9 @@ class LocalChatProvider:
                     continue  # finished, or hit the cap (checked below)
                 ids = re.findall(r'"rule_id":\s*"([^"]*)"', written[i])
                 names = re.findall(r'"rule_name":\s*"([^"]*)"', written[i])
-                concern = by_name.get((ids[-1] if ids else "", names[-1] if names else "")) or by_id.get(ids[-1] if ids else "")
+                concern = by_name.get((ids[-1] if ids else "", names[-1] if names else "")) or by_id.get(
+                    ids[-1] if ids else ""
+                )
                 if concern is None:
                     failed.add(i)  # a rule the taxonomy does not know: decode this answer normally
                     continue
@@ -645,12 +689,23 @@ class LocalChatProvider:
             fb_started = time.perf_counter()
             written[i] = self._generate("", texts[i], budget, "", raw=True)
             self.fast_fallbacks += 1
-            log.info("[finetune] section=%s prompt %d: fallback to normal decoding took %.1fs (%d chars)",
-                     section, i, time.perf_counter() - fb_started, len(written[i]))
+            log.info(
+                "[finetune] section=%s prompt %d: fallback to normal decoding took %.1fs (%d chars)",
+                section,
+                i,
+                time.perf_counter() - fb_started,
+                len(written[i]),
+            )
         # Timing line per check (audit_server.log), to trace slow checks: rounds of fast decoding, fallbacks.
-        log.info("[finetune] section=%s prompts=%d rounds=%d fallbacks=%d took=%.1fs answer_chars=%s",
-                 section, len(texts), rounds, self.fast_fallbacks - fallbacks_before,
-                 time.perf_counter() - started, [len(w) for w in written])
+        log.info(
+            "[finetune] section=%s prompts=%d rounds=%d fallbacks=%d took=%.1fs answer_chars=%s",
+            section,
+            len(texts),
+            rounds,
+            self.fast_fallbacks - fallbacks_before,
+            time.perf_counter() - started,
+            [len(w) for w in written],
+        )
         return written
 
     @staticmethod
@@ -709,8 +764,10 @@ class LocalChatProvider:
             if trained_id in self.engine_confirmed:
                 continue
             group = [
-                (c, line) for c in candidates
-                if trained_id in RULE_ALIASES.get(str(c.get("rule_id", "")).strip(), (str(c.get("rule_id", "")).strip(),))
+                (c, line)
+                for c in candidates
+                if trained_id
+                in RULE_ALIASES.get(str(c.get("rule_id", "")).strip(), (str(c.get("rule_id", "")).strip(),))
                 and (line := _candidate_line(c))
             ]
             if not group:
@@ -721,8 +778,11 @@ class LocalChatProvider:
                 prompts = self._line_prompts(section, fields, [c for c, _ in group])
                 texts = [prompts[line] for _, line in group]
                 if self.client is None:
-                    answers = (self._answer_finetune(texts, budget, section) if self.fast_concerns
-                               else self._generate_raw_batch(texts, budget))
+                    answers = (
+                        self._answer_finetune(texts, budget, section)
+                        if self.fast_concerns
+                        else self._generate_raw_batch(texts, budget)
+                    )
                 else:
                     answers = [self._complete_raw(text, budget, section) for text in texts]
                 keep = []
@@ -775,8 +835,9 @@ class LocalChatProvider:
         """The reviewer needs the base model: loaded as base + HF_ADAPTER (not a merged fine-tune)."""
         return self.client is None and hasattr(self._model, "disable_adapter")
 
-    def review(self, messages: list[dict[str, str]], max_tokens: int = 300, prefix: str = '{"problems": [',
-               stop: str = "]}") -> str:
+    def review(
+        self, messages: list[dict[str, str]], max_tokens: int = 300, prefix: str = '{"problems": [', stop: str = "]}"
+    ) -> str:
         """Second-layer clinical review (audit_pipeline/clinical_reviewer.py): the same weights with the fine-tune
         adapter switched off, in the base model's chat format.
 
@@ -788,15 +849,18 @@ class LocalChatProvider:
             raise RuntimeError("clinical reviewer needs HF_MODEL = base model and HF_ADAPTER = the fine-tune adapter")
         tokenizer, model = self._tokenizer, self._model
         try:
-            text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=False)
+            text = tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
+            )
         except TypeError:
             text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         text += prefix
         inputs = tokenizer(text, return_tensors="pt", add_special_tokens=False).to(model.device)
         with self._gpu_lock, torch.inference_mode(), model.disable_adapter():
-            output = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False,
-                                    stop_strings=[stop], tokenizer=tokenizer)
-        return prefix + tokenizer.decode(output[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+            output = model.generate(
+                **inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings=[stop], tokenizer=tokenizer
+            )
+        return prefix + tokenizer.decode(output[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True)
 
     def audit(self, *, system: str, prompt: str, max_tokens: int) -> Any:
         with self._gpu_lock:
@@ -859,12 +923,7 @@ class LocalChatProvider:
 
 def create_provider(name: str | None = None) -> ModelProvider:
     """Create the configured provider without exposing credential values."""
-    selected = (
-        name
-        or os.getenv("AUDIT_PROVIDER")
-        or os.getenv("LLM_PROVIDER")
-        or "azure"
-    ).strip().casefold()
+    selected = (name or os.getenv("AUDIT_PROVIDER") or os.getenv("LLM_PROVIDER") or "azure").strip().casefold()
     if selected == "azure":
         return AzureOpenAIProvider()
     if selected == "groq":
@@ -875,9 +934,7 @@ def create_provider(name: str | None = None) -> ModelProvider:
         return LocalGemmaProvider()
     if selected in {"local", "hf"}:  # any HF chat model run in-process, or Ollama / LM Studio / vLLM via LLM_BASE_URL
         return LocalChatProvider()
-    raise RuntimeError(
-        f"Unsupported audit provider {selected!r}; expected azure, groq, gemma or local"
-    )
+    raise RuntimeError(f"Unsupported audit provider {selected!r}; expected azure, groq, gemma or local")
 
 
 __all__ = [

@@ -206,7 +206,9 @@ _ORAL_WORD = re.compile(r"\b(oral|mouth|po|take by mouth)\b", re.IGNORECASE)
 _INJECTION_WORD = re.compile(r"\b(injection|injectable|iv|im|intravenous|intramuscular)\b", re.IGNORECASE)
 _DYSPHAGIA = re.compile(r"\b(dysphagia|difficulty swallowing|cannot swallow|swallowing tablets?)\b", re.IGNORECASE)
 _SOLID_FORM = re.compile(r"\b(tablet|capsule|caplet)\b", re.IGNORECASE)
-_COURSE_DURATION = re.compile(r"-\s*\(\s*(\d+(?:\.\d+)?)\s*(Day|Days|Week|Weeks|Month|Months)\(s\)?\s*\)", re.IGNORECASE)
+_COURSE_DURATION = re.compile(
+    r"-\s*\(\s*(\d+(?:\.\d+)?)\s*(Day|Days|Week|Weeks|Month|Months)\(s\)?\s*\)", re.IGNORECASE
+)
 _ONGOING_DURATION = re.compile(r"-\s*\(\s*(?:continue|ongoing|until\s+further\s+(?:advice|notice))\s*\)", re.IGNORECASE)
 
 
@@ -281,13 +283,21 @@ def _investigation_items(value: Any) -> list[str]:
     text = str(value or "").strip()
     if not text:
         return []
-    items = [
-        _text(part).strip(" .;,")
-        for part in re.split(r"[\n;,]+", text)
+    items = [_text(part).strip(" .;,") for part in re.split(r"[\n;,]+", text)]
+    return [
+        item
+        for item in items
+        if item
+        and item.casefold()
+        not in {
+            "n/a",
+            "na",
+            "none",
+            "nil",
+            "-",
+            "—",
+        }
     ]
-    return [item for item in items if item and item.casefold() not in {
-        "n/a", "na", "none", "nil", "-", "—",
-    }]
 
 
 def _is_administrative_complaint(raw: Any) -> bool:
@@ -398,10 +408,7 @@ def _has_ongoing_duration(raw: str) -> bool:
 
 def _explicit_guideline_duration_range(fact: Mapping[str, Any]) -> tuple[float, float] | None:
     """Return one unambiguous evidence duration in days, otherwise abstain."""
-    text = " ".join(
-        _text(fact.get(key, ""))
-        for key in ("duration", "dose_or_duration", "fact_text")
-    )
+    text = " ".join(_text(fact.get(key, "")) for key in ("duration", "dose_or_duration", "fact_text"))
     matches = re.findall(
         r"(?:for\s+|duration\s*(?:of|:)?\s*)?"
         r"(\d+(?:\.\d+)?)\s*(?:-|–|to)?\s*(\d+(?:\.\d+)?)?\s*"
@@ -455,9 +462,7 @@ def _structured_instruction_text(medicine: Mapping[str, Any]) -> str:
 def _has_meal_timing(medicine: Mapping[str, Any]) -> bool:
     raw = _text(medicine.get("raw_text", ""))
     raw_without_json = re.sub(r"\{[^{}]*\}", " ", raw)
-    timing_text = _text(
-        translated_text(f"{raw_without_json} {_structured_instruction_text(medicine)}")
-    )
+    timing_text = _text(translated_text(f"{raw_without_json} {_structured_instruction_text(medicine)}"))
     return _MEAL_TIMING.search(timing_text) is not None
 
 
@@ -489,9 +494,7 @@ def _medicine_fact_index(medicine_facts: Sequence[Mapping[str, Any]] | None) -> 
             continue
         facts = result.get("facts", [])
         if isinstance(facts, Sequence) and not isinstance(facts, (str, bytes)):
-            index.setdefault(generic_id, []).extend(
-                fact for fact in facts if isinstance(fact, Mapping)
-            )
+            index.setdefault(generic_id, []).extend(fact for fact in facts if isinstance(fact, Mapping))
     return index
 
 
@@ -500,12 +503,7 @@ def _meal_timing_required_by_evidence(
     facts_by_id: Mapping[str, Sequence[Mapping[str, Any]]],
     protocol: Any,
 ) -> bool:
-    identity = _text(
-        " ".join(
-            _text(medicine.get(key, ""))
-            for key in ("raw_text", "brand_name", "generic_name")
-        )
-    )
+    identity = _text(" ".join(_text(medicine.get(key, "")) for key in ("raw_text", "brand_name", "generic_name")))
     required = _cfg(protocol, "meal_timing_required_items", ())
     if isinstance(required, str):
         required = (required,)
@@ -520,7 +518,9 @@ def _meal_timing_required_by_evidence(
         fact_type = _text(fact.get("fact_type", "")).casefold()
         if fact_type not in {"administration", "interaction", "precaution", "dosage"}:
             continue
-        text = _text(translated_text(" ".join(_text(fact.get(key, "")) for key in ("text", "fact_text", "source_field"))))
+        text = _text(
+            translated_text(" ".join(_text(fact.get(key, "")) for key in ("text", "fact_text", "source_field")))
+        )
         if _MEAL_TIMING_REQUIRED_FACT.search(text):
             return True
     return False
@@ -544,11 +544,7 @@ _QUANTIFIED_BANGLA_MEAL_TIMING = re.compile(
 def _timing_minutes(amount: str, unit: str) -> float:
     value = float(amount)
     normalized_unit = unit.casefold()
-    is_hour = (
-        normalized_unit.startswith(("hour", "hr"))
-        or "ঘণ্ট" in unit
-        or "ঘন্ট" in unit
-    )
+    is_hour = normalized_unit.startswith(("hour", "hr")) or "ঘণ্ট" in unit or "ঘন্ট" in unit
     return value * 60.0 if is_hour else value
 
 
@@ -557,16 +553,20 @@ def _quantified_meal_timings(text: Any) -> list[tuple[str, float]]:
     normalized = normalize_digits(text)
     timings: list[tuple[str, float]] = []
     for match in _QUANTIFIED_ENGLISH_MEAL_TIMING.finditer(normalized):
-        timings.append((
-            match.group("direction").casefold(),
-            _timing_minutes(match.group("amount"), match.group("unit")),
-        ))
+        timings.append(
+            (
+                match.group("direction").casefold(),
+                _timing_minutes(match.group("amount"), match.group("unit")),
+            )
+        )
     for match in _QUANTIFIED_BANGLA_MEAL_TIMING.finditer(normalized):
         direction = "before" if match.group("direction") in {"আগে", "পূর্বে"} else "after"
-        timings.append((
-            direction,
-            _timing_minutes(match.group("amount"), match.group("unit")),
-        ))
+        timings.append(
+            (
+                direction,
+                _timing_minutes(match.group("amount"), match.group("unit")),
+            )
+        )
     return timings
 
 
@@ -585,17 +585,13 @@ def _medicine_timing_mismatch(
         fact_type = _text(fact.get("fact_type", "")).casefold()
         if fact_type not in {"administration", "interaction", "precaution", "dosage"}:
             continue
-        fact_text = _text(" ".join(
-            _text(fact.get(key, "")) for key in ("text", "fact_text")
-        ))
+        fact_text = _text(" ".join(_text(fact.get(key, "")) for key in ("text", "fact_text")))
         required = _quantified_meal_timings(fact_text)
         if not required:
             continue
         minimum_by_direction: dict[str, float] = {}
         for direction, minutes in required:
-            minimum_by_direction[direction] = max(
-                minutes, minimum_by_direction.get(direction, 0.0)
-            )
+            minimum_by_direction[direction] = max(minutes, minimum_by_direction.get(direction, 0.0))
         for direction, minutes in prescribed:
             minimum = minimum_by_direction.get(direction)
             if minimum is not None and minutes < minimum:
@@ -680,20 +676,46 @@ def _candidate_evidence_strength(rule_name: str) -> str:
     return "low"
 
 
-
 def _candidate_importance(rule_name: str, evidence_strength: str) -> str:
     name = _text(rule_name).casefold()
-    if any(term in name for term in ("danger", "emergency", "extreme_vital", "contraindication", "dose_exceeds_max", "allergy", "renal_risk", "hepatic_risk", "pregnancy_safety", "lactation_safety", "avoid_medicine")):
+    if any(
+        term in name
+        for term in (
+            "danger",
+            "emergency",
+            "extreme_vital",
+            "contraindication",
+            "dose_exceeds_max",
+            "allergy",
+            "renal_risk",
+            "hepatic_risk",
+            "pregnancy_safety",
+            "lactation_safety",
+            "avoid_medicine",
+        )
+    ):
         return "critical_review"
-    if evidence_strength == "high" or any(term in name for term in ("dose", "ddi", "investigation", "treatment", "diagnosis_not_supported")):
+    if evidence_strength == "high" or any(
+        term in name for term in ("dose", "ddi", "investigation", "treatment", "diagnosis_not_supported")
+    ):
         return "moderate_review"
     if any(term in name for term in ("duration_missing", "severity_missing", "timing_missing", "advice_missing")):
         return "minor_documentation"
     return "review"
 
+
 def _complaint_has_duration(item: Mapping[str, Any]) -> bool:
     if item.get("value") is not None and str(item.get("unit", "")).casefold() in {
-        "hour", "hours", "day", "days", "week", "weeks", "month", "months", "year", "years"
+        "hour",
+        "hours",
+        "day",
+        "days",
+        "week",
+        "weeks",
+        "month",
+        "months",
+        "year",
+        "years",
     }:
         return True
     return _DURATION.search(translated_text(_text(item.get("raw_text", "")))) is not None
@@ -760,9 +782,15 @@ def _import_candidate(
     extras = {
         key: value
         for key, value in upstream.items()
-        if key not in {
-            "section", "rule_name", "rule_id", "trigger_source", "why_candidate",
-            "evidence", "needs_llm_confirmation"
+        if key
+        not in {
+            "section",
+            "rule_name",
+            "rule_id",
+            "trigger_source",
+            "why_candidate",
+            "evidence",
+            "needs_llm_confirmation",
         }
     }
     imported = _candidate(
@@ -778,7 +806,6 @@ def _import_candidate(
         if key in upstream:
             imported[key] = upstream[key]
     return imported
-
 
 
 def _contains_any(text: str, terms: Sequence[str]) -> bool:
@@ -866,13 +893,16 @@ def _acute_audit_investigation_fact(
     if _PERIODIC_SCREENING_RE.search(text) and not has_chronic_visit_context:
         return False
     has_results_or_chronic_visit_context = bool(
-        _field(prescription, "Investigation_Results", "Investigation Results")
-        or has_chronic_visit_context
+        _field(prescription, "Investigation_Results", "Investigation Results") or has_chronic_visit_context
     )
-    if has_results_or_chronic_visit_context and _CHRONIC_CONDITION_RE.search(context) and _condition_matches_prescription(
-        fact,
-        _field(prescription, "Diagnosis"),
-        context,
+    if (
+        has_results_or_chronic_visit_context
+        and _CHRONIC_CONDITION_RE.search(context)
+        and _condition_matches_prescription(
+            fact,
+            _field(prescription, "Diagnosis"),
+            context,
+        )
     ):
         return True
     return bool(
@@ -928,16 +958,30 @@ def _terms_from_list_field(fact: Mapping[str, Any], key: str) -> list[str]:
     return [_text(value)] if _text(value) else []
 
 
-
 def _norm_for_match(value: Any) -> str:
     return re.sub(r"[^a-z0-9\u0980-\u09ff\s]+", " ", _text(value).casefold()).strip()
 
 
 def _condition_matches_prescription(fact: Mapping[str, Any], diagnosis: str, clinical: str) -> bool:
     non_condition_aliases = {
-        "adult", "adults", "all", "all patients", "child", "children",
-        "elderly", "female", "infant", "lactation", "lactating", "male",
-        "neonate", "pediatric", "paediatric", "pregnancy", "pregnant", "women",
+        "adult",
+        "adults",
+        "all",
+        "all patients",
+        "child",
+        "children",
+        "elderly",
+        "female",
+        "infant",
+        "lactation",
+        "lactating",
+        "male",
+        "neonate",
+        "pediatric",
+        "paediatric",
+        "pregnancy",
+        "pregnant",
+        "women",
     }
     condition = _norm_for_match(fact.get("condition", ""))
     aliases = [
@@ -959,15 +1003,25 @@ def _condition_matches_prescription(fact: Mapping[str, Any], diagnosis: str, cli
 
 
 _CATEGORY_WORDS = {
-    "i": "1", "ii": "2", "iii": "3", "iv": "4", "v": "5",
-    "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+    "i": "1",
+    "ii": "2",
+    "iii": "3",
+    "iv": "4",
+    "v": "5",
+    "one": "1",
+    "two": "2",
+    "three": "3",
+    "four": "4",
+    "five": "5",
 }
 
 
 def _category_markers(text: str) -> set[str]:
     norm = _norm_for_match(text)
     markers: set[str] = set()
-    for match in re.finditer(r"\b(?:category|cat|grade|stage|group|class)\s*(i{1,3}|iv|v|[1-5]|one|two|three|four|five)\b", norm):
+    for match in re.finditer(
+        r"\b(?:category|cat|grade|stage|group|class)\s*(i{1,3}|iv|v|[1-5]|one|two|three|four|five)\b", norm
+    ):
         value = match.group(1).casefold()
         markers.add(_CATEGORY_WORDS.get(value, value))
     return markers
@@ -1021,10 +1075,7 @@ def _fact_patient_group_applies(fact: Mapping[str, Any], patient_context: Mappin
     guideline rows do not carry complete patient-group metadata yet.
     """
     group_text = _norm_for_match(
-        " ".join(
-            _text(fact.get(key, ""))
-            for key in ("patient_group", "population", "age_group")
-        )
+        " ".join(_text(fact.get(key, "")) for key in ("patient_group", "population", "age_group"))
     )
     is_child = bool(patient_context.get("is_child"))
     is_elderly = bool(patient_context.get("is_elderly"))
@@ -1043,17 +1094,35 @@ def _fact_patient_group_applies(fact: Mapping[str, Any], patient_context: Mappin
             )
         )
     )
-    if any(term in fact_text for term in ("pregnant patient", "pregnant patients", "pregnant women", "pregnancy only")) and not is_pregnant:
+    if (
+        any(term in fact_text for term in ("pregnant patient", "pregnant patients", "pregnant women", "pregnancy only"))
+        and not is_pregnant
+    ):
         return False
-    if any(term in fact_text for term in ("lactating patient", "lactating patients", "breastfeeding women", "breastfeeding patient")) and not is_lactating:
+    if (
+        any(
+            term in fact_text
+            for term in ("lactating patient", "lactating patients", "breastfeeding women", "breastfeeding patient")
+        )
+        and not is_lactating
+    ):
         return False
-    if any(term in fact_text for term in ("in children", "children with", "pediatric patients", "paediatric patients", "small children")) and not is_child:
+    if (
+        any(
+            term in fact_text
+            for term in ("in children", "children with", "pediatric patients", "paediatric patients", "small children")
+        )
+        and not is_child
+    ):
         return False
     if any(term in fact_text for term in ("elderly patients", "older adults", "geriatric patients")) and not is_elderly:
         return False
     if not group_text or group_text in {"all", "all patients", "unknown"}:
         return True
-    child_only = any(term in group_text for term in ("child", "children", "paediatric", "pediatric", "infant", "neonate", "adolescent"))
+    child_only = any(
+        term in group_text
+        for term in ("child", "children", "paediatric", "pediatric", "infant", "neonate", "adolescent")
+    )
     adult_only = any(term in group_text for term in ("adult", "adults"))
     elderly_only = any(term in group_text for term in ("elderly", "geriatric", "older adult"))
     pregnancy_only = any(term in group_text for term in ("pregnancy", "pregnant", "antenatal"))
@@ -1082,8 +1151,7 @@ def _fact_severity_context_applies(fact: Mapping[str, Any], prescription: Mappin
     """
     fact_text = _norm_for_match(
         " ".join(
-            _text(fact.get(key, ""))
-            for key in ("fact_text", "rule_focus", "admission_criteria", "referral_criteria")
+            _text(fact.get(key, "")) for key in ("fact_text", "rule_focus", "admission_criteria", "referral_criteria")
         )
     )
     severe_fact = any(
@@ -1122,7 +1190,9 @@ def _fact_severity_context_applies(fact: Mapping[str, Any], prescription: Mappin
     )
 
 
-def _guideline_candidate_count(grouped: Mapping[str, Sequence[Mapping[str, Any]]], section: str, rule_name: str | None = None) -> int:
+def _guideline_candidate_count(
+    grouped: Mapping[str, Sequence[Mapping[str, Any]]], section: str, rule_name: str | None = None
+) -> int:
     count = 0
     for item in grouped.get(section, []) or []:
         if item.get("trigger_source") != "guideline_rag":
@@ -1133,7 +1203,9 @@ def _guideline_candidate_count(grouped: Mapping[str, Sequence[Mapping[str, Any]]
     return count
 
 
-def _append_guideline_candidate(grouped: dict[str, list[dict[str, Any]]], candidate: dict[str, Any], *, max_per_rule: int = 4) -> None:
+def _append_guideline_candidate(
+    grouped: dict[str, list[dict[str, Any]]], candidate: dict[str, Any], *, max_per_rule: int = 4
+) -> None:
     section = _text(candidate.get("section", ""))
     rule_name = _text(candidate.get("rule_name", ""))
     if section not in grouped:
@@ -1141,6 +1213,7 @@ def _append_guideline_candidate(grouped: dict[str, list[dict[str, Any]]], candid
     if _guideline_candidate_count(grouped, section, rule_name) >= max_per_rule:
         return
     grouped[section].append(candidate)
+
 
 def _add_guideline_rag_candidates(
     grouped: dict[str, list[dict[str, Any]]],
@@ -1155,7 +1228,16 @@ def _add_guideline_rag_candidates(
     investigation_results = _field(prescription, "Investigation_Results", "Investigation Results")
     advice = _field(prescription, "Advice")
     medication = _field(prescription, "Medication")
-    clinical = " ".join(_field(prescription, k) for k in ("Chief_Complaint", "Health_Screening", "On_Examination", "Systemic_Examination", "Investigation_Results"))
+    clinical = " ".join(
+        _field(prescription, k)
+        for k in (
+            "Chief_Complaint",
+            "Health_Screening",
+            "On_Examination",
+            "Systemic_Examination",
+            "Investigation_Results",
+        )
+    )
 
     # Dx: textbook/national RAG can request diagnosis review when clinical evidence hits
     # a differential/red-flag fact but diagnosis does not mention that condition.
@@ -1164,21 +1246,41 @@ def _add_guideline_rag_candidates(
             continue
         ftype = _text(fact.get("fact_type", ""))
         condition = _text(fact.get("condition", ""))
-        if ftype in {"diagnostic_clue", "differential_diagnosis", "red_flag", "case_definition", "diagnostic_criteria"} and condition and diagnosis and not _contains_any(diagnosis, [condition]):
-            if fact.get("source_id") == "symptom_to_diagnosis_4e" or fact.get("candidate_strength") in {"strong", "conditional"}:
-                _append_guideline_candidate(grouped, _candidate(
-                    "Dx", "guideline_diagnosis_review_candidate", rule_ids,
-                    "Guideline/textbook evidence matched the patient's clinical data; diagnosis should be reviewed against this possibility.",
-                    _fact_evidence(fact),
-                    trigger_source="guideline_rag",
-                    extras=_guideline_candidate_extras(fact, importance="moderate_review"),
-                ), max_per_rule=3)
+        if (
+            ftype in {"diagnostic_clue", "differential_diagnosis", "red_flag", "case_definition", "diagnostic_criteria"}
+            and condition
+            and diagnosis
+            and not _contains_any(diagnosis, [condition])
+        ):
+            if fact.get("source_id") == "symptom_to_diagnosis_4e" or fact.get("candidate_strength") in {
+                "strong",
+                "conditional",
+            }:
+                _append_guideline_candidate(
+                    grouped,
+                    _candidate(
+                        "Dx",
+                        "guideline_diagnosis_review_candidate",
+                        rule_ids,
+                        "Guideline/textbook evidence matched the patient's clinical data; diagnosis should be reviewed against this possibility.",
+                        _fact_evidence(fact),
+                        trigger_source="guideline_rag",
+                        extras=_guideline_candidate_extras(fact, importance="moderate_review"),
+                    ),
+                    max_per_rule=3,
+                )
 
     # Inv: if RAG recommends a concrete test and it is absent from Investigation.
     for fact in _rag_facts("Inv", guideline_facts_by_section)[:8]:
         if not _guideline_fact_applies_to_prescription(fact, prescription, patient_context):
             continue
-        if _text(fact.get("fact_type", "")) not in {"recommended_investigation", "diagnostic_test", "screening_criteria", "culture_or_sensitivity", "monitoring"}:
+        if _text(fact.get("fact_type", "")) not in {
+            "recommended_investigation",
+            "diagnostic_test",
+            "screening_criteria",
+            "culture_or_sensitivity",
+            "monitoring",
+        }:
             continue
         if not _acute_audit_investigation_fact(fact, prescription):
             continue
@@ -1189,13 +1291,19 @@ def _add_guideline_rag_candidates(
         missing = [t for t in tests[:3] if t and not _test_present(t, documented_tests)]
         if missing:
             if _condition_matches_prescription(fact, diagnosis, clinical):
-                _append_guideline_candidate(grouped, _candidate(
-                    "Inv", "guideline_investigation_missing_candidate", rule_ids,
-                    "Matched guideline evidence recommends investigation/monitoring that is not clearly documented.",
-                    f"Missing/unclear: {', '.join(missing)} | Guideline: {_fact_evidence(fact)}",
-                    trigger_source="guideline_rag",
-                    extras=_guideline_candidate_extras(fact, importance="moderate_review"),
-                ), max_per_rule=3)
+                _append_guideline_candidate(
+                    grouped,
+                    _candidate(
+                        "Inv",
+                        "guideline_investigation_missing_candidate",
+                        rule_ids,
+                        "Matched guideline evidence recommends investigation/monitoring that is not clearly documented.",
+                        f"Missing/unclear: {', '.join(missing)} | Guideline: {_fact_evidence(fact)}",
+                        trigger_source="guideline_rag",
+                        extras=_guideline_candidate_extras(fact, importance="moderate_review"),
+                    ),
+                    max_per_rule=3,
+                )
 
     med_names = [_text(m.get("generic_name", "")) or _text(m.get("brand_name", "")) for m in normalized_medicines]
     for fact in _rag_facts("Rx", guideline_facts_by_section)[:10]:
@@ -1203,7 +1311,19 @@ def _add_guideline_rag_candidates(
             continue
         ftype = _text(fact.get("fact_type", ""))
         evidence = _fact_evidence(fact)
-        if ftype in {"avoid_medicine", "contraindication", "caution", "precaution", "interaction", "drug_interaction", "renal_hepatic_safety", "pregnancy_safety", "pregnancy_lactation", "adverse_effect", "adverse_drug_reaction"}:
+        if ftype in {
+            "avoid_medicine",
+            "contraindication",
+            "caution",
+            "precaution",
+            "interaction",
+            "drug_interaction",
+            "renal_hepatic_safety",
+            "pregnancy_safety",
+            "pregnancy_lactation",
+            "adverse_effect",
+            "adverse_drug_reaction",
+        }:
             avoid_terms = _terms_from_list_field(fact, "avoid_medicines") or [_text(fact.get("medicine_name", ""))]
             safety_terms = [
                 *_terms_from_list_field(fact, "contraindications_or_cautions"),
@@ -1212,20 +1332,58 @@ def _add_guideline_rag_candidates(
                 _text(fact.get("fact_text", "")),
             ]
             med_match_terms = [term for term in avoid_terms if term]
-            if not med_match_terms and ftype not in {"contraindication", "caution", "precaution", "renal_hepatic_safety", "pregnancy_safety", "pregnancy_lactation", "adverse_effect", "adverse_drug_reaction"}:
+            if not med_match_terms and ftype not in {
+                "contraindication",
+                "caution",
+                "precaution",
+                "renal_hepatic_safety",
+                "pregnancy_safety",
+                "pregnancy_lactation",
+                "adverse_effect",
+                "adverse_drug_reaction",
+            }:
                 med_match_terms = safety_terms
-            if (not med_match_terms or _contains_any(" ".join([medication, *med_names]), med_match_terms)) and _condition_matches_prescription(fact, diagnosis, clinical):
-                _append_guideline_candidate(grouped, _candidate(
-                    "Rx", "guideline_avoid_medicine_candidate", rule_ids,
-                    "Current medicine or patient context matches a guideline medicine-safety fact for the matched clinical context.",
-                    evidence, trigger_source="guideline_rag",
-                    extras=_guideline_candidate_extras(fact, importance="critical_review"),
-                ), max_per_rule=3)
-        elif ftype in {"recommended_medicine", "alternative_medicine", "dose_or_duration", "treatment_regimen", "treatment_algorithm", "switch_criteria", "prophylaxis", "coinfection_management", "treatment_failure", "weight_band_dose", "feeding_protocol", "fluid_protocol", "emergency_protocol", "micronutrient_protocol", "nutrition_recipe", "failure_to_respond", "no_antibiotic_care", "antibiotic_indication"}:
+            if (
+                not med_match_terms or _contains_any(" ".join([medication, *med_names]), med_match_terms)
+            ) and _condition_matches_prescription(fact, diagnosis, clinical):
+                _append_guideline_candidate(
+                    grouped,
+                    _candidate(
+                        "Rx",
+                        "guideline_avoid_medicine_candidate",
+                        rule_ids,
+                        "Current medicine or patient context matches a guideline medicine-safety fact for the matched clinical context.",
+                        evidence,
+                        trigger_source="guideline_rag",
+                        extras=_guideline_candidate_extras(fact, importance="critical_review"),
+                    ),
+                    max_per_rule=3,
+                )
+        elif ftype in {
+            "recommended_medicine",
+            "alternative_medicine",
+            "dose_or_duration",
+            "treatment_regimen",
+            "treatment_algorithm",
+            "switch_criteria",
+            "prophylaxis",
+            "coinfection_management",
+            "treatment_failure",
+            "weight_band_dose",
+            "feeding_protocol",
+            "fluid_protocol",
+            "emergency_protocol",
+            "micronutrient_protocol",
+            "nutrition_recipe",
+            "failure_to_respond",
+            "no_antibiotic_care",
+            "antibiotic_indication",
+        }:
             if not _condition_matches_prescription(fact, diagnosis, clinical):
                 continue
             medicine_terms = [
-                term for term in [
+                term
+                for term in [
                     _text(fact.get("medicine_name", "")),
                     *_terms_from_list_field(fact, "recommended_medicines"),
                     *_terms_from_list_field(fact, "alternative_medicines"),
@@ -1233,15 +1391,18 @@ def _add_guideline_rag_candidates(
                 ]
                 if _text(term)
             ]
-            if medicine_terms and not _contains_any(" ".join([medication, *med_names]), medicine_terms) and ftype != "no_antibiotic_care":
+            if (
+                medicine_terms
+                and not _contains_any(" ".join([medication, *med_names]), medicine_terms)
+                and ftype != "no_antibiotic_care"
+            ):
                 continue
             duration_mismatch_added = False
             expected_duration = _explicit_guideline_duration_range(fact) if ftype == "dose_or_duration" else None
             if expected_duration and medicine_terms:
                 for medicine_item in normalized_medicines:
                     identity = " ".join(
-                        _text(medicine_item.get(key, ""))
-                        for key in ("raw_text", "generic_name", "brand_name")
+                        _text(medicine_item.get(key, "")) for key in ("raw_text", "generic_name", "brand_name")
                     )
                     if not _contains_any(identity, medicine_terms):
                         continue
@@ -1250,47 +1411,88 @@ def _add_guideline_rag_candidates(
                         continue
                     minimum_days, maximum_days = expected_duration
                     if prescribed_days < minimum_days or prescribed_days > maximum_days:
-                        _append_guideline_candidate(grouped, _candidate(
-                            "Rx", "medicine_duration_mismatch_candidate", rule_ids,
-                            "The documented medicine-course duration differs from one explicit, applicable guideline duration.",
-                            f"Prescribed: {_text(medicine_item.get('raw_text', ''))} | Guideline: {evidence}",
-                            trigger_source="guideline_rag",
-                            extras={
-                                **_guideline_candidate_extras(fact, importance="moderate_review"),
-                                "duration_days": prescribed_days,
-                                "guideline_duration_min_days": minimum_days,
-                                "guideline_duration_max_days": maximum_days,
-                                "generic_id": _text(medicine_item.get("generic_id", "")),
-                                "generic_name": _text(medicine_item.get("generic_name", "")),
-                            },
-                        ), max_per_rule=3)
+                        _append_guideline_candidate(
+                            grouped,
+                            _candidate(
+                                "Rx",
+                                "medicine_duration_mismatch_candidate",
+                                rule_ids,
+                                "The documented medicine-course duration differs from one explicit, applicable guideline duration.",
+                                f"Prescribed: {_text(medicine_item.get('raw_text', ''))} | Guideline: {evidence}",
+                                trigger_source="guideline_rag",
+                                extras={
+                                    **_guideline_candidate_extras(fact, importance="moderate_review"),
+                                    "duration_days": prescribed_days,
+                                    "guideline_duration_min_days": minimum_days,
+                                    "guideline_duration_max_days": maximum_days,
+                                    "generic_id": _text(medicine_item.get("generic_id", "")),
+                                    "generic_name": _text(medicine_item.get("generic_name", "")),
+                                },
+                            ),
+                            max_per_rule=3,
+                        )
                         duration_mismatch_added = True
             if duration_mismatch_added:
                 continue
-            _append_guideline_candidate(grouped, _candidate(
-                "Rx", "guideline_treatment_review_candidate", rule_ids,
-                "Disease/medicine-specific RAG fact matched; treatment choice, dose, frequency, or duration should be reviewed against it.",
-                evidence, trigger_source="guideline_rag",
-                extras=_guideline_candidate_extras(fact, importance="moderate_review"),
-            ), max_per_rule=3)
+            _append_guideline_candidate(
+                grouped,
+                _candidate(
+                    "Rx",
+                    "guideline_treatment_review_candidate",
+                    rule_ids,
+                    "Disease/medicine-specific RAG fact matched; treatment choice, dose, frequency, or duration should be reviewed against it.",
+                    evidence,
+                    trigger_source="guideline_rag",
+                    extras=_guideline_candidate_extras(fact, importance="moderate_review"),
+                ),
+                max_per_rule=3,
+            )
 
     for fact in _rag_facts("Adv", guideline_facts_by_section)[:8]:
         if not _guideline_fact_applies_to_prescription(fact, prescription, patient_context):
             continue
         ftype = _text(fact.get("fact_type", ""))
-        if ftype not in {"recommended_advice", "lifestyle_advice", "diet_advice", "exercise_advice", "followup", "referral_criteria", "admission_criteria", "discharge_criteria", "caregiver_counselling", "infection_control", "public_health", "adherence_counselling", "prevention_counselling"}:
+        if ftype not in {
+            "recommended_advice",
+            "lifestyle_advice",
+            "diet_advice",
+            "exercise_advice",
+            "followup",
+            "referral_criteria",
+            "admission_criteria",
+            "discharge_criteria",
+            "caregiver_counselling",
+            "infection_control",
+            "public_health",
+            "adherence_counselling",
+            "prevention_counselling",
+        }:
             continue
-        advice_terms = _terms_from_list_field(fact, "recommended_advice") or _terms_from_list_field(fact, "referral_criteria") or _terms_from_list_field(fact, "followup_monitoring")
+        advice_terms = (
+            _terms_from_list_field(fact, "recommended_advice")
+            or _terms_from_list_field(fact, "referral_criteria")
+            or _terms_from_list_field(fact, "followup_monitoring")
+        )
         text = _text(fact.get("fact_text", ""))
         if not advice_terms and text:
             advice_terms = [text]
-        if (not advice or (advice_terms and not any(_contains_any(advice, [term]) for term in advice_terms[:3]))) and _condition_matches_prescription(fact, diagnosis, clinical):
-            _append_guideline_candidate(grouped, _candidate(
-                "Adv", "guideline_advice_missing_candidate", rule_ids,
-                "Matched guideline evidence recommends advice, follow-up, referral, or counselling not clearly documented.",
-                _fact_evidence(fact), trigger_source="guideline_rag",
-                extras=_guideline_candidate_extras(fact, importance="moderate_review"),
-            ), max_per_rule=3)
+        if (
+            not advice or (advice_terms and not any(_contains_any(advice, [term]) for term in advice_terms[:3]))
+        ) and _condition_matches_prescription(fact, diagnosis, clinical):
+            _append_guideline_candidate(
+                grouped,
+                _candidate(
+                    "Adv",
+                    "guideline_advice_missing_candidate",
+                    rule_ids,
+                    "Matched guideline evidence recommends advice, follow-up, referral, or counselling not clearly documented.",
+                    _fact_evidence(fact),
+                    trigger_source="guideline_rag",
+                    extras=_guideline_candidate_extras(fact, importance="moderate_review"),
+                ),
+                max_per_rule=3,
+            )
+
 
 def generate_rule_candidates(
     prescription: Mapping[str, Any],
@@ -1313,34 +1515,48 @@ def generate_rule_candidates(
     age = patient_context.get("age_years")
     age_raw = _field(prescription, "Age")
     if age is None or float(age) <= 0:
-        grouped["Demo"].append(_candidate(
-            "Demo", "age_invalid_candidate", rule_ids,
-            "Age is missing or invalid and needs demographic review.",
-            age_raw or "Age field is empty",
-        ))
+        grouped["Demo"].append(
+            _candidate(
+                "Demo",
+                "age_invalid_candidate",
+                rule_ids,
+                "Age is missing or invalid and needs demographic review.",
+                age_raw or "Age field is empty",
+            )
+        )
     gender = _text(patient_context.get("gender", "")) or _field(prescription, "Gender")
     if not gender:
-        grouped["Demo"].append(_candidate(
-            "Demo", "gender_missing_candidate", rule_ids,
-            "Gender is missing.", "Gender field is empty",
-        ))
+        grouped["Demo"].append(
+            _candidate(
+                "Demo",
+                "gender_missing_candidate",
+                rule_ids,
+                "Gender is missing.",
+                "Gender field is empty",
+            )
+        )
     if patient_context.get("pregnancy_conflict") or (
         gender.casefold() in {"m", "male"} and patient_context.get("is_pregnant")
     ):
         pregnancy_evidence = patient_context.get("context_evidence", {}).get("is_pregnant", [])
-        evidence = "; ".join(
-            _text(item.get("evidence", "")) for item in pregnancy_evidence
-            if isinstance(item, Mapping)
-        ) or "Gender is male while pregnancy context is present"
-        grouped["Demo"].append(_candidate(
-            "Demo", "male_pregnancy_context_candidate", rule_ids,
-            "Male demographic data conflicts with preserved pregnancy evidence.", evidence,
-        ))
+        evidence = (
+            "; ".join(_text(item.get("evidence", "")) for item in pregnancy_evidence if isinstance(item, Mapping))
+            or "Gender is male while pregnancy context is present"
+        )
+        grouped["Demo"].append(
+            _candidate(
+                "Demo",
+                "male_pregnancy_context_candidate",
+                rule_ids,
+                "Male demographic data conflicts with preserved pregnancy evidence.",
+                evidence,
+            )
+        )
 
     history_items = [
-        item for item in clinical_evidence
-        if _text(item.get("source", "")) == "Past_History"
-        and _text(item.get("raw_text", item.get("evidence", "")))
+        item
+        for item in clinical_evidence
+        if _text(item.get("source", "")) == "Past_History" and _text(item.get("raw_text", item.get("evidence", "")))
     ]
     for position, item in enumerate(history_items, start=1):
         raw = _text(item.get("raw_text", item.get("evidence", "")))
@@ -1370,15 +1586,17 @@ def generate_rule_candidates(
                 "temporal",
             ),
         ):
-            grouped["Hx"].append(_candidate(
-                "Hx",
-                rule_name,
-                rule_ids,
-                why,
-                history_evidence,
-                trigger_source="semantic_context_review",
-                extras={"candidate_id": f"Hx.{suffix}:{position}"},
-            ))
+            grouped["Hx"].append(
+                _candidate(
+                    "Hx",
+                    rule_name,
+                    rule_ids,
+                    why,
+                    history_evidence,
+                    trigger_source="semantic_context_review",
+                    extras={"candidate_id": f"Hx.{suffix}:{position}"},
+                )
+            )
 
     if history_items:
         history_text = "; ".join(
@@ -1398,69 +1616,75 @@ def generate_rule_candidates(
             value = _field(prescription, *names)
             if value:
                 current_parts.append(f"{label}: {value}")
-        grouped["Hx"].append(_candidate(
-            "Hx",
-            "history_context_consistency_candidate",
-            rule_ids,
-            "Review whether past history directly conflicts with current clinical evidence after accounting for active, resolved, intermittent, and treated states.",
-            f"History: {history_text}" + (f" | {' | '.join(current_parts)}" if current_parts else ""),
-            trigger_source="semantic_context_review",
-            extras={"candidate_id": "Hx.context:1"},
-        ))
+        grouped["Hx"].append(
+            _candidate(
+                "Hx",
+                "history_context_consistency_candidate",
+                rule_ids,
+                "Review whether past history directly conflicts with current clinical evidence after accounting for active, resolved, intermittent, and treated states.",
+                f"History: {history_text}" + (f" | {' | '.join(current_parts)}" if current_parts else ""),
+                trigger_source="semantic_context_review",
+                extras={"candidate_id": "Hx.context:1"},
+            )
+        )
     if len(history_items) > 1:
-        grouped["Hx"].append(_candidate(
-            "Hx",
-            "history_duplicate_or_conflict_candidate",
-            rule_ids,
-            "Review history entries for duplicate concepts, incompatible statuses, or direct contradictions; consolidate synonyms without inventing diagnoses.",
-            "; ".join(_text(item.get("raw_text", "")) for item in history_items[:12]),
-            trigger_source="semantic_context_review",
-            extras={"candidate_id": "Hx.duplicate:1"},
-        ))
+        grouped["Hx"].append(
+            _candidate(
+                "Hx",
+                "history_duplicate_or_conflict_candidate",
+                rule_ids,
+                "Review history entries for duplicate concepts, incompatible statuses, or direct contradictions; consolidate synonyms without inventing diagnoses.",
+                "; ".join(_text(item.get("raw_text", "")) for item in history_items[:12]),
+                trigger_source="semantic_context_review",
+                extras={"candidate_id": "Hx.duplicate:1"},
+            )
+        )
 
     all_complaint_items = [
-        item for item in clinical_evidence
-        if _text(item.get("source", "")) == "Chief_Complaint"
-        and _text(item.get("raw_text", item.get("evidence", "")))
+        item
+        for item in clinical_evidence
+        if _text(item.get("source", "")) == "Chief_Complaint" and _text(item.get("raw_text", item.get("evidence", "")))
     ]
-    complaint_items = [
-        item for item in all_complaint_items
-        if _text(item.get("status", "")).casefold() == "present"
-    ]
+    complaint_items = [item for item in all_complaint_items if _text(item.get("status", "")).casefold() == "present"]
     chief_complaint_text = _field(prescription, "Chief_Complaint", "Chief Complaint")
     if live_section_audit and chief_complaint_text:
         complaint_text_rows = [
-            _text(item).strip(" .;")
-            for item in re.split(r"[\r\n]+", chief_complaint_text)
-            if _text(item).strip(" .;")
+            _text(item).strip(" .;") for item in re.split(r"[\r\n]+", chief_complaint_text) if _text(item).strip(" .;")
         ]
         for position, raw in enumerate(complaint_text_rows, start=1):
-            grouped["CC"].append(_candidate(
-                "CC", "complaint_not_clinical_candidate", rule_ids,
-                "First determine the entry's literal meaning, then review whether it explicitly describes an abnormal symptom, clinical concern, or valid encounter reason. An ordinary action without an abnormal qualifier is not a chief complaint.",
-                f"Entered chief complaint: {raw}",
-                trigger_source="semantic_context_review",
-                extras={"candidate_id": f"CC.validity:{position}"},
-            ))
-            grouped["CC"].append(_candidate(
-                "CC", "complaint_text_unclear_candidate", rule_ids,
-                "Review the entered complaint for a clear typographical/transcription error or an unrecognizable clinical expression; accept understandable Bengali or English wording and common shorthand.",
-                f"Entered chief complaint: {raw}",
-                trigger_source="documentation_review",
-                extras={"candidate_id": f"CC.term.unclear:{position}"},
-            ))
-    meaningful_items = [
-        item for item in complaint_items
-        if not _is_administrative_complaint(item.get("raw_text", ""))
-    ]
+            grouped["CC"].append(
+                _candidate(
+                    "CC",
+                    "complaint_not_clinical_candidate",
+                    rule_ids,
+                    "First determine the entry's literal meaning, then review whether it explicitly describes an abnormal symptom, clinical concern, or valid encounter reason. An ordinary action without an abnormal qualifier is not a chief complaint.",
+                    f"Entered chief complaint: {raw}",
+                    trigger_source="semantic_context_review",
+                    extras={"candidate_id": f"CC.validity:{position}"},
+                )
+            )
+            grouped["CC"].append(
+                _candidate(
+                    "CC",
+                    "complaint_text_unclear_candidate",
+                    rule_ids,
+                    "Review the entered complaint for a clear typographical/transcription error or an unrecognizable clinical expression; accept understandable Bengali or English wording and common shorthand.",
+                    f"Entered chief complaint: {raw}",
+                    trigger_source="documentation_review",
+                    extras={"candidate_id": f"CC.term.unclear:{position}"},
+                )
+            )
+    meaningful_items = [item for item in complaint_items if not _is_administrative_complaint(item.get("raw_text", ""))]
     direct_cc_items = [
-        item for item in meaningful_items
+        item
+        for item in meaningful_items
         if not _is_contact_context_only_complaint(item.get("raw_text", ""))
         and not _is_followup_context_only_complaint(item.get("raw_text", ""))
         and not _is_pregnancy_context_only_complaint(item.get("raw_text", ""))
     ]
     semantic_cc_items = [
-        item for item in meaningful_items
+        item
+        for item in meaningful_items
         if not _is_contact_context_only_complaint(item.get("raw_text", ""))
         and not _is_followup_context_only_complaint(item.get("raw_text", ""))
     ]
@@ -1472,46 +1696,67 @@ def generate_rule_candidates(
         if normalized and normalized.casefold() != raw.casefold():
             complaint_evidence += f" | Normalized language hint: {normalized}"
         if not pregnancy_context_only and not _complaint_has_duration(item):
-            grouped["CC"].append(_candidate(
-                "CC", "duration_missing_candidate", rule_ids,
-                "Determine whether this complaint lacks a clinically usable duration or onset; vague words such as recent do not provide a specific timeframe.",
-                complaint_evidence,
-                trigger_source="semantic_context_review",
-                extras={"candidate_id": f"CC.duration:{position}"},
-            ))
+            grouped["CC"].append(
+                _candidate(
+                    "CC",
+                    "duration_missing_candidate",
+                    rule_ids,
+                    "Determine whether this complaint lacks a clinically usable duration or onset; vague words such as recent do not provide a specific timeframe.",
+                    complaint_evidence,
+                    trigger_source="semantic_context_review",
+                    extras={"candidate_id": f"CC.duration:{position}"},
+                )
+            )
         if not pregnancy_context_only:
-            grouped["CC"].append(_candidate(
-                "CC", "severity_missing_candidate", rule_ids,
-                "Review whether this complaint needs intensity, grade, measured value, pattern, character, or functional impact for clinically adequate documentation.",
+            grouped["CC"].append(
+                _candidate(
+                    "CC",
+                    "severity_missing_candidate",
+                    rule_ids,
+                    "Review whether this complaint needs intensity, grade, measured value, pattern, character, or functional impact for clinically adequate documentation.",
+                    complaint_evidence,
+                    trigger_source="semantic_context_review",
+                    extras={"candidate_id": f"CC.characterization:{position}"},
+                )
+            )
+            grouped["CC"].append(
+                _candidate(
+                    "CC",
+                    "site_or_source_missing_candidate",
+                    rule_ids,
+                    "Review whether this complaint needs a more specific anatomical site, side, laterality, distribution, or source; do not require these when they are not clinically meaningful.",
+                    complaint_evidence,
+                    trigger_source="semantic_context_review",
+                    extras={"candidate_id": f"CC.anatomy:{position}"},
+                )
+            )
+        grouped["CC"].append(
+            _candidate(
+                "CC",
+                "complaint_demographic_context_candidate",
+                rule_ids,
+                "Review the complaint against recorded age, sex/gender, relevant anatomy, and reproductive context; distinguish a true incompatibility from an unusual but possible presentation.",
                 complaint_evidence,
                 trigger_source="semantic_context_review",
-                extras={"candidate_id": f"CC.characterization:{position}"},
-            ))
-            grouped["CC"].append(_candidate(
-                "CC", "site_or_source_missing_candidate", rule_ids,
-                "Review whether this complaint needs a more specific anatomical site, side, laterality, distribution, or source; do not require these when they are not clinically meaningful.",
-                complaint_evidence,
-                trigger_source="semantic_context_review",
-                extras={"candidate_id": f"CC.anatomy:{position}"},
-            ))
-        grouped["CC"].append(_candidate(
-            "CC", "complaint_demographic_context_candidate", rule_ids,
-            "Review the complaint against recorded age, sex/gender, relevant anatomy, and reproductive context; distinguish a true incompatibility from an unusual but possible presentation.",
-            complaint_evidence,
-            trigger_source="semantic_context_review",
-            extras={"candidate_id": f"CC.demographic:{position}"},
-        ))
+                extras={"candidate_id": f"CC.demographic:{position}"},
+            )
+        )
         if _complaint_has_duration(item):
-            grouped["CC"].append(_candidate(
-                "CC", "complaint_temporal_plausibility_candidate", rule_ids,
-                "Review whether the claimed onset or duration is physiologically plausible for the stated phenomenon; uncertain or atypical claims require clarification rather than being declared impossible.",
-                complaint_evidence,
-                trigger_source="semantic_context_review",
-                extras={"candidate_id": f"CC.temporal:{position}"},
-            ))
+            grouped["CC"].append(
+                _candidate(
+                    "CC",
+                    "complaint_temporal_plausibility_candidate",
+                    rule_ids,
+                    "Review whether the claimed onset or duration is physiologically plausible for the stated phenomenon; uncertain or atypical claims require clarification rather than being declared impossible.",
+                    complaint_evidence,
+                    trigger_source="semantic_context_review",
+                    extras={"candidate_id": f"CC.temporal:{position}"},
+                )
+            )
 
     cross_context_items = [
-        item for item in all_complaint_items
+        item
+        for item in all_complaint_items
         if not _is_administrative_complaint(item.get("raw_text", ""))
         and not _is_contact_context_only_complaint(item.get("raw_text", ""))
         and not _is_followup_context_only_complaint(item.get("raw_text", ""))
@@ -1528,48 +1773,50 @@ def generate_rule_candidates(
         cross_evidence = f"Current complaints: {all_complaints}"
         if anc_context:
             cross_evidence += f" | Obstetric context: {anc_context}"
-        grouped["CC"].append(_candidate(
-            "CC", "complaint_cross_context_consistency_candidate", rule_ids,
-            "Review the complaints together with obstetric and clinical context for a direct contradiction; compatible associated states must not be flagged.",
-            cross_evidence,
-            trigger_source="semantic_context_review",
-            extras={"candidate_id": "CC.cross-context:1"},
-        ))
+        grouped["CC"].append(
+            _candidate(
+                "CC",
+                "complaint_cross_context_consistency_candidate",
+                rule_ids,
+                "Review the complaints together with obstetric and clinical context for a direct contradiction; compatible associated states must not be flagged.",
+                cross_evidence,
+                trigger_source="semantic_context_review",
+                extras={"candidate_id": "CC.cross-context:1"},
+            )
+        )
 
     # The LLM, rather than a local threshold rule, decides whether a current
     # complaint conflicts with contemporaneous screening data. Supplying one
     # bounded candidate keeps normal vitals available to CC review without
     # automatically declaring patient-reported symptoms incorrect.
     screening_items = [
-        item for item in clinical_evidence
-        if _text(item.get("source", "")) == "Health_Screening"
-        and _text(item.get("raw_text", item.get("evidence", "")))
+        item
+        for item in clinical_evidence
+        if _text(item.get("source", "")) == "Health_Screening" and _text(item.get("raw_text", item.get("evidence", "")))
     ]
     if live_section_audit and direct_cc_items and screening_items:
         complaint_evidence = "; ".join(
-            _text(item.get("raw_text", item.get("evidence", "")))
-            for item in direct_cc_items[:6]
+            _text(item.get("raw_text", item.get("evidence", ""))) for item in direct_cc_items[:6]
         )
         screening_evidence = "; ".join(
-            _text(item.get("raw_text", item.get("evidence", "")))
-            for item in screening_items[:10]
+            _text(item.get("raw_text", item.get("evidence", ""))) for item in screening_items[:10]
         )
-        grouped["CC"].append(_candidate(
-            "CC",
-            "complaint_clinical_evidence_inconsistency_candidate",
-            rule_ids,
-            "Review whether a current patient-reported complaint is inconsistent with contemporaneous screening evidence; consider timing, intermittent symptoms, treatment, and improvement before confirming.",
-            f"Chief complaint: {complaint_evidence} | Health screening: {screening_evidence}",
-            trigger_source="clinical_context_review",
-        ))
+        grouped["CC"].append(
+            _candidate(
+                "CC",
+                "complaint_clinical_evidence_inconsistency_candidate",
+                rule_ids,
+                "Review whether a current patient-reported complaint is inconsistent with contemporaneous screening evidence; consider timing, intermittent symptoms, treatment, and improvement before confirming.",
+                f"Chief complaint: {complaint_evidence} | Health screening: {screening_evidence}",
+                trigger_source="clinical_context_review",
+            )
+        )
 
     diagnosis = _field(prescription, "Diagnosis")
-    active_conditions = [
-        item for item in patient_context.get("active_conditions", [])
-        if isinstance(item, Mapping)
-    ]
+    active_conditions = [item for item in patient_context.get("active_conditions", []) if isinstance(item, Mapping)]
     meaningful_active_conditions = [
-        item for item in active_conditions
+        item
+        for item in active_conditions
         if _text(item.get("source", "")) != "Past_History"
         and not (
             _text(item.get("source", "")) == "Chief_Complaint"
@@ -1578,23 +1825,29 @@ def generate_rule_candidates(
     ]
     meaningful_evidence = meaningful_items or meaningful_active_conditions
     if not diagnosis and meaningful_evidence:
-        evidence = "; ".join(
-            _text(item.get("evidence", item.get("raw_text", "")))
-            for item in meaningful_evidence[:3]
+        evidence = "; ".join(_text(item.get("evidence", item.get("raw_text", ""))) for item in meaningful_evidence[:3])
+        grouped["Dx"].append(
+            _candidate(
+                "Dx",
+                "diagnosis_missing_candidate",
+                rule_ids,
+                "Clinically meaningful evidence exists but Diagnosis is empty.",
+                evidence,
+            )
         )
-        grouped["Dx"].append(_candidate(
-            "Dx", "diagnosis_missing_candidate", rule_ids,
-            "Clinically meaningful evidence exists but Diagnosis is empty.", evidence,
-        ))
     elif diagnosis:
         if live_section_audit:
-            grouped["Dx"].append(_candidate(
-                "Dx", "diagnosis_text_unclear_candidate", rule_ids,
-                "Review the diagnosis wording for a clear typographical/transcription error or unrecognizable diagnostic term; accept established ICD wording, Bengali or English clinical terms, and common abbreviations.",
-                f"Entered diagnosis: {diagnosis}",
-                trigger_source="documentation_review",
-                extras={"candidate_id": "Dx.term.unclear:1"},
-            ))
+            grouped["Dx"].append(
+                _candidate(
+                    "Dx",
+                    "diagnosis_text_unclear_candidate",
+                    rule_ids,
+                    "Review the diagnosis wording for a clear typographical/transcription error or unrecognizable diagnostic term; accept established ICD wording, Bengali or English clinical terms, and common abbreviations.",
+                    f"Entered diagnosis: {diagnosis}",
+                    trigger_source="documentation_review",
+                    extras={"candidate_id": "Dx.term.unclear:1"},
+                )
+            )
         significant = {
             str(value).casefold()
             for value in _cfg(protocol, "significant_clinical_findings", ("fever", "anemia", "anaemia", "dehydration"))
@@ -1607,17 +1860,25 @@ def generate_rule_candidates(
                 continue
             concept = _text(condition.get("concept", "")).casefold()
             if concept in significant and not _diagnosis_explains_significant_finding(diagnosis, concept):
-                grouped["Dx"].append(_candidate(
-                    "Dx", "diagnosis_omits_significant_clinical_finding_candidate", rule_ids,
-                    f"Diagnosis does not mention or explain significant active finding {concept}.",
-                    _text(condition.get("evidence", "")),
-                ))
+                grouped["Dx"].append(
+                    _candidate(
+                        "Dx",
+                        "diagnosis_omits_significant_clinical_finding_candidate",
+                        rule_ids,
+                        f"Diagnosis does not mention or explain significant active finding {concept}.",
+                        _text(condition.get("evidence", "")),
+                    )
+                )
         for item in _explicit_diagnosis_contradictions(diagnosis, clinical_evidence):
-            grouped["Dx"].append(_candidate(
-                "Dx", "diagnosis_not_supported_by_clinical_findings_candidate", rule_ids,
-                "Diagnosis names a condition explicitly documented as absent/normal in clinical evidence.",
-                _text(item.get("raw_text", "")),
-            ))
+            grouped["Dx"].append(
+                _candidate(
+                    "Dx",
+                    "diagnosis_not_supported_by_clinical_findings_candidate",
+                    rule_ids,
+                    "Diagnosis names a condition explicitly documented as absent/normal in clinical evidence.",
+                    _text(item.get("raw_text", "")),
+                )
+            )
 
     # PrescribeX writer-time/final review: terminology validity and clinical
     # relevance are deliberately separate questions.  These are provisional
@@ -1643,38 +1904,55 @@ def generate_rule_candidates(
             # provider's own abbreviations (for example B/V) as possible
             # typos. Fuzzy/manual terms still receive semantic clarification.
             if not catalog_match or catalog_match["match_type"] != "catalog_exact":
-                grouped["Inv"].append(_candidate(
-                    "Inv", "investigation_term_unrecognized_candidate", rule_ids,
-                    "Review whether this entered investigation is confidently recognizable and unambiguous; an unfamiliar abbreviation, likely typo, or unclear local term requires clarification even when an intended test can be guessed.",
-                    f"Entered investigation: {investigation_item}{catalog_evidence}",
-                    trigger_source="investigation_review",
-                    extras={"candidate_id": f"Inv.term.unrecognized:{position}"},
-                ))
+                grouped["Inv"].append(
+                    _candidate(
+                        "Inv",
+                        "investigation_term_unrecognized_candidate",
+                        rule_ids,
+                        "Review whether this entered investigation is confidently recognizable and unambiguous; an unfamiliar abbreviation, likely typo, or unclear local term requires clarification even when an intended test can be guessed.",
+                        f"Entered investigation: {investigation_item}{catalog_evidence}",
+                        trigger_source="investigation_review",
+                        extras={"candidate_id": f"Inv.term.unrecognized:{position}"},
+                    )
+                )
             evidence = f"Ordered investigation: {investigation_item}"
             if catalog_match:
                 evidence += (
                     f" | Standard catalogue identity: {catalog_match['canonical_name']}"
                     f" | Test category: {catalog_match['category']}"
                 )
-            grouped["Inv"].append(_candidate(
-                "Inv", "investigation_relevance_review_candidate", rule_ids,
-                "Review this investigation independently; another ordered test being relevant does not establish that this item is relevant.",
-                evidence,
-                trigger_source="investigation_review",
-                extras={"candidate_id": f"Inv.relevance:{position}"},
-            ))
+            grouped["Inv"].append(
+                _candidate(
+                    "Inv",
+                    "investigation_relevance_review_candidate",
+                    rule_ids,
+                    "Review this investigation independently; another ordered test being relevant does not establish that this item is relevant.",
+                    evidence,
+                    trigger_source="investigation_review",
+                    extras={"candidate_id": f"Inv.relevance:{position}"},
+                )
+            )
 
     if diagnosis:
         chief_complaint = _field(prescription, "Chief_Complaint", "Chief Complaint")
         if chief_complaint and chief_complaint.casefold() not in {
-            "n/a", "na", "none", "nil", "-", "—",
+            "n/a",
+            "na",
+            "none",
+            "nil",
+            "-",
+            "—",
         }:
-            grouped["Dx"].append(_candidate(
-                "Dx", "diagnosis_not_supported_by_chief_complaint_candidate", rule_ids,
-                "Review whether the entered diagnosis plausibly accounts for the chief complaints taken together, including explicit anatomical-site and organ-system consistency.",
-                f"Diagnosis: {diagnosis} | Chief complaint: {chief_complaint}",
-                trigger_source="live_section_review",
-            ))
+            grouped["Dx"].append(
+                _candidate(
+                    "Dx",
+                    "diagnosis_not_supported_by_chief_complaint_candidate",
+                    rule_ids,
+                    "Review whether the entered diagnosis plausibly accounts for the chief complaints taken together, including explicit anatomical-site and organ-system consistency.",
+                    f"Diagnosis: {diagnosis} | Chief complaint: {chief_complaint}",
+                    trigger_source="live_section_review",
+                )
+            )
         demographic_parts = [f"Diagnosis: {diagnosis}"]
         for label, field_names in (
             ("Age", ("Age",)),
@@ -1684,19 +1962,27 @@ def generate_rule_candidates(
             value = _field(prescription, *field_names)
             if value:
                 demographic_parts.append(f"{label}: {value}")
-        grouped["Dx"].append(_candidate(
-            "Dx", "diagnosis_demographic_context_candidate", rule_ids,
-            "Review whether the diagnosis is genuinely incompatible with recorded age, sex/gender, relevant anatomy, or reproductive context; distinguish biological incompatibility from a rare but possible condition.",
-            " | ".join(demographic_parts),
-            trigger_source="diagnosis_context_review",
-            extras={"candidate_id": "Dx.context.demo:1"},
-        ))
-        grouped["Dx"].append(_candidate(
-            "Dx", "diagnosis_not_supported_by_clinical_findings_candidate", rule_ids,
-            "Review whether the entered diagnosis is supported by, or directly contradicts, the available complaints, history, examination findings, and actual investigation results.",
-            f"Entered diagnosis: {diagnosis}",
-            trigger_source="live_section_review",
-        ))
+        grouped["Dx"].append(
+            _candidate(
+                "Dx",
+                "diagnosis_demographic_context_candidate",
+                rule_ids,
+                "Review whether the diagnosis is genuinely incompatible with recorded age, sex/gender, relevant anatomy, or reproductive context; distinguish biological incompatibility from a rare but possible condition.",
+                " | ".join(demographic_parts),
+                trigger_source="diagnosis_context_review",
+                extras={"candidate_id": "Dx.context.demo:1"},
+            )
+        )
+        grouped["Dx"].append(
+            _candidate(
+                "Dx",
+                "diagnosis_not_supported_by_clinical_findings_candidate",
+                rule_ids,
+                "Review whether the entered diagnosis is supported by, or directly contradicts, the available complaints, history, examination findings, and actual investigation results.",
+                f"Entered diagnosis: {diagnosis}",
+                trigger_source="live_section_review",
+            )
+        )
 
     if live_section_audit:
         for item in clinical_evidence:
@@ -1709,16 +1995,18 @@ def generate_rule_candidates(
             except (TypeError, ValueError):
                 continue
             unit = _text(item.get("unit", "")).casefold()
-            extreme = (unit == "f" and (value < 90 or value > 107)) or (
-                unit == "c" and (value < 32 or value > 42)
-            )
+            extreme = (unit == "f" and (value < 90 or value > 107)) or (unit == "c" and (value < 32 or value > 42))
             if extreme:
-                grouped["Dx"].append(_candidate(
-                    "Dx", "extreme_vital_value_candidate", rule_ids,
-                    "Temperature is physiologically extreme and may represent a medical emergency or a data-entry/unit error.",
-                    _text(item.get("raw_text", "")) or f"Temperature: {value} {unit.upper()}",
-                    trigger_source="live_section_review",
-                ))
+                grouped["Dx"].append(
+                    _candidate(
+                        "Dx",
+                        "extreme_vital_value_candidate",
+                        rule_ids,
+                        "Temperature is physiologically extreme and may represent a medical emergency or a data-entry/unit error.",
+                        _text(item.get("raw_text", "")) or f"Temperature: {value} {unit.upper()}",
+                        trigger_source="live_section_review",
+                    )
+                )
 
     medication_text = _field(prescription, "Medication")
 
@@ -1751,13 +2039,17 @@ def generate_rule_candidates(
             evidence = f"Entered medicine: {raw} | Mapper status: {match_confidence or 'unmatched'}"
             if possible:
                 evidence += " | Possible catalog matches: " + ", ".join(possible[:5])
-            grouped["Rx"].append(_candidate(
-                "Rx", "medicine_text_unclear_candidate", rule_ids,
-                "The medicine mapper could not assign one confident medicine identity; review for a typographical error, ambiguous product name, or genuinely uncatalogued medicine.",
-                evidence,
-                trigger_source="documentation_review",
-                extras={"candidate_id": f"Rx.term.unclear:{medicine_position}"},
-            ))
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "medicine_text_unclear_candidate",
+                    rule_ids,
+                    "The medicine mapper could not assign one confident medicine identity; review for a typographical error, ambiguous product name, or genuinely uncatalogued medicine.",
+                    evidence,
+                    trigger_source="documentation_review",
+                    extras={"candidate_id": f"Rx.term.unclear:{medicine_position}"},
+                )
+            )
         if (
             raw
             and not _NON_ORAL_FORM.search(form_and_raw)
@@ -1768,14 +2060,19 @@ def generate_rule_candidates(
             )
             and not _has_meal_timing(medicine)
         ):
-            grouped["Rx"].append(_candidate(
-                "Rx", "medicine_timing_missing_candidate", rule_ids,
-                "An oral/unspecified medicine has no detectable before/after-meal timing.", raw,
-                extras={
-                    "generic_id": _text(medicine.get("generic_id", "")),
-                    "generic_name": _text(medicine.get("generic_name", "")),
-                },
-            ))
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "medicine_timing_missing_candidate",
+                    rule_ids,
+                    "An oral/unspecified medicine has no detectable before/after-meal timing.",
+                    raw,
+                    extras={
+                        "generic_id": _text(medicine.get("generic_id", "")),
+                        "generic_name": _text(medicine.get("generic_name", "")),
+                    },
+                )
+            )
         timing_mismatch = _medicine_timing_mismatch(medicine, medicine_facts_by_id)
         if (
             raw
@@ -1784,89 +2081,109 @@ def generate_rule_candidates(
             and timing_mismatch is not None
         ):
             prescribed_timing, timing_fact = timing_mismatch
-            grouped["Rx"].append(_candidate(
-                "Rx", "medicine_timing_mismatch_candidate", rule_ids,
-                "The documented meal interval is shorter than the minimum interval in retrieved medicine-administration evidence.",
-                f"Prescription: {prescribed_timing} | Retrieved administration evidence: {timing_fact}",
-                trigger_source="medicine_evidence",
-                extras={
-                    "generic_id": _text(medicine.get("generic_id", "")),
-                    "generic_name": _text(medicine.get("generic_name", "")),
-                    "medicine_fact_evidence": timing_fact,
-                },
-            ))
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "medicine_timing_mismatch_candidate",
+                    rule_ids,
+                    "The documented meal interval is shorter than the minimum interval in retrieved medicine-administration evidence.",
+                    f"Prescription: {prescribed_timing} | Retrieved administration evidence: {timing_fact}",
+                    trigger_source="medicine_evidence",
+                    extras={
+                        "generic_id": _text(medicine.get("generic_id", "")),
+                        "generic_name": _text(medicine.get("generic_name", "")),
+                        "medicine_fact_evidence": timing_fact,
+                    },
+                )
+            )
         if (
             raw
             and medicine.get("strength_mg") is not None
             and duration_days is not None
             and frequency_type == "unknown"
         ):
-            grouped["Rx"].append(_candidate(
-                "Rx", "frequency_missing_or_ambiguous_candidate", rule_ids,
-                "Medicine has a documented strength and course duration, but no safely parseable dose frequency.",
-                raw,
-                extras={
-                    "generic_id": _text(medicine.get("generic_id", "")),
-                    "generic_name": _text(medicine.get("generic_name", "")),
-                },
-            ))
-        if (
-            raw
-            and duration_days is None
-            and not _has_ongoing_duration(raw)
-            and frequency_type != "stat_single_dose"
-        ):
-            grouped["Rx"].append(_candidate(
-                "Rx", "medicine_duration_missing_or_ambiguous_candidate", rule_ids,
-                "Medicine course duration is missing or cannot be safely interpreted.",
-                raw,
-                extras={
-                    "generic_id": _text(medicine.get("generic_id", "")),
-                    "generic_name": _text(medicine.get("generic_name", "")),
-                },
-            ))
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "frequency_missing_or_ambiguous_candidate",
+                    rule_ids,
+                    "Medicine has a documented strength and course duration, but no safely parseable dose frequency.",
+                    raw,
+                    extras={
+                        "generic_id": _text(medicine.get("generic_id", "")),
+                        "generic_name": _text(medicine.get("generic_name", "")),
+                    },
+                )
+            )
+        if raw and duration_days is None and not _has_ongoing_duration(raw) and frequency_type != "stat_single_dose":
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "medicine_duration_missing_or_ambiguous_candidate",
+                    rule_ids,
+                    "Medicine course duration is missing or cannot be safely interpreted.",
+                    raw,
+                    extras={
+                        "generic_id": _text(medicine.get("generic_id", "")),
+                        "generic_name": _text(medicine.get("generic_name", "")),
+                    },
+                )
+            )
         dosage_form_text = _text(medicine.get("dosage_form", ""))
         raw_without_instructions = re.sub(r"\[[^\]]*\]", " ", raw)
         form_route = _dosage_form_route(dosage_form_text or raw_without_instructions)
         instruction_route = _instruction_route(instructions)
         if form_route and instruction_route and form_route != instruction_route:
-            grouped["Rx"].append(_candidate(
-                "Rx", "route_inconsistent_candidate", rule_ids,
-                "The documented administration route conflicts with the medicine dosage form.",
-                f"Dosage form: {_text(medicine.get('dosage_form', '')) or 'derived from medicine text'} | Medicine: {raw} | Interpreted instruction route: {instruction_route}",
-                extras={
-                    "generic_id": _text(medicine.get("generic_id", "")),
-                    "generic_name": _text(medicine.get("generic_name", "")),
-                    "dosage_form": dosage_form_text,
-                    "instruction_route": instruction_route,
-                    "instruction_text": instructions,
-                },
-            ))
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "route_inconsistent_candidate",
+                    rule_ids,
+                    "The documented administration route conflicts with the medicine dosage form.",
+                    f"Dosage form: {_text(medicine.get('dosage_form', '')) or 'derived from medicine text'} | Medicine: {raw} | Interpreted instruction route: {instruction_route}",
+                    extras={
+                        "generic_id": _text(medicine.get("generic_id", "")),
+                        "generic_name": _text(medicine.get("generic_name", "")),
+                        "dosage_form": dosage_form_text,
+                        "instruction_route": instruction_route,
+                        "instruction_text": instructions,
+                    },
+                )
+            )
         route_instruction_text = translated_text(instructions)
         if _ROUTE_FORM.search(form_and_raw) and not _ROUTE_INSTRUCTION.search(route_instruction_text):
-            grouped["Rx"].append(_candidate(
-                "Rx", "medicine_route_or_instruction_incomplete_candidate", rule_ids,
-                "A route-specific medicine lacks a detectable administration route/instruction.", raw,
-                extras={
-                    "generic_id": _text(medicine.get("generic_id", "")),
-                    "generic_name": _text(medicine.get("generic_name", "")),
-                },
-            ))
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "medicine_route_or_instruction_incomplete_candidate",
+                    rule_ids,
+                    "A route-specific medicine lacks a detectable administration route/instruction.",
+                    raw,
+                    extras={
+                        "generic_id": _text(medicine.get("generic_id", "")),
+                        "generic_name": _text(medicine.get("generic_name", "")),
+                    },
+                )
+            )
         if _SOLID_FORM.search(form_and_raw) and _DYSPHAGIA.search(
             " ".join(
                 _field(prescription, name)
                 for name in ("Chief Complaint", "Chief_Complaint", "On Examination", "On_Examination", "Diagnosis")
             )
         ):
-            grouped["Rx"].append(_candidate(
-                "Rx", "dosage_form_inappropriate_candidate", rule_ids,
-                "Solid oral dosage form is prescribed while swallowing difficulty/dysphagia is documented.",
-                raw,
-                extras={
-                    "generic_id": _text(medicine.get("generic_id", "")),
-                    "generic_name": _text(medicine.get("generic_name", "")),
-                },
-            ))
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "dosage_form_inappropriate_candidate",
+                    rule_ids,
+                    "Solid oral dosage form is prescribed while swallowing difficulty/dysphagia is documented.",
+                    raw,
+                    extras={
+                        "generic_id": _text(medicine.get("generic_id", "")),
+                        "generic_name": _text(medicine.get("generic_name", "")),
+                    },
+                )
+            )
         if (
             patient_context.get("is_child")
             and _text(medicine.get("frequency_type", "")) == "liquid_spoon_daily"
@@ -1874,17 +2191,21 @@ def generate_rule_candidates(
             and medicine.get("amount_per_dose") is not None
             and medicine.get("times_per_day") is not None
         ):
-            grouped["Rx"].append(_candidate(
-                "Rx", "pediatric_liquid_weight_dose_review_candidate", rule_ids,
-                "Child has liquid spoon dosing documented; mg/kg review needs configured spoon volume and patient weight confirmation.",
-                raw,
-                extras={
-                    "generic_id": _text(medicine.get("generic_id", "")),
-                    "generic_name": _text(medicine.get("generic_name", "")),
-                    "amount_per_dose": medicine.get("amount_per_dose"),
-                    "times_per_day": medicine.get("times_per_day"),
-                },
-            ))
+            grouped["Rx"].append(
+                _candidate(
+                    "Rx",
+                    "pediatric_liquid_weight_dose_review_candidate",
+                    rule_ids,
+                    "Child has liquid spoon dosing documented; mg/kg review needs configured spoon volume and patient weight confirmation.",
+                    raw,
+                    extras={
+                        "generic_id": _text(medicine.get("generic_id", "")),
+                        "generic_name": _text(medicine.get("generic_name", "")),
+                        "amount_per_dose": medicine.get("amount_per_dose"),
+                        "times_per_day": medicine.get("times_per_day"),
+                    },
+                )
+            )
 
     for upstream, trigger in (
         (safety_candidates or {}, "safety_candidate_engine"),
@@ -1932,27 +2253,43 @@ def generate_rule_candidates(
             advice_context_parts.append(f"{label}: {value}")
     advice_context = " | ".join(advice_context_parts)
     if live_section_audit and not advice and (diagnosis or medication_text):
-        grouped["Adv"].append(_candidate(
-            "Adv", "advice_missing_candidate", rule_ids,
-            "Diagnosis or treatment is documented, but no patient advice, counselling, precaution, or safety-net instruction is recorded.",
-            "Advice is empty" + (f" | Diagnosis: {diagnosis}" if diagnosis else "") + (f" | Medication: {medication_text}" if medication_text else ""),
-            trigger_source="live_section_review",
-        ))
+        grouped["Adv"].append(
+            _candidate(
+                "Adv",
+                "advice_missing_candidate",
+                rule_ids,
+                "Diagnosis or treatment is documented, but no patient advice, counselling, precaution, or safety-net instruction is recorded.",
+                "Advice is empty"
+                + (f" | Diagnosis: {diagnosis}" if diagnosis else "")
+                + (f" | Medication: {medication_text}" if medication_text else ""),
+                trigger_source="live_section_review",
+            )
+        )
     elif live_section_audit and advice:
-        grouped["Adv"].append(_candidate(
-            "Adv", "advice_content_unrecognized_candidate", rule_ids,
-            "Review whether the entered Advice contains a recognizable patient instruction and whether it has a clear typographical/transcription error; accept understandable Bengali or English wording and common shorthand.",
-            f"Entered advice: {advice}" + (f" | Diagnosis: {diagnosis}" if diagnosis else "") + (f" | Medication: {medication_text}" if medication_text else ""),
-            trigger_source="live_section_review",
-        ))
+        grouped["Adv"].append(
+            _candidate(
+                "Adv",
+                "advice_content_unrecognized_candidate",
+                rule_ids,
+                "Review whether the entered Advice contains a recognizable patient instruction and whether it has a clear typographical/transcription error; accept understandable Bengali or English wording and common shorthand.",
+                f"Entered advice: {advice}"
+                + (f" | Diagnosis: {diagnosis}" if diagnosis else "")
+                + (f" | Medication: {medication_text}" if medication_text else ""),
+                trigger_source="live_section_review",
+            )
+        )
     if advice:
-        grouped["Adv"].append(_candidate(
-            "Adv", "advice_context_appropriateness_candidate", rule_ids,
-            "Review each entered advice item for clinical relevance, compatibility, and safety against the complete available patient and prescription context; flag unrelated, contradicted, or unsafe advice without demanding unnecessary generic counselling.",
-            f"Entered advice: {advice}" + (f" | {advice_context}" if advice_context else ""),
-            trigger_source="semantic_context_review",
-            extras={"candidate_id": "Adv.context:1"},
-        ))
+        grouped["Adv"].append(
+            _candidate(
+                "Adv",
+                "advice_context_appropriateness_candidate",
+                rule_ids,
+                "Review each entered advice item for clinical relevance, compatibility, and safety against the complete available patient and prescription context; flag unrelated, contradicted, or unsafe advice without demanding unnecessary generic counselling.",
+                f"Entered advice: {advice}" + (f" | {advice_context}" if advice_context else ""),
+                trigger_source="semantic_context_review",
+                extras={"candidate_id": "Adv.context:1"},
+            )
+        )
         followup_matches = re.findall(
             r"(?:^|,\s*)Follow-up:\s*([^,]+(?:,(?!\s*[A-Z][A-Za-z /_-]*:)[^,]+)*)",
             advice,
@@ -1960,25 +2297,33 @@ def generate_rule_candidates(
         )
         if followup_matches:
             followup_text = "; ".join(_text(value) for value in followup_matches if _text(value))
-            grouped["Adv"].append(_candidate(
-                "Adv", "advice_followup_interval_candidate", rule_ids,
-                "Review whether the documented follow-up timing and return plan are appropriate for current risk, pregnancy/obstetric context, abnormalities, diagnosis, treatment duration, monitoring needs, and safety-net urgency; confirm only clearly inappropriate or contradictory timing.",
-                f"Follow-up plan: {followup_text}" + (f" | {advice_context}" if advice_context else ""),
-                trigger_source="semantic_context_review",
-                extras={"candidate_id": "Adv.followup.interval:1"},
-            ))
+            grouped["Adv"].append(
+                _candidate(
+                    "Adv",
+                    "advice_followup_interval_candidate",
+                    rule_ids,
+                    "Review whether the documented follow-up timing and return plan are appropriate for current risk, pregnancy/obstetric context, abnormalities, diagnosis, treatment duration, monitoring needs, and safety-net urgency; confirm only clearly inappropriate or contradictory timing.",
+                    f"Follow-up plan: {followup_text}" + (f" | {advice_context}" if advice_context else ""),
+                    trigger_source="semantic_context_review",
+                    extras={"candidate_id": "Adv.followup.interval:1"},
+                )
+            )
     danger_evidence = _pregnancy_danger_evidence(prescription)
     if (
         danger_evidence
         and _has_pregnancy_context(prescription, patient_context)
         and not _advice_has_danger_coverage(advice)
     ):
-        grouped["Adv"].append(_candidate(
-            "Adv", "pregnancy_danger_sign_action_missing_candidate", rule_ids,
-            "Pregnancy danger-sign evidence exists but urgent assessment, referral, follow-up, or danger-sign counseling is not documented.",
-            danger_evidence,
-            extras={"severity": "needs_review"},
-        ))
+        grouped["Adv"].append(
+            _candidate(
+                "Adv",
+                "pregnancy_danger_sign_action_missing_candidate",
+                rule_ids,
+                "Pregnancy danger-sign evidence exists but urgent assessment, referral, follow-up, or danger-sign counseling is not documented.",
+                danger_evidence,
+                extras={"severity": "needs_review"},
+            )
+        )
 
     _add_guideline_rag_candidates(
         grouped,
@@ -2010,12 +2355,18 @@ def generate_rule_candidates(
         "rag_gaps": list({str(item): item for item in rag_gaps}.values()),
     }
 
+
 # Protocol concerns that the deterministic engines never turn into candidates (for example every
 # Inv.cc / Inv.dx / Inv.hs / Inv.demo.* rule). Without these the LLM was never asked to review them,
 # and a section with no candidates was skipped entirely, so such errors could not be detected.
 _PROTOCOL_REVIEW_EXCLUDED = {
-    "Dx.followup", "Dx.inv.1", "Rx.followup.dup", "Rx.followup.ddi", "Adv.followup",
-    "Adv.followup.interval", "Inv.followup.redundant",
+    "Dx.followup",
+    "Dx.inv.1",
+    "Rx.followup.dup",
+    "Rx.followup.ddi",
+    "Adv.followup",
+    "Adv.followup.interval",
+    "Inv.followup.redundant",
 }
 _PROTOCOL_REVIEW_SECTIONS = ("Dx", "Inv", "Rx", "Adv")
 _ALIASED_RULE_IDS = {"CC.demo", "Dx.demo", "Rx.dup"}  # produced under another id (e.g. CC.context.demo)
@@ -2030,8 +2381,17 @@ _REVIEW_WHEN_FIELD_PRESENT = {"Dx.inv.1": "Investigation_Results"}
 def _protocol_review_context(section: str, prescription: Mapping[str, Any]) -> str:
     fields = {
         "Dx": ("Diagnosis", "Chief_Complaint", "Health_Screening", "Investigation_Results"),
-        "Inv": ("Diagnosis", "Investigation", "Investigation_Results", "Chief_Complaint", "Health_Screening",
-                "On_Examination", "Systemic_Examination", "Age", "Gender"),
+        "Inv": (
+            "Diagnosis",
+            "Investigation",
+            "Investigation_Results",
+            "Chief_Complaint",
+            "Health_Screening",
+            "On_Examination",
+            "Systemic_Examination",
+            "Age",
+            "Gender",
+        ),
         "Rx": ("Diagnosis", "Medication", "Chief_Complaint", "Health_Screening", "Age", "Gender"),
         "Adv": ("Diagnosis", "Medication", "Advice", "Chief_Complaint", "Health_Screening"),
     }[section]
@@ -2064,18 +2424,26 @@ def _add_protocol_review_candidates(
             if trigger_field:
                 if not _field(prescription, trigger_field):
                     continue
-            elif concern_id in _PROTOCOL_REVIEW_EXCLUDED or concern_id in generated and concern_id not in _REVIEW_EVEN_IF_GENERATED:
+            elif (
+                concern_id in _PROTOCOL_REVIEW_EXCLUDED
+                or concern_id in generated
+                and concern_id not in _REVIEW_EVEN_IF_GENERATED
+            ):
                 continue
             if any(item.get("rule_id") == concern_id for item in grouped[section]):
                 continue
             name = f"{concern_id.replace('.', '_').lower()}_protocol_review_candidate"
-            grouped[section].append(_candidate(
-                section, name, {name: concern_id},
-                f"Rulebook check {concern_id}: decide whether the evidence clearly violates this rule; the rule text is in the task instructions. Omit when the evidence is acceptable.",
-                _protocol_review_context(section, prescription),
-                trigger_source="protocol_review",
-                extras={"candidate_id": f"{concern_id}:1"},
-            ))
+            grouped[section].append(
+                _candidate(
+                    section,
+                    name,
+                    {name: concern_id},
+                    f"Rulebook check {concern_id}: decide whether the evidence clearly violates this rule; the rule text is in the task instructions. Omit when the evidence is acceptable.",
+                    _protocol_review_context(section, prescription),
+                    trigger_source="protocol_review",
+                    extras={"candidate_id": f"{concern_id}:1"},
+                )
+            )
 
 
 __all__ = ["SECTIONS", "generate_rule_candidates"]

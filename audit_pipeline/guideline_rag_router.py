@@ -235,8 +235,7 @@ def retrieve_guideline_facts_for_seeds(
     seeds: Sequence[GuidelineRAGSeed],
 ) -> dict[str, Any]:
     grouped: dict[str, dict[str, Any]] = {
-        section: {"facts": [], "matched_conditions": [], "warnings": [], "retrieval_seeds": []}
-        for section in SECTIONS
+        section: {"facts": [], "matched_conditions": [], "warnings": [], "retrieval_seeds": []} for section in SECTIONS
     }
     seen_by_section: dict[str, set[str]] = {section: set() for section in SECTIONS}
     for seed in seeds:

@@ -42,9 +42,7 @@ def build_database(source: str | Path = DEFAULT_SOURCE, target: str | Path = DEF
     """Build an atomic SQLite search database; return the number of diagnoses."""
     source_path, target_path = Path(source), Path(target)
     if not source_path.is_file():
-        raise FileNotFoundError(
-            f"ICD-11 source package is missing: {source_path}. Download it from {SOURCE_URL}"
-        )
+        raise FileNotFoundError(f"ICD-11 source package is missing: {source_path}. Download it from {SOURCE_URL}")
     target_path.parent.mkdir(parents=True, exist_ok=True)
     fd, temp_name = tempfile.mkstemp(prefix=f".{target_path.name}.", dir=target_path.parent)
     os.close(fd)
@@ -99,9 +97,7 @@ def build_database(source: str | Path = DEFAULT_SOURCE, target: str | Path = DEF
                             _bool(row.get("isLeaf")),
                         )
                     )
-                con.executemany(
-                    "INSERT OR REPLACE INTO diagnoses VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows
-                )
+                con.executemany("INSERT OR REPLACE INTO diagnoses VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows)
                 count = len(rows)
             con.executemany(
                 "INSERT INTO metadata(key, value) VALUES (?, ?)",

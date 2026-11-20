@@ -7,6 +7,7 @@ live-suite cases and the 8 correct prescriptions of benchmark/clinical_reviewer_
     python -m benchmark.live_review_probe          (the app must be running: .\\run_local.ps1)
 Writes benchmark/results/live_review_probe.json.
 """
+
 from __future__ import annotations
 
 import json
@@ -32,13 +33,22 @@ def post(path: str, payload: dict) -> tuple[dict, float]:
 
 
 def main() -> None:
-    cases = [("doctor", t, s, a, e) for t, s, a, e in doctor_probe.CASES] + \
-            [("suite", t, s, a, e) for t, s, a, e, _x, _g in live_suite.CASES] + \
-            [("clean", t, s, a, e) for t, s, a, e in CLEAN]
+    cases = (
+        [("doctor", t, s, a, e) for t, s, a, e in doctor_probe.CASES]
+        + [("suite", t, s, a, e) for t, s, a, e, _x, _g in live_suite.CASES]
+        + [("clean", t, s, a, e) for t, s, a, e in CLEAN]
+    )
     results, t1, t2 = [], [], []
     for n, (group, title, sex, age, entries) in enumerate(cases, 1):
-        patient = {"id": 995000 + n, "serial": f"REV-{n:03d}", "name": f"Review {n}", "gender": sex,
-                   "dob": date(date.today().year - age, 1, 1).isoformat(), "ageValue": age, "ageUnit": "years"}
+        patient = {
+            "id": 995000 + n,
+            "serial": f"REV-{n:03d}",
+            "name": f"Review {n}",
+            "gender": sex,
+            "dob": date(date.today().year - age, 1, 1).isoformat(),
+            "ageValue": age,
+            "ageUnit": "years",
+        }
         visit: dict = {"id": 1799300000000 + n}
         print(f"\n=== {n}. [{group}] {title} ({sex}, {age} y)", flush=True)
         for section, key in live_suite.ORDER:
@@ -53,20 +63,38 @@ def main() -> None:
             problems = review.get("review", {}).get("problems", [])
             t1.append(s1)
             t2.append(s2)
-            results.append({"n": n, "group": group, "case": title, "section": section, "layer1_s": round(s1, 1),
-                            "review_s": round(s2, 1), "layer1": [(a.get("rule_id"), a.get("why")) for a in layer1],
-                            "review": problems, "review_status": review.get("review", {}).get("status")})
+            results.append(
+                {
+                    "n": n,
+                    "group": group,
+                    "case": title,
+                    "section": section,
+                    "layer1_s": round(s1, 1),
+                    "review_s": round(s2, 1),
+                    "layer1": [(a.get("rule_id"), a.get("why")) for a in layer1],
+                    "review": problems,
+                    "review_status": review.get("review", {}).get("status"),
+                }
+            )
             print(f"  {section}: fast {s1:.1f}s, review {s2:.1f}s", flush=True)
             for a in layer1:
                 print(f"      L1  [{a.get('rule_id')}] {str(a.get('why', ''))[:130]}", flush=True)
             for p in problems:
-                print(f"      REV {p['severity'][:4]:4} {p.get('type', '')[:14]:14} | {p['entry'][:32]} -> {p['problem'][:110]}", flush=True)
+                print(
+                    f"      REV {p['severity'][:4]:4} {p.get('type', '')[:14]:14} | {p['entry'][:32]} -> {p['problem'][:110]}",
+                    flush=True,
+                )
             for p in review.get("review", {}).get("hidden", []) or []:
-                print(f"      hid {p['severity'][:4]:4} {p.get('type', '')[:14]:14} | {p['entry'][:32]} -> {p['problem'][:90]}", flush=True)
+                print(
+                    f"      hid {p['severity'][:4]:4} {p.get('type', '')[:14]:14} | {p['entry'][:32]} -> {p['problem'][:90]}",
+                    flush=True,
+                )
         OUT.write_text(json.dumps(results, ensure_ascii=False, indent=1), encoding="utf-8")
     for name, t in (("fast check", t1), ("clinical review", t2)):
         t.sort()
-        print(f"{name}: median {t[len(t) // 2]:.1f}s, slowest {t[-1]:.1f}s, over 6s: {sum(x > 6 for x in t)} of {len(t)}")
+        print(
+            f"{name}: median {t[len(t) // 2]:.1f}s, slowest {t[-1]:.1f}s, over 6s: {sum(x > 6 for x in t)} of {len(t)}"
+        )
 
 
 if __name__ == "__main__":

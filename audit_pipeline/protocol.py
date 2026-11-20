@@ -25,9 +25,7 @@ def resolve_protocol_path(path: str | Path | None = None) -> Path:
         source = Path(path).expanduser().resolve()
         if source.is_file():
             return source
-        raise FileNotFoundError(
-            f"Protocol file not found at the provided path: {source}"
-        )
+        raise FileNotFoundError(f"Protocol file not found at the provided path: {source}")
 
     package_dir = Path(__file__).resolve().parent
     candidates = (

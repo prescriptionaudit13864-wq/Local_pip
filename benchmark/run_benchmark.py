@@ -74,8 +74,12 @@ def load_cases(path: Path, limit: int | None) -> list[dict[str, Any]]:
             case = dict(item)
         else:  # a file saved by the app: let the pipeline's own adapter read it
             norm = normalize_payload(item)
-            case = {"patient": norm["patient"], "visit": dict(norm["record"], id=norm["visit_id"]),
-                    "history": norm["history"], "expected_errors": item.get("expected_errors")}
+            case = {
+                "patient": norm["patient"],
+                "visit": dict(norm["record"], id=norm["visit_id"]),
+                "history": norm["history"],
+                "expected_errors": item.get("expected_errors"),
+            }
         case.setdefault("case_id", f"CASE-{index:03d}")
         case.setdefault("history", [])
         cases.append(case)
@@ -106,11 +110,15 @@ class RulesOnlyProvider:
         task = json.loads(prompt.split("TASK_JSON=", 1)[1])
         # A fixed reason: audit_writer drops findings whose "why" only echoes the candidate hypothesis.
         findings = [
-            {"candidate_id": c.get("candidate_id", ""), "rule_name": c.get("rule_name", ""),
-             "rule_id": c.get("rule_id", ""), "correction": "",
-             "why": "Accepted by the rules-only baseline without any language model review of this candidate.",
-             "evidence": c.get("evidence", ""),
-             "confidence": "high" if c.get("evidence_strength") == "high" else "medium"}
+            {
+                "candidate_id": c.get("candidate_id", ""),
+                "rule_name": c.get("rule_name", ""),
+                "rule_id": c.get("rule_id", ""),
+                "correction": "",
+                "why": "Accepted by the rules-only baseline without any language model review of this candidate.",
+                "evidence": c.get("evidence", ""),
+                "confidence": "high" if c.get("evidence_strength") == "high" else "medium",
+            }
             for c in flatten_candidates(task.get("candidates"))
         ]
         return {"section": task.get("section", ""), "findings": findings}
@@ -126,10 +134,12 @@ class TimedProvider:
         self._tokens = 0
         generate = getattr(inner, "_generate", None)
         if callable(generate) and getattr(inner, "_tokenizer", None) is not None:
+
             def counted(*args: Any, **kwargs: Any) -> str:
                 text = generate(*args, **kwargs)
                 self._tokens += len(inner._tokenizer(text, add_special_tokens=False)["input_ids"])
                 return text
+
             inner._generate = counted
 
     def __getattr__(self, name: str) -> Any:  # last_output_character_count etc. used by audit_writer
@@ -147,13 +157,17 @@ class TimedProvider:
             error = f"{type(exc).__name__}: {str(exc)[:200]}"
             raise
         finally:
-            self.calls.append({
-                "kind": kind, "section": section.group(1) if section else "",
-                "seconds": round(perf_counter() - started, 3), "output_tokens": self._tokens,
-                "output_chars": getattr(self.inner, "last_output_character_count", 0),
-                "error": error,
-                "unsupported": error.startswith("UnsupportedPrompt"),
-            })
+            self.calls.append(
+                {
+                    "kind": kind,
+                    "section": section.group(1) if section else "",
+                    "seconds": round(perf_counter() - started, 3),
+                    "output_tokens": self._tokens,
+                    "output_chars": getattr(self.inner, "last_output_character_count", 0),
+                    "error": error,
+                    "unsupported": error.startswith("UnsupportedPrompt"),
+                }
+            )
 
     def take_calls(self) -> list[dict[str, Any]]:
         calls, self.calls = self.calls, []
@@ -167,8 +181,11 @@ def fold_system_if_needed(provider: Any) -> bool:
     if tokenizer is None or not getattr(tokenizer, "chat_template", None):
         return False
     try:
-        tokenizer.apply_chat_template([{"role": "system", "content": "s"}, {"role": "user", "content": "u"}],
-                                      tokenize=False, add_generation_prompt=True)
+        tokenizer.apply_chat_template(
+            [{"role": "system", "content": "s"}, {"role": "user", "content": "u"}],
+            tokenize=False,
+            add_generation_prompt=True,
+        )
         return False
     except Exception:
         original = provider._generate
@@ -197,8 +214,9 @@ def build_provider(model: str) -> tuple[Any, dict[str, Any]]:
         return RulesOnlyProvider(), {}
     # A repo that is already 4-bit loads as published; a full-precision repo is quantized to 4-bit at load.
     method = prequantized(model)
-    os.environ.update({"AUDIT_PROVIDER": "local", "HF_MODEL": model, "HF_QUANT": "none" if method else "4bit",
-                       "HF_ADAPTER": ""})
+    os.environ.update(
+        {"AUDIT_PROVIDER": "local", "HF_MODEL": model, "HF_QUANT": "none" if method else "4bit", "HF_ADAPTER": ""}
+    )
     for name in ("LLM_BASE_URL", "LLM_MODEL"):  # always load in-process
         os.environ.pop(name, None)
     import torch
@@ -209,11 +227,13 @@ def build_provider(model: str) -> tuple[Any, dict[str, Any]]:
         torch.cuda.reset_peak_memory_stats()
     started = perf_counter()
     provider = LocalChatProvider()
-    info = {"load_seconds": round(perf_counter() - started, 2),
-            "quantization": f"pre-quantized on the Hub ({method})" if method else "4bit (bitsandbytes nf4, at load)",
-            "system_role_folded": fold_system_if_needed(provider),
-            "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
-            "vram_after_load_gb": round(torch.cuda.memory_allocated() / 2**30, 2) if torch.cuda.is_available() else 0}
+    info = {
+        "load_seconds": round(perf_counter() - started, 2),
+        "quantization": f"pre-quantized on the Hub ({method})" if method else "4bit (bitsandbytes nf4, at load)",
+        "system_role_folded": fold_system_if_needed(provider),
+        "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
+        "vram_after_load_gb": round(torch.cuda.memory_allocated() / 2**30, 2) if torch.cuda.is_available() else 0,
+    }
     return provider, info
 
 
@@ -286,7 +306,9 @@ def aggregate(model: str, info: Mapping[str, Any], cases: list[dict[str, Any]]) 
         "clean_cases": len(clean),
         "avg_case_seconds": ratio(sum(case_seconds), len(case_seconds)),
         "avg_live_section_seconds": ratio(sum(live_seconds), len(live_seconds)),
-        "avg_final_audit_seconds": ratio(sum(c["timing"]["final_seconds"] for c in cases if "timing" in c), len(case_seconds)),
+        "avg_final_audit_seconds": ratio(
+            sum(c["timing"]["final_seconds"] for c in cases if "timing" in c), len(case_seconds)
+        ),
         "total_llm_seconds": round(llm_seconds, 2),
         "llm_calls": len(llm_calls),
         "avg_llm_call_seconds": ratio(llm_seconds, len(llm_calls)),
@@ -309,16 +331,26 @@ def aggregate(model: str, info: Mapping[str, Any], cases: list[dict[str, Any]]) 
 # --------------------------------------------------------------------------- one model
 def run_case(service: Any, timed: TimedProvider, case: Mapping[str, Any], live: bool) -> dict[str, Any]:
     patient, visit, history = case["patient"], case["visit"], case.get("history", [])
-    result: dict[str, Any] = {"case_id": case["case_id"], "title": case.get("title", ""),
-                              "category": case.get("category", ""),
-                              "expected_count": len(case["expected_errors"]) if case.get("expected_errors") is not None else None,
-                              "live_sections": [], "llm_calls": []}
+    result: dict[str, Any] = {
+        "case_id": case["case_id"],
+        "title": case.get("title", ""),
+        "category": case.get("category", ""),
+        "expected_count": len(case["expected_errors"]) if case.get("expected_errors") is not None else None,
+        "live_sections": [],
+        "llm_calls": [],
+    }
     started = perf_counter()
     live_audits: dict[str, Any] = {}
     if live:
+
         def section_audit(section: str, step_index: int, recheck: bool = False) -> None:
-            payload = {"section": section, "revision": 1, "patient": patient,
-                       "visit": visit_after(visit, step_index), "history": history}
+            payload = {
+                "section": section,
+                "revision": 1,
+                "patient": patient,
+                "visit": visit_after(visit, step_index),
+                "history": history,
+            }
             t0 = perf_counter()
             try:
                 out = service.audit_section(payload)["live_audit"]
@@ -328,12 +360,19 @@ def run_case(service: Any, timed: TimedProvider, case: Mapping[str, Any], live: 
             calls = timed.take_calls()
             if out.get("status") in ("clear", "moderate", "critical"):
                 live_audits[section] = out
-            result["live_sections"].append({
-                "section": section, "recheck": recheck, "seconds": round(perf_counter() - t0, 3),
-                "status": out.get("status"), "summary": out.get("summary", ""), "findings": out.get("findings", []),
-                "warnings": out.get("warnings", []), "error": error,
-                "llm_seconds": round(sum(c["seconds"] for c in calls if not c["unsupported"]), 3),
-            })
+            result["live_sections"].append(
+                {
+                    "section": section,
+                    "recheck": recheck,
+                    "seconds": round(perf_counter() - t0, 3),
+                    "status": out.get("status"),
+                    "summary": out.get("summary", ""),
+                    "findings": out.get("findings", []),
+                    "warnings": out.get("warnings", []),
+                    "error": error,
+                    "llm_seconds": round(sum(c["seconds"] for c in calls if not c["unsupported"]), 3),
+                }
+            )
             result["llm_calls"].extend(calls)
 
         for index, (section, _) in enumerate(SECTION_STEPS):
@@ -367,8 +406,10 @@ def run_case(service: Any, timed: TimedProvider, case: Mapping[str, Any], live: 
     expected = case.get("expected_errors")
     if expected is not None:
         live_findings = [f for s in result["live_sections"] for f in s["findings"]]
-        result["score"] = {"final": score(result["final"]["findings"], expected),
-                           "live": score(live_findings, expected) if live else None}
+        result["score"] = {
+            "final": score(result["final"]["findings"], expected),
+            "live": score(live_findings, expected) if live else None,
+        }
     return result
 
 
@@ -393,19 +434,28 @@ def run_worker(model: str, cases_path: Path, out_path: Path, limit: int | None, 
         try:
             item = run_case(service, timed, case, live)
         except Exception as exc:  # noqa: BLE001
-            item = {"case_id": case["case_id"], "title": case.get("title", ""), "category": case.get("category", ""),
-                    "error": f"{type(exc).__name__}: {exc}", "traceback": traceback.format_exc(limit=5),
-                    "llm_calls": timed.take_calls()}
+            item = {
+                "case_id": case["case_id"],
+                "title": case.get("title", ""),
+                "category": case.get("category", ""),
+                "error": f"{type(exc).__name__}: {exc}",
+                "traceback": traceback.format_exc(limit=5),
+                "llm_calls": timed.take_calls(),
+            }
         results.append(item)
         sc = (item.get("score") or {}).get("final") or {}
-        print(f"[{model}] {number}/{len(cases)} {item['case_id']} "
-              f"{item.get('timing', {}).get('total_seconds', '-')}s "
-              f"detected {sc.get('detected', '-')}/{sc.get('expected', '-')}"
-              f"{'  ERROR ' + item['error'] if item.get('error') else ''}", flush=True)
+        print(
+            f"[{model}] {number}/{len(cases)} {item['case_id']} "
+            f"{item.get('timing', {}).get('total_seconds', '-')}s "
+            f"detected {sc.get('detected', '-')}/{sc.get('expected', '-')}"
+            f"{'  ERROR ' + item['error'] if item.get('error') else ''}",
+            flush=True,
+        )
         # Save after every case so a crash keeps the finished ones.
         write_model_file(out_path, model, info, results, cases_path)
     try:
         import torch
+
         if torch.cuda.is_available():
             info["peak_vram_gb"] = round(torch.cuda.max_memory_allocated() / 2**30, 2)
     except ImportError:
@@ -415,11 +465,23 @@ def run_worker(model: str, cases_path: Path, out_path: Path, limit: int | None, 
 
 
 def write_model_file(path: Path, model: str, info: Mapping[str, Any], results: list, cases_path: Path) -> None:
-    path.write_text(json.dumps({
-        "model": model, "quantization": "none" if model == RULES_ONLY else info.get("quantization", "4bit"),
-        "cases_file": str(cases_path), "run_at": datetime.now().isoformat(timespec="seconds"),
-        "load_info": info, "summary": aggregate(model, info, results), "cases": results,
-    }, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+    path.write_text(
+        json.dumps(
+            {
+                "model": model,
+                "quantization": "none" if model == RULES_ONLY else info.get("quantization", "4bit"),
+                "cases_file": str(cases_path),
+                "run_at": datetime.now().isoformat(timespec="seconds"),
+                "load_info": info,
+                "summary": aggregate(model, info, results),
+                "cases": results,
+            },
+            indent=2,
+            ensure_ascii=False,
+            default=str,
+        ),
+        encoding="utf-8",
+    )
 
 
 # --------------------------------------------------------------------------- driver
@@ -435,6 +497,7 @@ def default_models(model_list: Path = BENCH / "models.json") -> list[str]:
 def model_in_cache(model: str) -> bool:
     try:
         from huggingface_hub import scan_cache_dir
+
         return any(repo.repo_id == model for repo in scan_cache_dir().repos)
     except Exception:  # noqa: BLE001
         return True  # unknown -> never delete
@@ -457,8 +520,14 @@ def write_summary(run_dir: Path) -> None:
         if file.name == "summary.json":
             continue
         data = json.loads(file.read_text(encoding="utf-8"))
-        rows.append(dict(data["summary"], quantization=data["quantization"], gpu=data["load_info"].get("gpu", ""),
-                         load_error=data["load_info"].get("load_error", "")))
+        rows.append(
+            dict(
+                data["summary"],
+                quantization=data["quantization"],
+                gpu=data["load_info"].get("gpu", ""),
+                load_error=data["load_info"].get("load_error", ""),
+            )
+        )
     rows.sort(key=lambda r: (-(r.get("f1") or 0), r.get("avg_case_seconds") or 1e9))
     (run_dir / "summary.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
     columns = [k for k in rows[0] if k != "recall_by_category"] if rows else []
@@ -469,24 +538,39 @@ def write_summary(run_dir: Path) -> None:
     print(f"\n{'model':45} {'P':>6} {'R':>6} {'F1':>6} {'critR':>6} {'s/case':>7} {'tok/s':>6} {'errs':>5}")
     for r in rows:
         fmt = lambda v: "-" if v is None else f"{v:.2f}" if isinstance(v, float) else str(v)  # noqa: E731
-        print(f"{r['model'][:45]:45} {fmt(r['precision']):>6} {fmt(r['recall']):>6} {fmt(r['f1']):>6} "
-              f"{fmt(r['critical_recall']):>6} {fmt(r['avg_case_seconds']):>7} {fmt(r['tokens_per_second']):>6} "
-              f"{fmt(r['llm_errors']):>5}")
+        print(
+            f"{r['model'][:45]:45} {fmt(r['precision']):>6} {fmt(r['recall']):>6} {fmt(r['f1']):>6} "
+            f"{fmt(r['critical_recall']):>6} {fmt(r['avg_case_seconds']):>7} {fmt(r['tokens_per_second']):>6} "
+            f"{fmt(r['llm_errors']):>5}"
+        )
     print(f"\nSaved: {run_dir / 'summary.csv'}")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--models", nargs="+", help=f"HF model ids (default: models.json entries with run=true); '{RULES_ONLY}' = no LLM")
-    parser.add_argument("--model-list", default=str(BENCH / "models.json"),
-                        help="JSON model list used when --models is not given (entries with run=true)")
-    parser.add_argument("--cases", default=str(BENCH / "test_prescriptions.json"),
-                        help="default: the 10-case set; use synthetic_prescriptions_all.json for all 35")
+    parser.add_argument(
+        "--models",
+        nargs="+",
+        help=f"HF model ids (default: models.json entries with run=true); '{RULES_ONLY}' = no LLM",
+    )
+    parser.add_argument(
+        "--model-list",
+        default=str(BENCH / "models.json"),
+        help="JSON model list used when --models is not given (entries with run=true)",
+    )
+    parser.add_argument(
+        "--cases",
+        default=str(BENCH / "test_prescriptions.json"),
+        help="default: the 10-case set; use synthetic_prescriptions_all.json for all 35",
+    )
     parser.add_argument("--limit", type=int, help="only the first N cases (quick test)")
     parser.add_argument("--no-live", action="store_true", help="skip the per-section live audits; final audit only")
     parser.add_argument("--out", help="results folder (default: benchmark/results/<timestamp>)")
-    parser.add_argument("--delete-after", action="store_true",
-                        help="remove each model from the HF cache after its run, if this run downloaded it")
+    parser.add_argument(
+        "--delete-after",
+        action="store_true",
+        help="remove each model from the HF cache after its run, if this run downloaded it",
+    )
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     cases_path = Path(args.cases).resolve()
@@ -499,15 +583,28 @@ def main(argv: list[str] | None = None) -> int:
     run_dir.mkdir(parents=True, exist_ok=True)
     if any(m != RULES_ONLY for m in models):
         import importlib.util
+
         if importlib.util.find_spec("bitsandbytes") is None:
-            print("bitsandbytes is not installed, 4-bit loading will fail. Install it into this venv:\n"
-                  f"  {sys.executable} -m pip install -U bitsandbytes", file=sys.stderr)
+            print(
+                "bitsandbytes is not installed, 4-bit loading will fail. Install it into this venv:\n"
+                f"  {sys.executable} -m pip install -U bitsandbytes",
+                file=sys.stderr,
+            )
             return 2
     for number, model in enumerate(models, 1):
         print(f"\n=== [{number}/{len(models)}] {model}", flush=True)
         cached_before = model == RULES_ONLY or model_in_cache(model)
-        command = [sys.executable, str(Path(__file__).resolve()), "--worker", "--models", model,
-                   "--cases", str(cases_path), "--out", str(run_dir / f"{slug(model)}.json")]
+        command = [
+            sys.executable,
+            str(Path(__file__).resolve()),
+            "--worker",
+            "--models",
+            model,
+            "--cases",
+            str(cases_path),
+            "--out",
+            str(run_dir / f"{slug(model)}.json"),
+        ]
         if args.limit:
             command += ["--limit", str(args.limit)]
         if args.no_live:

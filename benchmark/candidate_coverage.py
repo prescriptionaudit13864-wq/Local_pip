@@ -11,6 +11,7 @@ findings, and counts, per rule, how many physician labels had a matching candida
 for rules the engines never raise; without it, the final-save mode. Writes benchmark/results/
 candidate_coverage[_live].json (per-label detail) and prints a per-rule table.
 """
+
 from __future__ import annotations
 
 import collections
@@ -25,8 +26,20 @@ LIVE = "--live" in sys.argv  # live section-by-section mode, which adds rulebook
 _ARGS = [a for a in sys.argv[1:] if a != "--live"]
 DATA = Path(_ARGS[0] if _ARGS else r"C:\Users\HEAT\Documents\LLM_Trainer\data")
 OUT = Path(__file__).resolve().parent / "results" / f"candidate_coverage{'_live' if LIVE else ''}.json"
-FIELDS = ("Age", "Gender", "Chief_Complaint", "Health_Screening", "On_Examination", "Systemic_Examination",
-          "Investigation", "Investigation_Results", "Diagnosis", "Medication", "Advice", "ANC_Notes")
+FIELDS = (
+    "Age",
+    "Gender",
+    "Chief_Complaint",
+    "Health_Screening",
+    "On_Examination",
+    "Systemic_Examination",
+    "Investigation",
+    "Investigation_Results",
+    "Diagnosis",
+    "Medication",
+    "Advice",
+    "ANC_Notes",
+)
 
 
 class Recorder:
@@ -74,9 +87,16 @@ def main() -> None:
         except Exception as exc:  # keep going; a crash means no candidates for that prescription
             failures.append((pid, f"{type(exc).__name__}: {exc}"[:200]))
         for section, rule, split in labels.get(pid, []):
-            records.append({"id": pid, "split": split, "section": section, "rule": rule,
-                            "covered": rule in rec.seen.get(section, set()),
-                            "candidates_in_section": sorted(rec.seen.get(section, set()))})
+            records.append(
+                {
+                    "id": pid,
+                    "split": split,
+                    "section": section,
+                    "rule": rule,
+                    "covered": rule in rec.seen.get(section, set()),
+                    "candidates_in_section": sorted(rec.seen.get(section, set())),
+                }
+            )
         if i % 25 == 0:
             print(f"  {i}/{len(context)} prescriptions", flush=True)
 
@@ -86,15 +106,19 @@ def main() -> None:
         per[r["rule"]][0] += r["covered"]
     total = sum(v[1] for v in per.values())
     covered = sum(v[0] for v in per.values())
-    print(f"\n{len(context)} prescriptions, {total} physician labels, {covered} with a matching candidate "
-          f"({100 * covered / max(total, 1):.0f}%)")
+    print(
+        f"\n{len(context)} prescriptions, {total} physician labels, {covered} with a matching candidate "
+        f"({100 * covered / max(total, 1):.0f}%)"
+    )
     print(f"{'rule':12} {'covered':>8} {'labels':>7}")
     for rule, (c, n) in sorted(per.items(), key=lambda kv: -kv[1][1]):
         print(f"{rule:12} {c:>8} {n:>7}   {100 * c / n:>4.0f}%")
     if failures:
         print(f"\n{len(failures)} prescriptions failed in the pipeline, e.g. {failures[:3]}")
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps({"records": records, "failures": failures}, ensure_ascii=False, indent=1), encoding="utf-8")
+    OUT.write_text(
+        json.dumps({"records": records, "failures": failures}, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
     print("wrote", OUT)
 
 

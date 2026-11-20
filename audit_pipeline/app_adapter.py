@@ -44,21 +44,40 @@ _INVESTIGATION_RESULT_TERM = re.compile(
 
 # Clinical-examination keys that live on the visit record in the front end.
 _CLINICAL_KEYS = (
-    "heightFeet", "heightInch", "weight", "bmi", "bsa",
-    "onExamination", "healthScreening", "ancPncNotes", "systemicExamination", "investigationResults",
+    "heightFeet",
+    "heightInch",
+    "weight",
+    "bmi",
+    "bsa",
+    "onExamination",
+    "healthScreening",
+    "ancPncNotes",
+    "systemicExamination",
+    "investigationResults",
     "pastHistory",
-    "referredBy", "referredTo",
+    "referredBy",
+    "referredTo",
 )
 _LIST_KEYS = (
-    "chiefComplaints", "pastHistory", "diagnosis", "investigations", "ancPncNotes",
-    "rxList", "adviceList", "followUps",
+    "chiefComplaints",
+    "pastHistory",
+    "diagnosis",
+    "investigations",
+    "ancPncNotes",
+    "rxList",
+    "adviceList",
+    "followUps",
 )
 # Step-file name -> key on the visit record (backend writes one file per step).
 _STEP_TO_KEY = {
-    "chiefComplaints": "chiefComplaints", "diagnosis": "diagnosis",
+    "chiefComplaints": "chiefComplaints",
+    "diagnosis": "diagnosis",
     "pastHistory": "pastHistory",
-    "investigations": "investigations", "ancPnc": "ancPncNotes",
-    "rx": "rxList", "advice": "adviceList", "followUps": "followUps",
+    "investigations": "investigations",
+    "ancPnc": "ancPncNotes",
+    "rx": "rxList",
+    "advice": "adviceList",
+    "followUps": "followUps",
 }
 
 
@@ -151,10 +170,7 @@ def _partition_systemic_and_results(record: Mapping[str, Any]) -> tuple[list[Any
     systemic: list[Any] = []
     results: list[Any] = list(record.get("investigationResults") or [])
     for item in record.get("systemicExamination") or []:
-        if (
-            isinstance(item, Mapping)
-            and _INVESTIGATION_RESULT_TERM.search(_s(item.get("term", "")))
-        ):
+        if isinstance(item, Mapping) and _INVESTIGATION_RESULT_TERM.search(_s(item.get("term", ""))):
             results.append(item)
         else:
             systemic.append(item)
@@ -259,8 +275,10 @@ def _duration(value: Any) -> str:
         return text
     unit = match.group(2).casefold()
     label = (
-        "day(s)" if unit.startswith("d") or unit == "দিন"
-        else "week(s)" if unit.startswith("w") or unit == "সপ্তাহ"
+        "day(s)"
+        if unit.startswith("d") or unit == "দিন"
+        else "week(s)"
+        if unit.startswith("w") or unit == "সপ্তাহ"
         else "month(s)"
     )
     return f"{match.group(1)} {label}"
@@ -299,8 +317,10 @@ def _merge_visit_folder(folder: Path) -> dict[str, Any]:
     if final:
         return final
     merged: dict[str, Any] = {
-        "step": "finalPrescription", "patient": docs[0].get("patient", {}),
-        "visitId": docs[0].get("visitId"), "data": {},
+        "step": "finalPrescription",
+        "patient": docs[0].get("patient", {}),
+        "visitId": docs[0].get("visitId"),
+        "data": {},
     }
     for doc in docs:
         step, data = doc.get("step"), doc.get("data")
@@ -331,21 +351,21 @@ def normalize_payload(obj: Mapping[str, Any] | str | Path) -> dict[str, Any]:
 
     patient = dict(obj.get("patient") or {})
     history = list(obj.get("history") or [])
-    if isinstance(obj.get("visit"), Mapping):                       # bridge request
+    if isinstance(obj.get("visit"), Mapping):  # bridge request
         record = dict(obj["visit"])
         visit_id = record.get("id") or obj.get("visitId")
         saved = obj.get("savedAt")
-    elif obj.get("step") and "data" in obj:                           # backend step file
+    elif obj.get("step") and "data" in obj:  # backend step file
         if obj["step"] != "finalPrescription" or not isinstance(obj["data"], Mapping):
             raise PayloadError(
                 f"step file is '{obj['step']}'; send the finalPrescription file or the whole visit folder"
             )
         record = dict(obj["data"])
         visit_id, saved = obj.get("visitId") or record.get("id"), obj.get("savedAt")
-    elif any(key in obj for key in _LIST_KEYS):                       # downloaded file
+    elif any(key in obj for key in _LIST_KEYS):  # downloaded file
         record = {key: obj.get(key) for key in _LIST_KEYS}
         visit_id, saved = obj.get("visitId"), obj.get("timestamp")
-        for key in _CLINICAL_KEYS:                                    # clinical data is on the patient
+        for key in _CLINICAL_KEYS:  # clinical data is on the patient
             if key in patient:
                 record[key] = patient[key]
     else:
@@ -379,7 +399,9 @@ def visit_to_row(patient: Mapping[str, Any], record: Mapping[str, Any], when: da
     advice += [f"Follow-up: {text}" for text in _texts(record.get("followUps"))]
     results = _terms(investigation_result_items, style="colon")
 
-    medicines = [line for line in (medication_line(rx) for rx in record.get("rxList") or [] if isinstance(rx, Mapping)) if line]
+    medicines = [
+        line for line in (medication_line(rx) for rx in record.get("rxList") or [] if isinstance(rx, Mapping)) if line
+    ]
     return {
         "Prescription_ID": str(record.get("id") or ""),
         "Patient_ID": _s(patient.get("serial") or patient.get("id")),
@@ -440,7 +462,9 @@ def build_history_db(
     rows: list[tuple[datetime, dict[str, str]]] = []
     for visit in history:
         vid = str(visit.get("id") or "")
-        when = _to_datetime(visit.get("id")) or _to_datetime(visit.get("_savedAt")) or _to_datetime(visit.get("dateISO"))
+        when = (
+            _to_datetime(visit.get("id")) or _to_datetime(visit.get("_savedAt")) or _to_datetime(visit.get("dateISO"))
+        )
         key = vid or (when.isoformat() if when else "")
         if not when or when >= before or key in skip or key in seen:
             continue
@@ -459,15 +483,33 @@ def build_history_db(
         for when, r in rows:
             con.execute(
                 "INSERT INTO visits VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (r["Prescription_ID"], r["Patient_ID"], when.isoformat(sep=" ", timespec="seconds"), r["Age"], r["Gender"],
-                 r["Chief_Complaint"], r["Health_Screening"], r["On_Examination"], r["Systemic_Examination"],
-                 r["Diagnosis"], r["Advice"], r["Medication"], r["Investigation"], r["Investigation_Results"]),
+                (
+                    r["Prescription_ID"],
+                    r["Patient_ID"],
+                    when.isoformat(sep=" ", timespec="seconds"),
+                    r["Age"],
+                    r["Gender"],
+                    r["Chief_Complaint"],
+                    r["Health_Screening"],
+                    r["On_Examination"],
+                    r["Systemic_Examination"],
+                    r["Diagnosis"],
+                    r["Advice"],
+                    r["Medication"],
+                    r["Investigation"],
+                    r["Investigation_Results"],
+                ),
             )
         con.execute("CREATE INDEX idx_visits_patient_date ON visits(patient_id, visit_datetime)")
     return len(rows)
 
 
 __all__ = [
-    "PayloadError", "age_text", "build_history_db", "history_from_disk",
-    "medication_line", "normalize_payload", "visit_to_row",
+    "PayloadError",
+    "age_text",
+    "build_history_db",
+    "history_from_disk",
+    "medication_line",
+    "normalize_payload",
+    "visit_to_row",
 ]

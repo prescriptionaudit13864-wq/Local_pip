@@ -65,42 +65,54 @@ def interpret_advice_actions(advice: Any) -> list[dict[str, Any]]:
     actions: list[dict[str, Any]] = []
 
     if _STOP_PRIOR_RE.search(translated) and _PRIOR_SCOPE_RE.search(translated):
-        actions.append({
-            "action": "stop_prior_medicines",
-            "scope": "all_prior_medicines",
-            "evidence": raw,
-            "confidence": "high",
-        })
+        actions.append(
+            {
+                "action": "stop_prior_medicines",
+                "scope": "all_prior_medicines",
+                "evidence": raw,
+                "confidence": "high",
+            }
+        )
 
     if _CURRENT_REGIMEN_RE.search(translated) and (
         _PRIOR_SCOPE_RE.search(translated) or _PRIOR_EXCLUDED_RE.search(translated)
     ):
-        actions.append({
-            "action": "current_regimen_only",
-            "scope": "all_prior_medicines",
-            "evidence": raw,
-            "confidence": "high",
-        })
+        actions.append(
+            {
+                "action": "current_regimen_only",
+                "scope": "all_prior_medicines",
+                "evidence": raw,
+                "confidence": "high",
+            }
+        )
 
     if _PRIOR_EXCLUDED_RE.search(translated):
-        actions.append({
-            "action": "exclude_prior_medicines",
-            "scope": "all_prior_medicines",
-            "evidence": raw,
-            "confidence": "high",
-        })
+        actions.append(
+            {
+                "action": "exclude_prior_medicines",
+                "scope": "all_prior_medicines",
+                "evidence": raw,
+                "confidence": "high",
+            }
+        )
 
     if _SUPERSEDE_PRIOR_RE.search(translated) and (
         _PRIOR_SCOPE_RE.search(translated)
         or re.search(r"\b(?:earlier|previous|prior|old|past)\s+visits?\b", translated, re.IGNORECASE)
-        or re.search(r"\b(?:current|today|today's|today’s|this|new)\s+(?:orders?|regimen|prescription)\b", translated, re.IGNORECASE)
+        or re.search(
+            r"\b(?:current|today|today's|today’s|this|new)\s+(?:orders?|regimen|prescription)\b",
+            translated,
+            re.IGNORECASE,
+        )
     ):
-        actions.append({
-            "action": "current_regimen_only",
-            "scope": "all_prior_medicines",
-            "evidence": raw,
-            "confidence": "high",
-        })
+        actions.append(
+            {
+                "action": "current_regimen_only",
+                "scope": "all_prior_medicines",
+                "evidence": raw,
+                "confidence": "high",
+            }
+        )
 
     return actions
 
@@ -176,14 +188,16 @@ def interpret_advice_actions_with_llm(
         action = _text(item.get("action"))
         if action not in allowed:
             continue
-        result.append({
-            "action": action,
-            "scope": _text(item.get("scope")) or "unclear",
-            "target_text": _text(item.get("target_text")),
-            "evidence": _text(item.get("evidence")) or raw,
-            "confidence": _text(item.get("confidence")) or "medium",
-            "source": "llm_advice_action_classifier",
-        })
+        result.append(
+            {
+                "action": action,
+                "scope": _text(item.get("scope")) or "unclear",
+                "target_text": _text(item.get("target_text")),
+                "evidence": _text(item.get("evidence")) or raw,
+                "confidence": _text(item.get("confidence")) or "medium",
+                "source": "llm_advice_action_classifier",
+            }
+        )
     return result
 
 
@@ -221,11 +235,7 @@ def advice_stops_prior_medicine(
     for term in medicine_terms:
         clean = re.sub(r"[^a-z0-9\s]+", " ", term.casefold()).strip()
         words = [clean] + [word for word in clean.split() if len(word) >= 5]
-        if any(
-            word
-            and re.search(stop_terms + r"(?:\s+\w+){0,6}\s+" + re.escape(word), normalized)
-            for word in words
-        ):
+        if any(word and re.search(stop_terms + r"(?:\s+\w+){0,6}\s+" + re.escape(word), normalized) for word in words):
             return True
     return False
 

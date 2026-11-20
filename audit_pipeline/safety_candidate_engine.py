@@ -24,9 +24,7 @@ _PEDIATRIC_TERMS = re.compile(
     r"not established|under \d+|below (?:the )?age|younger than|age restriction)\b",
     re.IGNORECASE,
 )
-_PREGNANCY_TERMS = re.compile(
-    r"\b(pregnan(?:t|cy)|gestation|f[oe]tal|trimester)\b", re.IGNORECASE
-)
+_PREGNANCY_TERMS = re.compile(r"\b(pregnan(?:t|cy)|gestation|f[oe]tal|trimester)\b", re.IGNORECASE)
 _LACTATION_TERMS = re.compile(
     r"\b(lactat(?:ing|ion)|breast[ -]?feed(?:ing)?|nursing mother)\b",
     re.IGNORECASE,
@@ -131,9 +129,7 @@ _CLASS_DUPLICATION_TERMS = {
     "anticoagulant",
     "antiplatelet",
 }
-_FOOD_CONFLICT_TERMS = re.compile(
-    r"\b(milk|dairy|calcium|antacid|food)\b|দুধ", re.IGNORECASE
-)
+_FOOD_CONFLICT_TERMS = re.compile(r"\b(milk|dairy|calcium|antacid|food)\b|দুধ", re.IGNORECASE)
 _BACTERIAL_OR_ANTIBIOTIC_FACT = re.compile(
     r"\b(antibiotic|antibacterial|susceptible organisms?|bacterial|macrolide|"
     r"cephalosporin|penicillin|tetracycline|quinolone)\b",
@@ -148,9 +144,30 @@ _FREQUENCY_FACT_PATTERNS: tuple[tuple[re.Pattern[str], float], ...] = (
     (re.compile(r"\bevery\s+12\s+hours?\b|\b12\s*hourly\b", re.IGNORECASE), 2),
 )
 _FREQUENCY_INTERVALS: tuple[tuple[re.Pattern[str], str, float], ...] = (
-    (re.compile(r"\bevery\s+6\s+hours?\b|\bq\s*6\s*h\b|\b6\s*hourly\b|\bfour\s+times\s+daily\b|\b4\s+times\s+daily\b|\bq\.?i\.?d\.?\b", re.IGNORECASE), "q6h_like", 4),
-    (re.compile(r"\bevery\s+8\s+hours?\b|\bq\s*8\s*h\b|\b8\s*hourly\b|\bthree\s+times\s+daily\b|\b3\s+times\s+daily\b|\bt\.?i\.?d\.?\b", re.IGNORECASE), "q8h_like", 3),
-    (re.compile(r"\bevery\s+12\s+hours?\b|\bq\s*12\s*h\b|\b12\s*hourly\b|\btwice\s+daily\b|\b2\s+times\s+daily\b|\bb\.?i\.?d\.?\b", re.IGNORECASE), "q12h_like", 2),
+    (
+        re.compile(
+            r"\bevery\s+6\s+hours?\b|\bq\s*6\s*h\b|\b6\s*hourly\b|\bfour\s+times\s+daily\b|\b4\s+times\s+daily\b|\bq\.?i\.?d\.?\b",
+            re.IGNORECASE,
+        ),
+        "q6h_like",
+        4,
+    ),
+    (
+        re.compile(
+            r"\bevery\s+8\s+hours?\b|\bq\s*8\s*h\b|\b8\s*hourly\b|\bthree\s+times\s+daily\b|\b3\s+times\s+daily\b|\bt\.?i\.?d\.?\b",
+            re.IGNORECASE,
+        ),
+        "q8h_like",
+        3,
+    ),
+    (
+        re.compile(
+            r"\bevery\s+12\s+hours?\b|\bq\s*12\s*h\b|\b12\s*hourly\b|\btwice\s+daily\b|\b2\s+times\s+daily\b|\bb\.?i\.?d\.?\b",
+            re.IGNORECASE,
+        ),
+        "q12h_like",
+        2,
+    ),
     (re.compile(r"\bonce\s+daily\b|\b1\s+time\s+daily\b|\bo\.?d\.?\b", re.IGNORECASE), "daily_like", 1),
 )
 _PER_DOSE_MG = re.compile(
@@ -174,7 +191,6 @@ def _text(value: Any) -> str:
     return re.sub(r"\s+", " ", str(value or "").strip())
 
 
-
 def _escaped_compact(item: str) -> str:
     """Regex-escaped ``item`` after the original (unchanged) ``\\s+`` substitution."""
     return re.escape(re.sub(r'\\s+', '', item))
@@ -191,10 +207,7 @@ def _contains_phrase(text: str, phrase: str) -> bool:
         variants.add(normalized_phrase[:-1])
     elif normalized_phrase:
         variants.add(normalized_phrase + "s")
-    return any(
-        re.search(rf"(?<!\w){re.escape(item)}(?!\w)", normalized_text) is not None
-        for item in variants
-    ) or any(
+    return any(re.search(rf"(?<!\w){re.escape(item)}(?!\w)", normalized_text) is not None for item in variants) or any(
         # (kept outside the f-string: backslashes inside f-string expressions need Python 3.12+)
         re.search(rf"(?<!\w){_escaped_compact(item)}s?(?!\w)", re.sub(r"\s+", "", normalized_text)) is not None
         for item in variants
@@ -295,7 +308,9 @@ def _evidence_strength_for_rule(rule_name: str) -> str:
 def _apply_candidate_strength(candidate: dict[str, Any], rule_name: str | None = None) -> dict[str, Any]:
     name = rule_name or _text(candidate.get("rule_name", ""))
     strength = _evidence_strength_for_rule(name)
-    candidate.setdefault("rag_supported", bool(candidate.get("medicine_fact_evidence") or candidate.get("source_field")))
+    candidate.setdefault(
+        "rag_supported", bool(candidate.get("medicine_fact_evidence") or candidate.get("source_field"))
+    )
     candidate.setdefault("evidence_strength", strength)
     candidate.setdefault("must_review_if_rejected", strength == "high")
     return candidate
@@ -326,9 +341,9 @@ def _dose_candidate(
     return result
 
 
-
 def _is_liquid_strength_text(value: Any) -> bool:
     return bool(re.search(r"/\s*\d*(?:\.\d+)?\s*ml\b", _text(value), re.IGNORECASE))
+
 
 def _strength_mismatch_candidate(medicine: Mapping[str, Any]) -> dict[str, Any] | None:
     if not _text(medicine.get("generic_id", "")):
@@ -342,7 +357,9 @@ def _strength_mismatch_candidate(medicine: Mapping[str, Any]) -> dict[str, Any] 
         return None
     if written_mg <= 0 or reference_mg <= 0 or abs(written_mg - reference_mg) < 0.001:
         return None
-    if _is_liquid_strength_text(medicine.get("reference_strength", medicine.get("strength", ""))) and not _is_liquid_strength_text(medicine.get("written_strength", "")):
+    if _is_liquid_strength_text(
+        medicine.get("reference_strength", medicine.get("strength", ""))
+    ) and not _is_liquid_strength_text(medicine.get("written_strength", "")):
         return None
     if written_mg <= reference_mg * 2:
         return None
@@ -385,10 +402,7 @@ def _risk_candidate(
         medicine,
         fact,
         rule_name,
-        (
-            f"Patient {risk_type} evidence and generic-specific medicine "
-            "safety evidence require review."
-        ),
+        (f"Patient {risk_type} evidence and generic-specific medicine safety evidence require review."),
         section="Rx",
     )
     result.update(
@@ -396,10 +410,7 @@ def _risk_candidate(
             "patient_risk_type": risk_type,
             "patient_evidence": patient_evidence,
             "medicine_fact_evidence": medicine_evidence,
-            "evidence": (
-                f"Patient evidence: {patient_evidence} | "
-                f"Medicine fact: {medicine_evidence}"
-            ),
+            "evidence": (f"Patient evidence: {patient_evidence} | Medicine fact: {medicine_evidence}"),
         }
     )
     return result
@@ -436,13 +447,9 @@ def _merge_patient_risk_candidate(
     existing["medicine_fact_evidence"] = _join_unique(fact_evidences)
     existing["source_fields"] = source_fields
     existing["source_field"] = _join_unique(source_fields, separator="; ")
-    existing["evidence"] = (
-        f"Patient evidence: {patient_evidence} | "
-        f"Medicine facts: {_join_unique(fact_evidences)}"
-    )
+    existing["evidence"] = f"Patient evidence: {patient_evidence} | Medicine facts: {_join_unique(fact_evidences)}"
     existing["why_candidate"] = (
-        "Patient risk evidence and multiple generic-specific medicine safety "
-        "facts require consolidated review."
+        "Patient risk evidence and multiple generic-specific medicine safety facts require consolidated review."
     )
 
 
@@ -463,9 +470,7 @@ def _consolidate_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, 
             existing = patient_risk_index.get(key)
             if existing is None:
                 copy = dict(item)
-                copy["medicine_fact_evidences"] = [
-                    _text(item.get("medicine_fact_evidence", ""))
-                ]
+                copy["medicine_fact_evidences"] = [_text(item.get("medicine_fact_evidence", ""))]
                 copy["source_fields"] = [_text(item.get("source_field", ""))]
                 patient_risk_index[key] = copy
                 consolidated.append(copy)
@@ -505,9 +510,7 @@ def _daily_dose_limits(text: str) -> tuple[list[float], list[float]]:
         tail = _text(match.group("tail"))
         if re.search(r"(?:/|\bper\s+)kg\b", tail, re.IGNORECASE):
             continue
-        explicit_daily_after_value = bool(
-            re.search(r"^\s*(?:/|per\s+)?(?:day|daily)\b", tail, re.IGNORECASE)
-        )
+        explicit_daily_after_value = bool(re.search(r"^\s*(?:/|per\s+)?(?:day|daily)\b", tail, re.IGNORECASE))
         explicit_daily_context = bool(_DAILY_DOSE_CONTEXT.search(context))
         if not explicit_daily_after_value and not explicit_daily_context:
             continue
@@ -535,9 +538,7 @@ _NON_SPECIFIC_FACT_CONDITIONS = {
     "children",
     "child",
 }
-_DOSE_CONDITION_PREFIX = re.compile(
-    r"^\s*(?P<condition>[A-Z][A-Za-z][A-Za-z\s/,&()\\-]{2,70}?)\s*:\s*"
-)
+_DOSE_CONDITION_PREFIX = re.compile(r"^\s*(?P<condition>[A-Z][A-Za-z][A-Za-z\s/,&()\\-]{2,70}?)\s*:\s*")
 
 
 def _normalized_context_for_condition(value: Any) -> str:
@@ -560,7 +561,9 @@ def _fact_condition_terms(fact: Mapping[str, Any]) -> list[str]:
     match = _DOSE_CONDITION_PREFIX.search(text)
     if match:
         prefix = _text(match.group("condition"))
-        if not re.search(r"\b(?:adult|child(?:ren)?|pediatric|paediatric|dose|recommended|max(?:imum)?)\b", prefix, re.IGNORECASE):
+        if not re.search(
+            r"\b(?:adult|child(?:ren)?|pediatric|paediatric|dose|recommended|max(?:imum)?)\b", prefix, re.IGNORECASE
+        ):
             terms.append(prefix)
     normalized: list[str] = []
     for term in terms:
@@ -769,7 +772,8 @@ def _rag_regimen_candidate(
     prescription_context: Mapping[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     dose_facts = [
-        fact for fact in facts
+        fact
+        for fact in facts
         if fact.get("fact_type") == "dosage"
         and _fact_matches_patient_group(fact, patient_context)
         and _dose_fact_matches_prescription_context(fact, prescription_context)
@@ -915,7 +919,10 @@ def _pediatric_dose_candidate(
                 result.update(
                     {
                         "patient_risk_type": "pediatric",
-                        "patient_evidence": _text(patient_context.get("context_evidence", {}).get("is_child", "")) or f"Age {age_years:g}" if age_years is not None else "child",
+                        "patient_evidence": _text(patient_context.get("context_evidence", {}).get("is_child", ""))
+                        or f"Age {age_years:g}"
+                        if age_years is not None
+                        else "child",
                         "medicine_fact_evidence": text,
                         "rag_pediatric_max_per_dose_mg": max_per_dose,
                         "rag_pediatric_max_daily_dose_mg": max_daily,
@@ -953,25 +960,18 @@ def _patient_risks(
     return [
         risk
         for risk in patient_context.get("patient_risks", []) or []
-        if isinstance(risk, Mapping)
-        and _text(risk.get("risk_type", ""))
-        and _text(risk.get("evidence", ""))
+        if isinstance(risk, Mapping) and _text(risk.get("risk_type", "")) and _text(risk.get("evidence", ""))
     ]
 
 
 def _risk_action(text: str) -> bool:
-    return bool(
-        _SAFETY_ACTION_TERMS.search(text)
-        and not _NEGATED_RISK_TERMS.search(text)
-    )
+    return bool(_SAFETY_ACTION_TERMS.search(text) and not _NEGATED_RISK_TERMS.search(text))
 
 
 def _linked_risk_action(text: str, risk_terms: re.Pattern[str]) -> bool:
     """Require a risk term and safety action in the same local clause."""
     return any(
-        risk_terms.search(clause) and _risk_action(clause)
-        for clause in re.split(r"[.!?;\n]+", text)
-        if clause.strip()
+        risk_terms.search(clause) and _risk_action(clause) for clause in re.split(r"[.!?;\n]+", text) if clause.strip()
     )
 
 
@@ -996,9 +996,7 @@ def _direct_population_precaution(
         re.IGNORECASE,
     )
     return any(
-        risk_terms.search(clause)
-        and _risk_action(clause)
-        and direct_start.search(clause)
+        risk_terms.search(clause) and _risk_action(clause) and direct_start.search(clause)
         for clause in re.split(r"[.!?;\n]+", text)
         if clause.strip()
     )
@@ -1031,11 +1029,7 @@ def _allergy_fact_matches(
     if not variants or variants & {"drug", "drugs"}:
         return False
     generic_name = _text(medicine.get("generic_name", ""))
-    class_text = " ".join(
-        item["text"]
-        for item in all_facts
-        if item["fact_type"] == "drug_class"
-    )
+    class_text = " ".join(item["text"] for item in all_facts if item["fact_type"] == "drug_class")
     relationship_text = " ".join((text, generic_name, class_text))
     return any(_contains_phrase(relationship_text, term) for term in variants)
 
@@ -1093,10 +1087,7 @@ def _risk_fact_matches(
         and _linked_risk_action(text, _ELDERLY_TERMS)
     ):
         return "elderly_safety_candidate"
-    if (
-        risk_type == "allergy_hypersensitivity"
-        and _allergy_fact_matches(risk, fact, medicine, all_facts)
-    ):
+    if risk_type == "allergy_hypersensitivity" and _allergy_fact_matches(risk, fact, medicine, all_facts):
         return "allergy_contraindication_candidate"
     if (
         risk_type == "hyperkalemia"
@@ -1116,14 +1107,8 @@ def _risk_fact_matches(
 
 
 def _class_terms_for_generic(facts: Sequence[Mapping[str, str]]) -> set[str]:
-    class_text = " ".join(
-        fact["text"] for fact in facts if fact["fact_type"] == "drug_class"
-    ).casefold()
-    terms = {
-        term
-        for term in _CLASS_DUPLICATION_TERMS
-        if _contains_phrase(class_text, term)
-    }
+    class_text = " ".join(fact["text"] for fact in facts if fact["fact_type"] == "drug_class").casefold()
+    terms = {term for term in _CLASS_DUPLICATION_TERMS if _contains_phrase(class_text, term)}
     # "Non-opioid" contains the token "opioid" but is the opposite class.
     if re.search(r"\bnon[ -]?opioid\b", class_text, re.IGNORECASE):
         terms.discard("opioid")
@@ -1141,6 +1126,7 @@ def _indication_gap_candidate(
     # facts that explicitly link the patient's condition to recommended,
     # avoided, or unnecessary antimicrobial treatment.
     return None
+
 
 def _therapeutic_duplication_candidates(
     medicines: Sequence[Mapping[str, Any]],
@@ -1230,7 +1216,11 @@ def _rag_food_candidate(
     # no fact about calcium/food, no candidate.
     if not fact_has_food or not rx_has_food:
         return None
-    if not re.search(r"\b(avoid|separat\w*|reduce\w* absorption|decreas\w* absorption|impair\w* absorption|absorption .* impair\w*|do not take|interaction)\b", fact_text, re.IGNORECASE):
+    if not re.search(
+        r"\b(avoid|separat\w*|reduce\w* absorption|decreas\w* absorption|impair\w* absorption|absorption .* impair\w*|do not take|interaction)\b",
+        fact_text,
+        re.IGNORECASE,
+    ):
         return None
     result = _candidate(
         medicine,
@@ -1265,9 +1255,7 @@ def _other_medicine_mentioned(
         if any(_contains_phrase(interaction_text, term) for term in _generic_match_terms(other_name)):
             return other_name
         other_classes = [
-            fact["text"].casefold()
-            for fact in facts_by_id.get(other_id, [])
-            if fact["fact_type"] == "drug_class"
+            fact["text"].casefold() for fact in facts_by_id.get(other_id, []) if fact["fact_type"] == "drug_class"
         ]
         class_keywords = {
             keyword
@@ -1324,9 +1312,7 @@ _INJECTION_ADMIN_TERMS = re.compile(
     r"reconstitut(?:e|ed|ion)|water for injection|dextrose for infusion|saline for infusion)\b",
     re.IGNORECASE,
 )
-_ORAL_FORM_TERMS = re.compile(
-    r"\b(?:tablet|capsule|caplet|oral|sachet)\b", re.IGNORECASE
-)
+_ORAL_FORM_TERMS = re.compile(r"\b(?:tablet|capsule|caplet|oral|sachet)\b", re.IGNORECASE)
 _INJECTION_FORM_TERMS = re.compile(
     r"\b(?:injection|injectable|infusion|iv|vial|ampou?le|powder for injection)\b",
     re.IGNORECASE,
@@ -1391,13 +1377,9 @@ def generate_safety_candidates(
             if medicine.get("known_supportive_item"):
                 continue
             if _text(medicine.get("match_confidence", "")) == "inferred_needs_review":
-                warnings.append(
-                    f"medicine mapping needs review for {_text(medicine.get('raw_text', ''))!r}"
-                )
+                warnings.append(f"medicine mapping needs review for {_text(medicine.get('raw_text', ''))!r}")
                 continue
-            warnings.append(
-                f"medicine {generic_name or _text(medicine.get('raw_text', ''))!r} has no generic_id"
-            )
+            warnings.append(f"medicine {generic_name or _text(medicine.get('raw_text', ''))!r} has no generic_id")
             continue
         strength_candidate = _strength_mismatch_candidate(medicine)
         if strength_candidate:
@@ -1425,19 +1407,19 @@ def generate_safety_candidates(
         pediatric_dose_candidate = _pediatric_dose_candidate(medicine, facts, patient_context)
         if pediatric_dose_candidate:
             candidates.append(pediatric_dose_candidate)
-        indication_candidate = _indication_gap_candidate(
-            medicine, facts, patient_context, prescription_context
-        )
+        indication_candidate = _indication_gap_candidate(medicine, facts, patient_context, prescription_context)
         if indication_candidate:
             candidates.append(indication_candidate)
-        advice_and_instructions = translated_text(" ".join(
-            (
-                advice,
-                _text(medicine.get("raw_text", "")),
-                _text(medicine.get("instructions", "")),
-                _text(medicine.get("additionalInstructions", "")),
+        advice_and_instructions = translated_text(
+            " ".join(
+                (
+                    advice,
+                    _text(medicine.get("raw_text", "")),
+                    _text(medicine.get("instructions", "")),
+                    _text(medicine.get("additionalInstructions", "")),
+                )
             )
-        ))
+        )
         for risk in patient_risks:
             before_count = len(candidates)
             for fact in facts:
@@ -1452,9 +1434,7 @@ def generate_safety_candidates(
                         )
                         candidates.append(candidate)
                     else:
-                        candidates.append(
-                            _risk_candidate(medicine, fact, risk, rule_name)
-                        )
+                        candidates.append(_risk_candidate(medicine, fact, risk, rule_name))
             risk_type = _text(risk.get("risk_type", ""))
             if len(candidates) == before_count and risk_type in {
                 "renal_impairment",
@@ -1492,7 +1472,9 @@ def generate_safety_candidates(
                     )
                     or (
                         risk_type == "renal_monitoring_missing"
-                        and re.search(r"\b(renal|kidney|nephrotoxic|creatinine clearance)\b", fact["text"], re.IGNORECASE)
+                        and re.search(
+                            r"\b(renal|kidney|nephrotoxic|creatinine clearance)\b", fact["text"], re.IGNORECASE
+                        )
                     )
                     for fact in facts
                 )
@@ -1514,9 +1496,7 @@ def generate_safety_candidates(
             text = fact["text"]
 
             if fact_type == "interaction":
-                other_name = _other_medicine_mentioned(
-                    text, generic_id, medicines, facts_by_id
-                )
+                other_name = _other_medicine_mentioned(text, generic_id, medicines, facts_by_id)
                 if other_name:
                     candidates.append(
                         _candidate(

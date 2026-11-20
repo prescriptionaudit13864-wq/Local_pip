@@ -8,6 +8,7 @@ Writes into ``<run folder>/doctor_review/``:
 Usage:  .venv\\Scripts\\python.exe benchmark\\export_doctor_review.py [--run benchmark\\results\\<folder>] [--cases FILE]
 Reads only the result JSONs; nothing in the pipeline or the results is changed.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -25,17 +26,29 @@ from run_benchmark import BENCH, matches
 # Results kept in the folder from models that were dropped from the comparison.
 DROPPED = {"m42-health/Llama3-Med42-8B", "unsloth/Qwen2.5-32B-Instruct-bnb-4bit"}
 
-SECTION_NAMES = {"CC": "Chief complaints", "Hx": "Past history", "Inv": "Investigations", "Dx": "Diagnosis",
-                 "Rx": "Medicines (Rx)", "Adv": "Advice", "Demo": "Patient details"}
+SECTION_NAMES = {
+    "CC": "Chief complaints",
+    "Hx": "Past history",
+    "Inv": "Investigations",
+    "Dx": "Diagnosis",
+    "Rx": "Medicines (Rx)",
+    "Adv": "Advice",
+    "Demo": "Patient details",
+}
 
-DOCTOR_PRESCRIPTION_COLUMNS = ["Doctor: is the expected error a real error? (Yes/No)",
-                               "Doctor: other errors in this prescription", "Doctor: comments"]
+DOCTOR_PRESCRIPTION_COLUMNS = [
+    "Doctor: is the expected error a real error? (Yes/No)",
+    "Doctor: other errors in this prescription",
+    "Doctor: comments",
+]
 DOCTOR_FINDING_COLUMNS = ["Doctor: is this correct? (Agree/Disagree/Unsure)", "Doctor: comments"]
 
 HEADER_FILL = PatternFill("solid", fgColor="1F4E78")
 DOCTOR_FILL = PatternFill("solid", fgColor="FFF2CC")
-ROW_FILLS = {"Missed expected error": PatternFill("solid", fgColor="F8CBAD"),
-             "Not reported (rejected)": PatternFill("solid", fgColor="EDEDED")}
+ROW_FILLS = {
+    "Missed expected error": PatternFill("solid", fgColor="F8CBAD"),
+    "Not reported (rejected)": PatternFill("solid", fgColor="EDEDED"),
+}
 
 
 # --------------------------------------------------------------------------- formatting helpers
@@ -46,8 +59,14 @@ def texts(items: Any) -> str:
 def medicines(rx: Any) -> str:
     lines = []
     for m in rx or []:
-        parts = [m.get("form"), m.get("medicine"), m.get("strength"), m.get("dosage"), m.get("duration"),
-                 m.get("instruction")]
+        parts = [
+            m.get("form"),
+            m.get("medicine"),
+            m.get("strength"),
+            m.get("dosage"),
+            m.get("duration"),
+            m.get("instruction"),
+        ]
         generic = f"({m['generic']})" if m.get("generic") else ""
         lines.append(" ".join(str(p).strip() for p in parts[:3] + [generic] + parts[3:] if p and str(p).strip()))
     return "\n".join(lines)
@@ -73,8 +92,11 @@ def previous_visits(history: Any) -> str:
     visits = []
     for n, v in enumerate(history or [], 1):
         parts = [f"Visit -{n}:"]
-        for label, value in (("Complaints", texts(v.get("chiefComplaints"))), ("Diagnosis", texts(v.get("diagnosis"))),
-                             ("Rx", medicines(v.get("rxList")).replace("\n", ", "))):
+        for label, value in (
+            ("Complaints", texts(v.get("chiefComplaints"))),
+            ("Diagnosis", texts(v.get("diagnosis"))),
+            ("Rx", medicines(v.get("rxList")).replace("\n", ", ")),
+        ):
             if value:
                 parts.append(f"{label}: {value}")
         visits.append(" ".join(parts))
@@ -93,9 +115,16 @@ def write_csv(path: Path, columns: list[str], rows: list[dict[str, Any]]) -> Non
         writer.writerows(rows)
 
 
-def add_sheet(book: Workbook, title: str, columns: list[str], rows: list[dict[str, Any]],
-              widths: Mapping[str, int], doctor_columns: Sequence[str] = (), choices: Mapping[str, str] = {},
-              fill_by: str = "") -> None:
+def add_sheet(
+    book: Workbook,
+    title: str,
+    columns: list[str],
+    rows: list[dict[str, Any]],
+    widths: Mapping[str, int],
+    doctor_columns: Sequence[str] = (),
+    choices: Mapping[str, str] = {},
+    fill_by: str = "",
+) -> None:
     sheet = book.create_sheet(title)
     sheet.append(columns)
     for row in rows:
@@ -134,10 +163,28 @@ def new_book() -> Workbook:
 
 
 # --------------------------------------------------------------------------- prescriptions
-PRESCRIPTION_COLUMNS = ["Case ID", "Title", "Error category", "Age", "Sex", "Chief complaints", "Past history",
-                        "ANC/PNC notes", "Vitals", "On examination", "Systemic examination", "Investigations ordered",
-                        "Investigation results", "Diagnosis", "Medicines (Rx)", "Advice", "Follow-up",
-                        "Previous visits", "Expected error(s)", "Severity"] + DOCTOR_PRESCRIPTION_COLUMNS
+PRESCRIPTION_COLUMNS = [
+    "Case ID",
+    "Title",
+    "Error category",
+    "Age",
+    "Sex",
+    "Chief complaints",
+    "Past history",
+    "ANC/PNC notes",
+    "Vitals",
+    "On examination",
+    "Systemic examination",
+    "Investigations ordered",
+    "Investigation results",
+    "Diagnosis",
+    "Medicines (Rx)",
+    "Advice",
+    "Follow-up",
+    "Previous visits",
+    "Expected error(s)",
+    "Severity",
+] + DOCTOR_PRESCRIPTION_COLUMNS
 
 
 def export_prescriptions(cases: list[dict[str, Any]], out: Path, name: str) -> None:
@@ -145,38 +192,83 @@ def export_prescriptions(cases: list[dict[str, Any]], out: Path, name: str) -> N
     for case in cases:
         p, v = case["patient"], case["visit"]
         expected = case.get("expected_errors") or []
-        rows.append({
-            "Case ID": case["case_id"], "Title": case.get("title", ""),
-            "Error category": case.get("category", "").replace("_", " "),
-            "Age": f"{p.get('ageValue', '')} {p.get('ageUnit', '')}".strip(), "Sex": p.get("gender", ""),
-            "Chief complaints": texts(v.get("chiefComplaints")), "Past history": texts(v.get("pastHistory")),
-            "ANC/PNC notes": texts(v.get("ancPncNotes")), "Vitals": screening(v.get("healthScreening")),
-            "On examination": results(v.get("onExamination")),
-            "Systemic examination": results(v.get("systemicExamination")),
-            "Investigations ordered": texts(v.get("investigations")),
-            "Investigation results": results(v.get("investigationResults")),
-            "Diagnosis": texts(v.get("diagnosis")), "Medicines (Rx)": medicines(v.get("rxList")),
-            "Advice": texts(v.get("adviceList")), "Follow-up": results(v.get("followUps")),
-            "Previous visits": previous_visits(case.get("history")),
-            "Expected error(s)": "\n".join(f"{n}. {e['description']}" for n, e in enumerate(expected, 1)) or "None (clean case)",
-            "Severity": "\n".join(e.get("severity", "") for e in expected),
-        })
+        rows.append(
+            {
+                "Case ID": case["case_id"],
+                "Title": case.get("title", ""),
+                "Error category": case.get("category", "").replace("_", " "),
+                "Age": f"{p.get('ageValue', '')} {p.get('ageUnit', '')}".strip(),
+                "Sex": p.get("gender", ""),
+                "Chief complaints": texts(v.get("chiefComplaints")),
+                "Past history": texts(v.get("pastHistory")),
+                "ANC/PNC notes": texts(v.get("ancPncNotes")),
+                "Vitals": screening(v.get("healthScreening")),
+                "On examination": results(v.get("onExamination")),
+                "Systemic examination": results(v.get("systemicExamination")),
+                "Investigations ordered": texts(v.get("investigations")),
+                "Investigation results": results(v.get("investigationResults")),
+                "Diagnosis": texts(v.get("diagnosis")),
+                "Medicines (Rx)": medicines(v.get("rxList")),
+                "Advice": texts(v.get("adviceList")),
+                "Follow-up": results(v.get("followUps")),
+                "Previous visits": previous_visits(case.get("history")),
+                "Expected error(s)": "\n".join(f"{n}. {e['description']}" for n, e in enumerate(expected, 1))
+                or "None (clean case)",
+                "Severity": "\n".join(e.get("severity", "") for e in expected),
+            }
+        )
     write_csv(out / f"{name}.csv", PRESCRIPTION_COLUMNS, rows)
     book = new_book()
-    widths = {"Title": 30, "Chief complaints": 30, "Past history": 25, "Diagnosis": 25, "Medicines (Rx)": 40,
-              "Advice": 25, "Previous visits": 35, "Expected error(s)": 40, "Vitals": 28,
-              **{c: 30 for c in DOCTOR_PRESCRIPTION_COLUMNS}}
-    add_sheet(book, "Prescriptions", PRESCRIPTION_COLUMNS, rows, widths, DOCTOR_PRESCRIPTION_COLUMNS,
-              {DOCTOR_PRESCRIPTION_COLUMNS[0]: "Yes,No,Unsure"})
+    widths = {
+        "Title": 30,
+        "Chief complaints": 30,
+        "Past history": 25,
+        "Diagnosis": 25,
+        "Medicines (Rx)": 40,
+        "Advice": 25,
+        "Previous visits": 35,
+        "Expected error(s)": 40,
+        "Vitals": 28,
+        **{c: 30 for c in DOCTOR_PRESCRIPTION_COLUMNS},
+    }
+    add_sheet(
+        book,
+        "Prescriptions",
+        PRESCRIPTION_COLUMNS,
+        rows,
+        widths,
+        DOCTOR_PRESCRIPTION_COLUMNS,
+        {DOCTOR_PRESCRIPTION_COLUMNS[0]: "Yes,No,Unsure"},
+    )
     book.save(out / f"{name}.xlsx")
 
 
 # --------------------------------------------------------------------------- per-model findings
-FINDING_COLUMNS = ["Case ID", "Case title", "Expected error(s)", "Model decision", "Section", "Rule", "Concern level",
-                   "Confidence", "Model's reason", "Evidence", "Suggested correction", "Matches expected error"] \
-                  + DOCTOR_FINDING_COLUMNS
-CASE_COLUMNS = ["Case ID", "Case title", "Expected errors", "Caught", "Missed", "Findings flagged",
-                "Findings matching a expected error", "Seconds for the whole prescription", "Error"]
+FINDING_COLUMNS = [
+    "Case ID",
+    "Case title",
+    "Expected error(s)",
+    "Model decision",
+    "Section",
+    "Rule",
+    "Concern level",
+    "Confidence",
+    "Model's reason",
+    "Evidence",
+    "Suggested correction",
+    "Matches expected error",
+] + DOCTOR_FINDING_COLUMNS
+CASE_COLUMNS = [
+    "Case ID",
+    "Case title",
+    "Expected errors",
+    "Caught",
+    "Missed",
+    "Findings flagged",
+    "Findings matching a expected error",
+    "Seconds for the whole prescription",
+    "Error",
+]
 
 
 def export_model(data: Mapping[str, Any], cases_by_id: Mapping[str, Any], out: Path) -> str:
@@ -190,33 +282,70 @@ def export_model(data: Mapping[str, Any], cases_by_id: Mapping[str, Any], out: P
         final = result.get("final") or {}
         for f in final.get("findings", []):
             hit = [e["description"] for e in expected if matches(f, e)]
-            rows.append(dict(base, **{
-                "Model decision": "Flagged as error", "Section": section_name(f.get("section", "")),
-                "Rule": f.get("rule_id", ""), "Concern level": f.get("concern_level", ""),
-                "Confidence": f.get("confidence", ""), "Model's reason": f.get("why", ""),
-                "Evidence": f.get("evidence", ""), "Suggested correction": f.get("correction", ""),
-                "Matches expected error": "Yes: " + "; ".join(hit) if hit else "No"}))
+            rows.append(
+                dict(
+                    base,
+                    **{
+                        "Model decision": "Flagged as error",
+                        "Section": section_name(f.get("section", "")),
+                        "Rule": f.get("rule_id", ""),
+                        "Concern level": f.get("concern_level", ""),
+                        "Confidence": f.get("confidence", ""),
+                        "Model's reason": f.get("why", ""),
+                        "Evidence": f.get("evidence", ""),
+                        "Suggested correction": f.get("correction", ""),
+                        "Matches expected error": "Yes: " + "; ".join(hit) if hit else "No",
+                    },
+                )
+            )
         for c in final.get("rejected_high_evidence_candidates") or []:
             hit = [e["description"] for e in expected if matches({**c, "why": c.get("why_candidate", "")}, e)]
-            rows.append(dict(base, **{
-                "Model decision": "Not reported (rejected)", "Section": section_name(c.get("section", "")),
-                "Rule": c.get("rule_id", ""), "Model's reason": "(rule engine) " + c.get("why_candidate", ""),
-                "Evidence": c.get("evidence", ""),
-                "Matches expected error": "Yes: " + "; ".join(hit) if hit else "No"}))
+            rows.append(
+                dict(
+                    base,
+                    **{
+                        "Model decision": "Not reported (rejected)",
+                        "Section": section_name(c.get("section", "")),
+                        "Rule": c.get("rule_id", ""),
+                        "Model's reason": "(rule engine) " + c.get("why_candidate", ""),
+                        "Evidence": c.get("evidence", ""),
+                        "Matches expected error": "Yes: " + "; ".join(hit) if hit else "No",
+                    },
+                )
+            )
         score = (result.get("score") or {}).get("final") or {}
-        missed = [e for e in expected if e["id"] in score.get("missed_ids", [])] if score else \
-            (expected if result.get("error") else [])
+        missed = (
+            [e for e in expected if e["id"] in score.get("missed_ids", [])]
+            if score
+            else (expected if result.get("error") else [])
+        )
         for e in missed:
-            rows.append(dict(base, **{
-                "Model decision": "Missed expected error", "Section": e.get("section", ""),
-                "Concern level": e.get("severity", ""), "Model's reason": "(not reported by the model)",
-                "Evidence": e["description"], "Matches expected error": "Missed"}))
-        case_rows.append({
-            "Case ID": result["case_id"], "Case title": result.get("title", ""), "Expected errors": len(expected),
-            "Caught": score.get("detected", ""), "Missed": len(missed),
-            "Findings flagged": score.get("findings", ""), "Findings matching a expected error": score.get("correct_findings", ""),
-            "Seconds for the whole prescription": (result.get("timing") or {}).get("total_seconds", ""),
-            "Error": result.get("error", "")})
+            rows.append(
+                dict(
+                    base,
+                    **{
+                        "Model decision": "Missed expected error",
+                        "Section": e.get("section", ""),
+                        "Concern level": e.get("severity", ""),
+                        "Model's reason": "(not reported by the model)",
+                        "Evidence": e["description"],
+                        "Matches expected error": "Missed",
+                    },
+                )
+            )
+        case_rows.append(
+            {
+                "Case ID": result["case_id"],
+                "Case title": result.get("title", ""),
+                "Expected errors": len(expected),
+                "Caught": score.get("detected", ""),
+                "Missed": len(missed),
+                "Findings flagged": score.get("findings", ""),
+                "Findings matching a expected error": score.get("correct_findings", ""),
+                "Seconds for the whole prescription": (result.get("timing") or {}).get("total_seconds", ""),
+                "Error": result.get("error", ""),
+            }
+        )
 
     load_error = data.get("load_info", {}).get("load_error")
     if load_error:
@@ -225,22 +354,54 @@ def export_model(data: Mapping[str, Any], cases_by_id: Mapping[str, Any], out: P
     write_csv(out / f"{stem}.csv", FINDING_COLUMNS, rows)
 
     book = new_book()
-    widths = {"Case title": 28, "Expected error(s)": 32, "Model decision": 18, "Rule": 20, "Model's reason": 45,
-              "Evidence": 45, "Suggested correction": 40, "Matches expected error": 28,
-              **{c: 28 for c in DOCTOR_FINDING_COLUMNS}}
-    add_sheet(book, "Findings", FINDING_COLUMNS, rows, widths, DOCTOR_FINDING_COLUMNS,
-              {DOCTOR_FINDING_COLUMNS[0]: "Agree,Disagree,Unsure"}, fill_by="Model decision")
+    widths = {
+        "Case title": 28,
+        "Expected error(s)": 32,
+        "Model decision": 18,
+        "Rule": 20,
+        "Model's reason": 45,
+        "Evidence": 45,
+        "Suggested correction": 40,
+        "Matches expected error": 28,
+        **{c: 28 for c in DOCTOR_FINDING_COLUMNS},
+    }
+    add_sheet(
+        book,
+        "Findings",
+        FINDING_COLUMNS,
+        rows,
+        widths,
+        DOCTOR_FINDING_COLUMNS,
+        {DOCTOR_FINDING_COLUMNS[0]: "Agree,Disagree,Unsure"},
+        fill_by="Model decision",
+    )
     add_sheet(book, "Per prescription", CASE_COLUMNS, case_rows, {"Case title": 40, "Error": 40})
     s = data.get("summary", {})
-    about = [("Model", model), ("Quantization", data.get("quantization", "")), ("Run at", data.get("run_at", "")),
-             ("Precision", s.get("precision")), ("Recall", s.get("recall")), ("F1", s.get("f1")),
-             ("Critical recall", s.get("critical_recall")), ("Avg seconds per prescription", s.get("avg_case_seconds")),
-             ("Peak VRAM (GB)", s.get("peak_vram_gb")), ("Load error", load_error or ""),
-             ("How to review", "Findings sheet: one row per error the model flagged (white), each strong rule-engine "
-                               "candidate that was rejected and not reported (grey) and each expected error it missed (red). "
-                               "Fill in the yellow Doctor columns.")]
-    add_sheet(book, "About", ["Item", "Value"], [{"Item": k, "Value": "" if v is None else v} for k, v in about],
-              {"Item": 28, "Value": 90})
+    about = [
+        ("Model", model),
+        ("Quantization", data.get("quantization", "")),
+        ("Run at", data.get("run_at", "")),
+        ("Precision", s.get("precision")),
+        ("Recall", s.get("recall")),
+        ("F1", s.get("f1")),
+        ("Critical recall", s.get("critical_recall")),
+        ("Avg seconds per prescription", s.get("avg_case_seconds")),
+        ("Peak VRAM (GB)", s.get("peak_vram_gb")),
+        ("Load error", load_error or ""),
+        (
+            "How to review",
+            "Findings sheet: one row per error the model flagged (white), each strong rule-engine "
+            "candidate that was rejected and not reported (grey) and each expected error it missed (red). "
+            "Fill in the yellow Doctor columns.",
+        ),
+    ]
+    add_sheet(
+        book,
+        "About",
+        ["Item", "Value"],
+        [{"Item": k, "Value": "" if v is None else v} for k, v in about],
+        {"Item": 28, "Value": 90},
+    )
     book.move_sheet("About", offset=-2)
     book.save(out / f"{stem}.xlsx")
     return f"{model}: {len(rows)} rows"

@@ -117,14 +117,16 @@ def _prune_candidates_for_model(
             str(item.get("generic_name", "") or "").casefold(),
         )
         for item in pruned["Rx"]
-        if item.get("rule_name") in {
+        if item.get("rule_name")
+        in {
             "medicine_timing_missing_candidate",
             "medicine_timing_mismatch_candidate",
         }
     }
     if rx_timing_keys:
         pruned["Adv"] = [
-            item for item in pruned["Adv"]
+            item
+            for item in pruned["Adv"]
             if not (
                 item.get("rule_name") == "administration_advice_candidate"
                 and (
@@ -136,7 +138,8 @@ def _prune_candidates_for_model(
         ]
 
     pruned["Dx"] = [
-        item for item in pruned["Dx"]
+        item
+        for item in pruned["Dx"]
         if not (
             item.get("rule_name") == "guideline_diagnosis_review_candidate"
             and str(item.get("evidence_strength", "") or "low") == "low"
@@ -145,7 +148,8 @@ def _prune_candidates_for_model(
     ]
     for section in ("Rx", "Adv"):
         pruned[section] = [
-            item for item in pruned[section]
+            item
+            for item in pruned[section]
             if not (
                 str(item.get("trigger_source", "")) == "guideline_rag"
                 and str(item.get("evidence_strength", "") or "low") == "low"
@@ -181,10 +185,7 @@ def _resolve_data_path(path: str | Path | None, filename: str) -> Path:
         if source.is_file():
             return source
     searched = "\n  - ".join(str(source) for source in candidates)
-    raise FileNotFoundError(
-        f"No {filename} was found. Provide its AuditOptions path or place it at:\n"
-        f"  - {searched}"
-    )
+    raise FileNotFoundError(f"No {filename} was found. Provide its AuditOptions path or place it at:\n  - {searched}")
 
 
 def _protocol_config(path: str | Path | None) -> dict[str, Any]:
@@ -212,9 +213,7 @@ def _protocol_config(path: str | Path | None) -> dict[str, Any]:
                 "investigations": [item.get("test", "")],
             }
             for item in monitoring
-            if isinstance(item, Mapping)
-            and item.get("diagnosis_keyword")
-            and item.get("test")
+            if isinstance(item, Mapping) and item.get("diagnosis_keyword") and item.get("test")
         ]
     return config
 
@@ -230,9 +229,7 @@ def _empty_followup_context() -> dict[str, Any]:
     }
 
 
-def _medicine_facts_trace(
-    medicine_facts: list[dict[str, Any]], *, full: bool
-) -> Any:
+def _medicine_facts_trace(medicine_facts: list[dict[str, Any]], *, full: bool) -> Any:
     if full:
         return {"mode": "full", "results": medicine_facts}
     summaries = []
@@ -245,10 +242,18 @@ def _medicine_facts_trace(
                 "section": str(result.get("section", "")),
                 "fact_count": len(facts),
                 "fact_types": sorted(
-                    {str(fact.get("fact_type", "")) for fact in facts if isinstance(fact, Mapping) and fact.get("fact_type")}
+                    {
+                        str(fact.get("fact_type", ""))
+                        for fact in facts
+                        if isinstance(fact, Mapping) and fact.get("fact_type")
+                    }
                 ),
                 "source_types": sorted(
-                    {str(fact.get("source_type", "")) for fact in facts if isinstance(fact, Mapping) and fact.get("source_type")}
+                    {
+                        str(fact.get("source_type", ""))
+                        for fact in facts
+                        if isinstance(fact, Mapping) and fact.get("source_type")
+                    }
                 ),
                 "warnings": list(result.get("warnings", [])),
             }
@@ -260,10 +265,7 @@ def _redact_medicine_fact_evidence(value: Any, *, full: bool) -> Any:
     if full:
         return value
     if isinstance(value, Mapping):
-        result = {
-            str(key): _redact_medicine_fact_evidence(item, full=full)
-            for key, item in value.items()
-        }
+        result = {str(key): _redact_medicine_fact_evidence(item, full=full) for key, item in value.items()}
         if result.get("trigger_source") == "medicine_fact":
             for field in ("evidence", "medicine_fact_evidence"):
                 if not result.get(field):
@@ -277,23 +279,15 @@ def _redact_medicine_fact_evidence(value: Any, *, full: bool) -> Any:
     return value
 
 
-def _patient_context_trace(
-    context: Mapping[str, Any], *, full: bool
-) -> dict[str, Any]:
+def _patient_context_trace(context: Mapping[str, Any], *, full: bool) -> dict[str, Any]:
     if full:
         return dict(context)
     result = dict(context)
-    risks = [
-        item for item in context.get("patient_risks", []) or []
-        if isinstance(item, Mapping)
-    ]
+    risks = [item for item in context.get("patient_risks", []) or [] if isinstance(item, Mapping)]
     result.pop("patient_risks", None)
     result["patient_risk_summary"] = {
         "count": len(risks),
-        "risk_types": sorted({
-            str(item.get("risk_type", "")) for item in risks
-            if item.get("risk_type")
-        }),
+        "risk_types": sorted({str(item.get("risk_type", "")) for item in risks if item.get("risk_type")}),
         "evidence": [
             {
                 key: (str(item.get(key, ""))[:240] if key == "evidence" else item.get(key))
@@ -346,10 +340,7 @@ def _task_trace(task_result: Mapping[str, Any]) -> dict[str, Any]:
     return {
         "task_count": len(tasks),
         "sections": [str(task.get("section", "")) for task in tasks],
-        "candidate_counts": {
-            str(task.get("section", "")): len(task.get("candidates", []) or [])
-            for task in tasks
-        },
+        "candidate_counts": {str(task.get("section", "")): len(task.get("candidates", []) or []) for task in tasks},
         "tasks": task_summaries,
         "skipped_sections": list(task_result.get("skipped_sections", []) or []),
         "warnings": list(task_result.get("warnings", []) or []),
@@ -388,9 +379,7 @@ def _writer_trace(result: Mapping[str, Any]) -> dict[str, Any]:
         if not section:
             continue
         try:
-            section_durations[section] = section_durations.get(section, 0.0) + float(
-                call.get("duration_ms", 0) or 0
-            )
+            section_durations[section] = section_durations.get(section, 0.0) + float(call.get("duration_ms", 0) or 0)
         except (TypeError, ValueError):
             continue
     return {
@@ -398,10 +387,7 @@ def _writer_trace(result: Mapping[str, Any]) -> dict[str, Any]:
         "model_calls": model_calls,
         "model_call_summary": {
             "total_model_duration_ms": round(sum(section_durations.values()), 3),
-            "section_duration_ms": {
-                section: round(duration, 3)
-                for section, duration in section_durations.items()
-            },
+            "section_duration_ms": {section: round(duration, 3) for section, duration in section_durations.items()},
             "section_call_counts": {
                 section: sum(1 for call in model_calls if str(call.get("section", "") or "") == section)
                 for section in section_durations
@@ -419,10 +405,7 @@ def _final_report_trace(report: Mapping[str, Any]) -> dict[str, Any]:
         "status": str(report.get("status", "")),
         "candidate_count": int(metadata.get("candidate_count", 0) or 0),
         "final_finding_count": int(metadata.get("final_finding_count", 0) or 0),
-        "findings_by_section": {
-            str(section): len(findings or [])
-            for section, findings in errors.items()
-        },
+        "findings_by_section": {str(section): len(findings or []) for section, findings in errors.items()},
         "model_sections_called": list(metadata.get("model_sections_called", []) or []),
         "warnings": list(metadata.get("warnings", []) or []),
     }
@@ -508,10 +491,16 @@ def _build_trace_document(
         "stages": [
             stage(1, "standard_prescription", dict(prescription)),
             stage(2, "clinical_evidence", clinical_evidence),
-            stage(3, "language_normalization", language_context if trace_full else {
-                "field_count": len(language_context.get("fields", {})),
-                "evidence_count": len(language_context.get("clinical_evidence", [])),
-            }),
+            stage(
+                3,
+                "language_normalization",
+                language_context
+                if trace_full
+                else {
+                    "field_count": len(language_context.get("fields", {})),
+                    "evidence_count": len(language_context.get("clinical_evidence", [])),
+                },
+            ),
             stage(
                 4,
                 "patient_context",
@@ -540,9 +529,7 @@ def _build_trace_document(
             stage(
                 9,
                 "safety_candidates",
-                _redact_medicine_fact_evidence(
-                    safety_candidates, full=trace_full
-                ),
+                _redact_medicine_fact_evidence(safety_candidates, full=trace_full),
             ),
             stage(10, "followup_context", _followup_trace(followup_context)),
             stage(
@@ -569,18 +556,10 @@ class PrescriptionAuditOrchestrator:
         self.options = _coerce_options(options)
         self.provider = provider if provider is not None else self.options.provider
         self.protocol = _protocol_config(self.options.protocol_path)
-        self.medicine_csv_path = _resolve_data_path(
-            self.options.medicine_csv_path, "medicine.csv"
-        )
-        self.generic_csv_path = _resolve_data_path(
-            self.options.generic_csv_path, "generic.csv"
-        )
-        self.medicine_mapper = MedicineMapper(
-            self.medicine_csv_path, self.generic_csv_path
-        )
-        self.fact_store = MedicineFactStore(
-            self.generic_csv_path, self.options.annotated_facts_path
-        )
+        self.medicine_csv_path = _resolve_data_path(self.options.medicine_csv_path, "medicine.csv")
+        self.generic_csv_path = _resolve_data_path(self.options.generic_csv_path, "generic.csv")
+        self.medicine_mapper = MedicineMapper(self.medicine_csv_path, self.generic_csv_path)
+        self.fact_store = MedicineFactStore(self.generic_csv_path, self.options.annotated_facts_path)
         self.guideline_rag = GuidelineRAG()
 
     def audit_prescription(
@@ -610,7 +589,9 @@ class PrescriptionAuditOrchestrator:
             else None
         )
         if target_sections:
-            invalid = [section for section in target_sections if section not in ("Demo", "CC", "Hx", "Dx", "Inv", "Rx", "Adv")]
+            invalid = [
+                section for section in target_sections if section not in ("Demo", "CC", "Hx", "Dx", "Inv", "Rx", "Adv")
+            ]
             if invalid:
                 raise ValueError(f"invalid target audit section(s): {', '.join(invalid)}")
 
@@ -636,9 +617,7 @@ class PrescriptionAuditOrchestrator:
         finish_stage("patient_context", started)
 
         started = perf_counter()
-        normalized_medicines = self.medicine_mapper.map(
-            prescription.get("Medication", "")
-        )
+        normalized_medicines = self.medicine_mapper.map(prescription.get("Medication", ""))
         finish_stage("medicine_mapping", started)
 
         started = perf_counter()
@@ -652,10 +631,7 @@ class PrescriptionAuditOrchestrator:
             # will be discarded later.  The complete final audit has no target
             # filter and continues to retrieve all applicable domains.
             allowed_seed_sections = set(target_sections)
-            guideline_seeds = [
-                seed for seed in guideline_seeds
-                if seed.section in allowed_seed_sections
-            ]
+            guideline_seeds = [seed for seed in guideline_seeds if seed.section in allowed_seed_sections]
         if effective.live_section_audit and target_sections == ("Dx",):
             # Live diagnosis checks judge the entered diagnosis against the
             # structured current context already carried by the task. Guideline
@@ -670,11 +646,7 @@ class PrescriptionAuditOrchestrator:
             "model_call": None,
         }
         if effective.llm_rag_router:
-            active_provider = (
-                effective.provider
-                if effective.provider is not None
-                else self.provider
-            )
+            active_provider = effective.provider if effective.provider is not None else self.provider
             if active_provider is None:
                 planner_trace["enabled"] = True
                 planner_trace["warnings"] = [
@@ -714,12 +686,8 @@ class PrescriptionAuditOrchestrator:
             return facts_by_section
 
         with ThreadPoolExecutor(max_workers=2) as executor:
-            medicine_facts_future = executor.submit(
-                timed_stage, "medicine_facts", load_medicine_facts
-            )
-            guideline_facts_future = executor.submit(
-                timed_stage, "guideline_rag", load_guideline_facts
-            )
+            medicine_facts_future = executor.submit(timed_stage, "medicine_facts", load_medicine_facts)
+            guideline_facts_future = executor.submit(timed_stage, "guideline_rag", load_guideline_facts)
             medicine_facts = medicine_facts_future.result()
             guideline_facts_by_section = guideline_facts_future.result()
 
@@ -736,14 +704,10 @@ class PrescriptionAuditOrchestrator:
             if effective.followup_db_path is None:
                 return _empty_followup_context()
             patient_id = (
-                effective.patient_id
-                if effective.patient_id not in (None, "")
-                else prescription.get("Patient_ID", "")
+                effective.patient_id if effective.patient_id not in (None, "") else prescription.get("Patient_ID", "")
             )
             visit_date = (
-                effective.visit_date
-                if effective.visit_date not in (None, "")
-                else prescription.get("Visit_Date", "")
+                effective.visit_date if effective.visit_date not in (None, "") else prescription.get("Visit_Date", "")
             )
             return build_followup_context(
                 patient_id,
@@ -756,22 +720,15 @@ class PrescriptionAuditOrchestrator:
                 medicine_mapper=self.medicine_mapper,
                 today_medicine_facts=medicine_facts,
                 medicine_fact_lookup=lambda medicine: [
-                    self.fact_store.get_facts(medicine, section)
-                    for section in _FACT_SECTIONS
+                    self.fact_store.get_facts(medicine, section) for section in _FACT_SECTIONS
                 ],
-                advice_action_provider=self.provider
-                if effective.llm_advice_action_classifier
-                else None,
+                advice_action_provider=self.provider if effective.llm_advice_action_classifier else None,
                 protocol=self.protocol,
             )
 
         with ThreadPoolExecutor(max_workers=2) as executor:
-            safety_future = executor.submit(
-                timed_stage, "safety_candidates", build_safety_candidates
-            )
-            followup_future = executor.submit(
-                timed_stage, "followup_context", build_followup_context_stage
-            )
+            safety_future = executor.submit(timed_stage, "safety_candidates", build_safety_candidates)
+            followup_future = executor.submit(timed_stage, "followup_context", build_followup_context_stage)
             safety_candidates = safety_future.result()
             followup_context = followup_future.result()
 
@@ -800,9 +757,7 @@ class PrescriptionAuditOrchestrator:
         finish_stage("rule_candidates", started)
 
         started = perf_counter()
-        model_candidates_by_section = _prune_candidates_for_model(
-            rule_result["candidates_by_section"]
-        )
+        model_candidates_by_section = _prune_candidates_for_model(rule_result["candidates_by_section"])
         task_result = build_audit_tasks(
             prescription_id,
             prescription,
@@ -819,15 +774,9 @@ class PrescriptionAuditOrchestrator:
 
         started = perf_counter()
         if task_result["tasks"]:
-            active_provider = (
-                effective.provider
-                if effective.provider is not None
-                else self.provider
-            )
+            active_provider = effective.provider if effective.provider is not None else self.provider
             if active_provider is None:
-                raise ValueError(
-                    "A model provider is required when audit candidates need confirmation"
-                )
+                raise ValueError("A model provider is required when audit candidates need confirmation")
             writer_result = write_audit_sections(
                 task_result["tasks"],
                 active_provider,
@@ -899,9 +848,7 @@ def audit_prescription(
 ) -> dict[str, Any]:
     """Audit one mapping through every V3 stage and return one final report."""
     orchestrator = PrescriptionAuditOrchestrator(options, provider=provider)
-    return orchestrator.audit_prescription(
-        row, trace_callback=trace_callback, trace_full=trace_full
-    )
+    return orchestrator.audit_prescription(row, trace_callback=trace_callback, trace_full=trace_full)
 
 
 __all__ = [

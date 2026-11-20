@@ -129,8 +129,7 @@ class MedicineFactStore:
         with path.open(encoding="utf-8-sig", newline="") as handle:
             for source in csv.DictReader(handle):
                 normalized = {
-                    str(key or "").strip().casefold(): str(value or "").strip()
-                    for key, value in source.items()
+                    str(key or "").strip().casefold(): str(value or "").strip() for key, value in source.items()
                 }
                 generic_id = normalized.get("generic id", "")
                 if generic_id:
@@ -151,9 +150,7 @@ class MedicineFactStore:
                 try:
                     record = json.loads(line)
                 except json.JSONDecodeError as exc:
-                    raise ValueError(
-                        f"Invalid annotated fact JSONL at line {line_number}: {exc.msg}"
-                    ) from exc
+                    raise ValueError(f"Invalid annotated fact JSONL at line {line_number}: {exc.msg}") from exc
                 generic_id = str(record.get("generic_id", "")).strip()
                 if not generic_id:
                     continue
@@ -165,9 +162,7 @@ class MedicineFactStore:
                     if not isinstance(fact, Mapping):
                         continue
                     original_fact_type = str(fact.get("fact_type", "")).strip()
-                    fact_type = canonical_fact_type(
-                        fact.get("canonical_fact_type") or original_fact_type
-                    )
+                    fact_type = canonical_fact_type(fact.get("canonical_fact_type") or original_fact_type)
                     text = clean_monograph_text(fact.get("text") or fact.get("evidence") or "")
                     if not fact_type or not text:
                         continue
@@ -179,9 +174,7 @@ class MedicineFactStore:
                             "fact_type": fact_type,
                             "source_fact_type": original_fact_type or fact_type,
                             "text": text,
-                            "source_field": str(
-                                fact.get("source_field", "annotated fact")
-                            ).strip(),
+                            "source_field": str(fact.get("source_field", "annotated fact")).strip(),
                             "source_quality": str(fact.get("source_quality", "")).strip(),
                             "validation_status": str(fact.get("validation_status", "")).strip(),
                             "confidence": str(fact.get("confidence", "")).strip(),
@@ -252,11 +245,7 @@ class MedicineFactStore:
         row = self._generic_rows.get(generic_id)
         annotated = self._annotated_for(generic_id, canonical_section)
         annotated_name = next(
-            (
-                item["generic_name"]
-                for item in self._annotated.get(generic_id, [])
-                if item["generic_name"]
-            ),
+            (item["generic_name"] for item in self._annotated.get(generic_id, []) if item["generic_name"]),
             "",
         )
         if row:
@@ -265,9 +254,7 @@ class MedicineFactStore:
             result["generic_name"] = annotated_name
 
         if not row and not annotated:
-            result["warnings"].append(
-                f"generic_id {generic_id!r} not found in configured fact sources"
-            )
+            result["warnings"].append(f"generic_id {generic_id!r} not found in configured fact sources")
             return result
 
         result["facts"].extend(annotated)

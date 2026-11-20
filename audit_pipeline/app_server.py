@@ -53,6 +53,7 @@ _PACKAGE = Path(__file__).resolve().parent
 
 log = logging.getLogger(__name__)
 
+
 def load_env() -> None:
     for path in (_PACKAGE / ".env", _PACKAGE.parent / ".env"):
         if path.is_file():
@@ -62,8 +63,13 @@ def load_env() -> None:
 class AuditService:
     """Holds the (expensive) orchestrator and provider; audits one visit per call."""
 
-    def __init__(self, provider_name: str | None = None, data_dir: str | None = None, provider: Any = None,
-                 icd11: ICD11Terminology | None = None) -> None:
+    def __init__(
+        self,
+        provider_name: str | None = None,
+        data_dir: str | None = None,
+        provider: Any = None,
+        icd11: ICD11Terminology | None = None,
+    ) -> None:
         self.provider_name = provider_name
         self.data_dir = data_dir or os.getenv("PRESCRIPTION_DATA_DIR") or ""
         self._provider = provider
@@ -117,8 +123,12 @@ class AuditService:
         try:
             self._ready()
             model = getattr(self._provider, "model", None) or getattr(self._provider, "deployment", None)
-            return {"ok": True, "provider": type(self._provider).__name__, "model": model,
-                    "history_dir": self.data_dir or None}
+            return {
+                "ok": True,
+                "provider": type(self._provider).__name__,
+                "model": model,
+                "history_dir": self.data_dir or None,
+            }
         except Exception as exc:  # noqa: BLE001 - surfaced to the UI as a setup hint
             return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
 
@@ -190,9 +200,15 @@ class AuditService:
             orchestrator = self._ready()
         provider = self._provider
         if not getattr(provider, "can_review", lambda: False)():
-            return {"success": True, "section": section,
-                    "review": {"status": "unavailable", "problems": [],
-                               "reason": "Load HF_MODEL as the base model with HF_ADAPTER to enable the clinical review."}}
+            return {
+                "success": True,
+                "section": section,
+                "review": {
+                    "status": "unavailable",
+                    "problems": [],
+                    "reason": "Load HF_MODEL as the base model with HF_ADAPTER to enable the clinical review.",
+                },
+            }
         item = normalize_payload(payload)
         record = scope_live_record(section, item["record"])
         record.setdefault("id", item["visit_id"])
@@ -209,14 +225,27 @@ class AuditService:
 
         recorder = _Recorder()
         try:
-            orchestrator.audit_prescription(row, orchestrator.options_for_row(
-                prescription_id=item["visit_id"], patient_id=row["Patient_ID"], visit_date=row["Visit_Date"],
-                target_sections=domains, live_section_audit=True, llm_rag_router=False, max_retries=0,
-                provider=recorder))
+            orchestrator.audit_prescription(
+                row,
+                orchestrator.options_for_row(
+                    prescription_id=item["visit_id"],
+                    patient_id=row["Patient_ID"],
+                    visit_date=row["Visit_Date"],
+                    target_sections=domains,
+                    live_section_audit=True,
+                    llm_rag_router=False,
+                    max_retries=0,
+                    provider=recorder,
+                ),
+            )
         except Exception as exc:  # noqa: BLE001 - hints are optional context
             log.warning("[review] rule-engine hints unavailable: %s: %s", type(exc).__name__, exc)
-        candidates = [c for t in recorder.tasks for c in flatten_candidates(t.get("candidates"))
-                      if str(c.get("section", "")) in domains]
+        candidates = [
+            c
+            for t in recorder.tasks
+            for c in flatten_candidates(t.get("candidates"))
+            if str(c.get("section", "")) in domains
+        ]
         facts = _drug_facts(row) if section == "rx" and str(row.get("Medication", "")).strip() else ""
         already = [str(x) for x in (payload.get("layer1") or []) if str(x).strip()][:12]
         messages = build_messages(row, section, drug_facts=facts, hints=concrete_hints(candidates, ""), already=already)
@@ -228,14 +257,32 @@ class AuditService:
             candidates_shown, hidden = split_shown(proposed, section)
             problems = candidates_shown
             if candidates_shown:  # second look by the same model: only problems it confirms are shown
-                keep = parse_keep(provider.review(build_verify_messages(row, section, candidates_shown, facts), 60,
-                                                  prefix='{"keep": ['), len(candidates_shown))
+                keep = parse_keep(
+                    provider.review(
+                        build_verify_messages(row, section, candidates_shown, facts), 60, prefix='{"keep": ['
+                    ),
+                    len(candidates_shown),
+                )
                 problems = [p for i, p in enumerate(candidates_shown, 1) if i in keep]
-        log.info("[review] section=%s proposed=%d hidden_types=%d shown=%d took=%.1fs",
-                 section, len(proposed), len(hidden), len(problems), perf_counter() - started)
-        result = {"success": True, "section": section,
-                  "review": {"status": "done", "problems": problems, "hidden": hidden, "revision": payload.get("revision"),
-                             "duration_ms": round((perf_counter() - started) * 1000, 3)}}
+        log.info(
+            "[review] section=%s proposed=%d hidden_types=%d shown=%d took=%.1fs",
+            section,
+            len(proposed),
+            len(hidden),
+            len(problems),
+            perf_counter() - started,
+        )
+        result = {
+            "success": True,
+            "section": section,
+            "review": {
+                "status": "done",
+                "problems": problems,
+                "hidden": hidden,
+                "revision": payload.get("revision"),
+                "duration_ms": round((perf_counter() - started) * 1000, 3),
+            },
+        }
         if payload.get("debug"):  # for tests only: the model's raw first answer and what the second look dropped
             result["review"]["raw"] = text
             result["review"]["proposed"] = proposed
@@ -266,11 +313,7 @@ class AuditService:
             "pastHistory",
             "diagnosis",
         }
-        history = (
-            list(item["history"]) + history_from_disk(self.data_dir, patient)
-            if uses_history
-            else []
-        )
+        history = list(item["history"]) + history_from_disk(self.data_dir, patient) if uses_history else []
         has_history = uses_history and bool(history)
 
         with self._lock:
@@ -300,11 +343,7 @@ class AuditService:
                 followup_db_path=(str(db_path) if db_path else None),
                 target_sections=target_sections,
                 live_section_audit=writer_checks,
-                llm_rag_router=(
-                    False
-                    if live_section is not None
-                    else orchestrator.options.llm_rag_router
-                ),
+                llm_rag_router=(False if live_section is not None else orchestrator.options.llm_rag_router),
                 # Live feedback must remain interactive. A malformed response
                 # fails fast and can be retried from the badge; the complete
                 # final audit retains its format-repair attempts.
@@ -377,18 +416,35 @@ def _make_handler(service: AuditService):
                     return self._send(200, service.search_investigations(query, limit, category))
                 except (ValueError, OSError) as exc:
                     return self._send(500, {"success": False, "error": f"Investigation search unavailable: {exc}"})
-            self._send(404, {"success": False, "error": "use GET /health, /icd11/search, or /investigations/search; or POST /audit"})
+            self._send(
+                404,
+                {
+                    "success": False,
+                    "error": "use GET /health, /icd11/search, or /investigations/search; or POST /audit",
+                },
+            )
 
         def do_POST(self) -> None:  # noqa: N802
             path = self.path.split("?")[0]
-            if path not in ("/audit", "/api/audit", "/audit/section", "/api/audit/section", "/audit/review", "/api/audit/review"):
+            if path not in (
+                "/audit",
+                "/api/audit",
+                "/audit/section",
+                "/api/audit/section",
+                "/audit/review",
+                "/api/audit/review",
+            ):
                 return self._send(404, {"success": False, "error": "use POST /audit, /audit/section or /audit/review"})
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 payload = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
-                result = (service.audit_section(payload) if path.endswith("/section")
-                          else service.review_section(payload) if path.endswith("/review")
-                          else service.audit(payload))
+                result = (
+                    service.audit_section(payload)
+                    if path.endswith("/section")
+                    else service.review_section(payload)
+                    if path.endswith("/review")
+                    else service.audit(payload)
+                )
                 self._send(200, result)
             except PayloadError as exc:
                 self._send(400, {"success": False, "error": str(exc)})
@@ -409,8 +465,10 @@ def serve(service: AuditService, host: str, port: int) -> None:
     if status["ok"]:
         print(f"LLM provider ready: {status['provider']} ({status.get('model')})")
     else:
-        print(f"WARNING - LLM provider NOT ready: {status['error']}\n"
-              "         Fix your .env (see README.md); the server keeps running and retries on each request.")
+        print(
+            f"WARNING - LLM provider NOT ready: {status['error']}\n"
+            "         Fix your .env (see README.md); the server keeps running and retries on each request."
+        )
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -418,11 +476,14 @@ def serve(service: AuditService, host: str, port: int) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    logging.basicConfig(level=os.getenv("AUDIT_LOG_LEVEL", "INFO").upper(), format="%(message)s",
-                        stream=sys.stdout, force=True)
+    logging.basicConfig(
+        level=os.getenv("AUDIT_LOG_LEVEL", "INFO").upper(), format="%(message)s", stream=sys.stdout, force=True
+    )
     parser = argparse.ArgumentParser(prog="python -m audit_pipeline.app_server")
     parser.add_argument("--provider", help="azure, groq or gemma (default: AUDIT_PROVIDER from .env)")
-    parser.add_argument("--data-dir", help="front end backend/data folder, to use earlier saved visits as follow-up history")
+    parser.add_argument(
+        "--data-dir", help="front end backend/data folder, to use earlier saved visits as follow-up history"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
     s = sub.add_parser("serve")
     s.add_argument("--host", default="127.0.0.1")
@@ -444,7 +505,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Input error: {exc}", file=sys.stderr)
         return 2
     src = Path(args.input)
-    out = Path(args.output) if args.output else (src / "aiAudit.json" if src.is_dir() else src.with_suffix(".audit.json"))
+    out = (
+        Path(args.output) if args.output else (src / "aiAudit.json" if src.is_dir() else src.with_suffix(".audit.json"))
+    )
     out.write_text(json.dumps(result, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
     print(f"Audit written to {out}")
     return 0

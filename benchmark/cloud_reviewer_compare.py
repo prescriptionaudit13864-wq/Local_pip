@@ -8,6 +8,7 @@ no real patient data is sent.
     python -m benchmark.cloud_reviewer_compare                 (Groq, GROQ_MODEL from .env)
 Writes benchmark/results/cloud_reviewer_compare.json.
 """
+
 from __future__ import annotations
 
 import json
@@ -28,9 +29,11 @@ LOCAL = ROOT / "benchmark" / "results" / "live_review_probe.json"
 def client():
     from dotenv import load_dotenv
     from openai import OpenAI
+
     load_dotenv(ROOT / ".env", override=False)
-    return OpenAI(api_key=os.environ["GROQ_API_KEY"], base_url="https://api.groq.com/openai/v1", max_retries=0,
-                  timeout=60), os.environ.get("GROQ_MODEL", "qwen/qwen3.8-27b")
+    return OpenAI(
+        api_key=os.environ["GROQ_API_KEY"], base_url="https://api.groq.com/openai/v1", max_retries=0, timeout=60
+    ), os.environ.get("GROQ_MODEL", "qwen/qwen3.8-27b")
 
 
 FAILED: list[str] = []
@@ -43,16 +46,27 @@ def ask(api, model: str, messages, prefix: str, max_tokens: int) -> tuple[str, f
     for attempt in range(12):
         try:
             started = time.perf_counter()
-            resp = api.chat.completions.create(model=model, messages=messages, temperature=0, max_tokens=max_tokens,
-                                               response_format={"type": "json_object"},
-                                               extra_body={"reasoning_effort": "none"} if "qwen3" in model else {})
+            resp = api.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=0,
+                max_tokens=max_tokens,
+                response_format={"type": "json_object"},
+                extra_body={"reasoning_effort": "none"} if "qwen3" in model else {},
+            )
             return resp.choices[0].message.content or "", time.perf_counter() - started
         except Exception as exc:  # noqa: BLE001
             text = str(exc)
             if "reasoning_effort" in text:
                 model_kw = {}
-                resp = api.chat.completions.create(model=model, messages=messages, temperature=0, max_tokens=max_tokens,
-                                                   response_format={"type": "json_object"}, **model_kw)
+                resp = api.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    temperature=0,
+                    max_tokens=max_tokens,
+                    response_format={"type": "json_object"},
+                    **model_kw,
+                )
                 return resp.choices[0].message.content or "", 0.0
             wait = 20 + 10 * attempt
             time.sleep(wait)
@@ -70,11 +84,14 @@ def main() -> None:
         parse_problems,
     )
     from audit_pipeline.finetune_prompt import _drug_facts
+
     api, model = client()
     local = {(r["n"], r["section"]): r for r in json.loads(LOCAL.read_text(encoding="utf-8"))} if LOCAL.exists() else {}
-    cases = [("doctor", t, s, a, e) for t, s, a, e in doctor_probe.CASES] + \
-            [("suite", t, s, a, e) for t, s, a, e, _x, _g in live_suite.CASES] + \
-            [("clean", t, s, a, e) for t, s, a, e in CLEAN]
+    cases = (
+        [("doctor", t, s, a, e) for t, s, a, e in doctor_probe.CASES]
+        + [("suite", t, s, a, e) for t, s, a, e, _x, _g in live_suite.CASES]
+        + [("clean", t, s, a, e) for t, s, a, e in CLEAN]
+    )
     print(f"model: {model}", flush=True)
     only = {int(a) for a in _args}  # case numbers to run (default: all)
     results, times = [], []
@@ -97,8 +114,18 @@ def main() -> None:
                 kept = [p for i, p in enumerate(proposed, 1) if i in keep]
             times.append(s1 + s2)
             local_review = local.get((n, section_key), {}).get("review", [])
-            results.append({"n": n, "group": group, "case": title, "section": section_key, "secs": round(s1 + s2, 1),
-                            "problems": kept, "proposed": proposed, "local_review": local_review})
+            results.append(
+                {
+                    "n": n,
+                    "group": group,
+                    "case": title,
+                    "section": section_key,
+                    "secs": round(s1 + s2, 1),
+                    "problems": kept,
+                    "proposed": proposed,
+                    "local_review": local_review,
+                }
+            )
             print(f"  {section_key} ({s1 + s2:.1f}s)", flush=True)
             for p in kept:
                 print(f"      CLOUD {p['severity'][:4]:4} | {p['entry'][:35]} -> {p['problem'][:120]}", flush=True)
@@ -106,7 +133,9 @@ def main() -> None:
                 print(f"      local {p['severity'][:4]:4} | {p['entry'][:35]} -> {p['problem'][:120]}", flush=True)
         OUT.write_text(json.dumps(results, ensure_ascii=False, indent=1), encoding="utf-8")
     times.sort()
-    print(f"\nTIME per section review (cloud, model time only): median {times[len(times) // 2]:.1f}s, slowest {times[-1]:.1f}s")
+    print(
+        f"\nTIME per section review (cloud, model time only): median {times[len(times) // 2]:.1f}s, slowest {times[-1]:.1f}s"
+    )
     print(f"calls with no answer: {len(FAILED)}")
 
 

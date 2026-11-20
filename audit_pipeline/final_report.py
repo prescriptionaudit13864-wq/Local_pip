@@ -48,9 +48,7 @@ def _text(value: Any) -> str:
 def _confidence_number(value: Any) -> float:
     if isinstance(value, (int, float)):
         return min(1.0, max(0.0, float(value)))
-    return {"low": 0.3, "medium": 0.6, "high": 0.9}.get(
-        _text(value).casefold(), 0.5
-    )
+    return {"low": 0.3, "medium": 0.6, "high": 0.9}.get(_text(value).casefold(), 0.5)
 
 
 def _concern_level(value: Any, *, rule_id: str = "", rule_name: str = "") -> str:
@@ -71,10 +69,7 @@ def _concern_level(value: Any, *, rule_id: str = "", rule_name: str = "") -> str
         )
     ):
         return "critical"
-    if any(
-        marker in combined
-        for marker in ("dose.high", "dose.weight", "strength.mismatch", "rag.avoid")
-    ):
+    if any(marker in combined for marker in ("dose.high", "dose.weight", "strength.mismatch", "rag.avoid")):
         return "major"
     if rule_id.casefold().startswith(("cc.", "demo.", "hx.")):
         return "minor"
@@ -82,9 +77,7 @@ def _concern_level(value: Any, *, rule_id: str = "", rule_name: str = "") -> str
 
 
 def _concern_number(value: Any) -> int:
-    return {"minor": 1, "moderate": 2, "major": 3, "critical": 4}.get(
-        _text(value).casefold(), 2
-    )
+    return {"minor": 1, "moderate": 2, "major": 3, "critical": 4}.get(_text(value).casefold(), 2)
 
 
 def _join_unique_text(values: Sequence[str], separator: str = " | ") -> str:
@@ -106,15 +99,11 @@ def _safety_similarity_key(finding: Mapping[str, Any], section: str, rule_id: st
 
 
 def _merge_validated_finding(existing: dict[str, Any], incoming: Mapping[str, Any]) -> None:
-    existing["why"] = _join_unique_text(
-        [str(existing.get("why", "")), _text(incoming.get("why", ""))]
-    )
+    existing["why"] = _join_unique_text([str(existing.get("why", "")), _text(incoming.get("why", ""))])
     existing["correction"] = _join_unique_text(
         [str(existing.get("correction", "")), _text(incoming.get("correction", ""))]
     )
-    existing["evidence"] = _join_unique_text(
-        [str(existing.get("evidence", "")), _text(incoming.get("evidence", ""))]
-    )
+    existing["evidence"] = _join_unique_text([str(existing.get("evidence", "")), _text(incoming.get("evidence", ""))])
     if _confidence_number(incoming.get("confidence")) > _confidence_number(existing.get("confidence")):
         existing["confidence"] = _json_safe(incoming.get("confidence"))
     incoming_level = _concern_level(
@@ -180,9 +169,7 @@ def _group_cc_findings(grouped: dict[str, list[dict[str, Any]]]) -> None:
             first["correction"] = f"Document severity for: {evidence_comma}."
         else:
             first["why"] = _join_unique_text([str(item.get("why", "")) for item in items])
-            first["correction"] = _join_unique_text(
-                [str(item.get("correction", "")) for item in items]
-            )
+            first["correction"] = _join_unique_text([str(item.get("correction", "")) for item in items])
         first["evidence"] = evidence_semicolon
         strongest = max(items, key=lambda item: _confidence_number(item.get("confidence")))
         first["confidence"] = _json_safe(strongest.get("confidence"))
@@ -218,7 +205,6 @@ def _flatten_candidates(
     return result
 
 
-
 def _candidate_importance_counts(candidate_groups: Mapping[str, Sequence[Mapping[str, Any]]]) -> dict[str, int]:
     counts = {"critical_review": 0, "moderate_review": 0, "minor_documentation": 0, "review": 0}
     for candidate in _flatten_candidates(candidate_groups):
@@ -233,6 +219,7 @@ def _candidate_importance_counts(candidate_groups: Mapping[str, Sequence[Mapping
             counts[importance] = 0
         counts[importance] += 1
     return counts
+
 
 def _finding_match_keys(
     errors_by_section: Mapping[str, Sequence[Mapping[str, Any]]],
@@ -272,10 +259,11 @@ def _rejected_high_evidence_candidates(
         rule_id = _text(candidate.get("rule_id", ""))
         rule_name = _final_rule_name(candidate.get("rule_name", ""))
         evidence = _text(candidate.get("evidence", ""))
-        accepted = (
-            (section, rule_id.casefold(), evidence.casefold()) in finding_keys
-            or (section, rule_name.casefold(), evidence.casefold()) in finding_keys
-        )
+        accepted = (section, rule_id.casefold(), evidence.casefold()) in finding_keys or (
+            section,
+            rule_name.casefold(),
+            evidence.casefold(),
+        ) in finding_keys
         if accepted:
             continue
         rejected.append(
@@ -335,30 +323,23 @@ def _validate_findings(
                 )
                 continue
             missing = [
-                field
-                for field in _REQUIRED_FINDING_FIELDS
-                if field not in finding or finding.get(field) is None
+                field for field in _REQUIRED_FINDING_FIELDS if field not in finding or finding.get(field) is None
             ]
             if missing:
                 warnings.append(
-                    f"section {section} finding {index} missing required fields "
-                    f"{', '.join(missing)} and was dropped"
+                    f"section {section} finding {index} missing required fields {', '.join(missing)} and was dropped"
                 )
                 continue
             evidence = _dedupe_evidence_text(finding.get("evidence", ""))
             if not evidence:
-                warnings.append(
-                    f"section {section} finding {index} has no evidence and was dropped"
-                )
+                warnings.append(f"section {section} finding {index} has no evidence and was dropped")
                 continue
             rule_name = _text(finding.get("rule_name", ""))
             rule_id = _text(finding.get("rule_id", ""))
             why = _text(finding.get("why", ""))
             correction = _text(finding.get("correction", ""))
             if not rule_name or not rule_id or not why or not correction:
-                warnings.append(
-                    f"section {section} finding {index} has empty required text and was dropped"
-                )
+                warnings.append(f"section {section} finding {index} has empty required text and was dropped")
                 continue
             if (
                 _text(finding.get("confidence", "")).casefold() == "needs_review"
@@ -435,31 +416,17 @@ def assemble_final_report(
     warnings = list(candidate_warnings)
     warnings.extend(writer_warnings)
     warnings.extend(_text(item) for item in stage_warnings or [] if _text(item))
-    warnings.extend(
-        _text(item) for item in patient_context.get("warnings", []) if _text(item)
-    )
-    warnings.extend(
-        _text(item) for item in followup_context.get("warnings", []) if _text(item)
-    )
+    warnings.extend(_text(item) for item in patient_context.get("warnings", []) if _text(item))
+    warnings.extend(_text(item) for item in followup_context.get("warnings", []) if _text(item))
     for fact_result in medicine_facts:
         if isinstance(fact_result, Mapping):
-            warnings.extend(
-                _text(item) for item in fact_result.get("warnings", []) if _text(item)
-            )
+            warnings.extend(_text(item) for item in fact_result.get("warnings", []) if _text(item))
 
     errors_by_section, explicit_review = _validate_findings(output_groups, warnings)
-    rejected_high_evidence = _rejected_high_evidence_candidates(
-        candidate_groups, errors_by_section
-    )
-    rag_gaps = [
-        _json_safe(item)
-        for item in candidates_by_section.get("rag_gaps", [])
-        if isinstance(item, Mapping)
-    ]
+    rejected_high_evidence = _rejected_high_evidence_candidates(candidate_groups, errors_by_section)
+    rag_gaps = [_json_safe(item) for item in candidates_by_section.get("rag_gaps", []) if isinstance(item, Mapping)]
     warnings = list(dict.fromkeys(warnings))
-    candidate_count = sum(
-        len(candidate_groups.get(section, []) or []) for section in SECTIONS
-    )
+    candidate_count = sum(len(candidate_groups.get(section, []) or []) for section in SECTIONS)
     final_finding_count = sum(len(errors_by_section[section]) for section in SECTIONS)
     candidate_importance_counts = _candidate_importance_counts(candidate_groups)
     if isinstance(section_outputs, Mapping) and isinstance(section_outputs.get("model_calls"), Sequence):
@@ -481,8 +448,10 @@ def assemble_final_report(
         status = "partial_failed"
     # Model only (AUDIT_MODEL_ONLY, default on): candidates the model rejected stay in metadata for inspection but
     # do not mark the prescription as needing review.
-    elif explicit_review or (rejected_high_evidence and (os.getenv("AUDIT_MODEL_ONLY") or "1").strip().casefold()
-                                                          in {"0", "false", "no", "off"}):
+    elif explicit_review or (
+        rejected_high_evidence
+        and (os.getenv("AUDIT_MODEL_ONLY") or "1").strip().casefold() in {"0", "false", "no", "off"}
+    ):
         status = "needs_review"
     else:
         status = "completed"

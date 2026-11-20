@@ -58,9 +58,7 @@ def _text(value: Any) -> str:
 def _normalize_concept(concept: str) -> str:
     words = re.sub(r"\s+", " ", concept.strip()).split(" ")
     return " ".join(
-        word if word.isupper() and len(word) <= 5
-        else word[:1].upper() + word[1:].lower()
-        for word in words if word
+        word if word.isupper() and len(word) <= 5 else word[:1].upper() + word[1:].lower() for word in words if word
     )
 
 
@@ -115,11 +113,7 @@ def _split_findings(text: str, *, propagate_final_duration: bool = False) -> lis
     # Newlines/semicolons/pipes are hard boundaries. The writer uses newlines
     # between Add-button rows, so duration propagation is limited to comma-
     # separated symptoms deliberately entered within the same row.
-    groups = [
-        group.strip(" .")
-        for group in re.split(r"\s*(?:[;|\n]+)\s*", text)
-        if group.strip(" .")
-    ]
+    groups = [group.strip(" .") for group in re.split(r"\s*(?:[;|\n]+)\s*", text) if group.strip(" .")]
     findings: list[str] = []
     for group in groups:
         parts = [part.strip(" .") for part in re.split(r"\s*,+\s*", group) if part.strip(" .")]
@@ -241,9 +235,7 @@ def _bmi(raw: str, source: str) -> dict[str, Any] | None:
     if not match:
         return None
     value = float(match.group(1))
-    label_match = re.search(
-        r"(?i)\b(obesity|obese|overweight|underweight)\b", match.group(2)
-    )
+    label_match = re.search(r"(?i)\b(obesity|obese|overweight|underweight)\b", match.group(2))
     if label_match:
         label = label_match.group(1).lower()
         label = "obesity" if label == "obese" else label

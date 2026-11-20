@@ -273,10 +273,7 @@ def _fields_used(
     prescription: Mapping[str, Any],
     protocol: Any,
 ) -> dict[str, Any]:
-    return {
-        name: _json_safe(prescription.get(name, ""))
-        for name in _section_fields(section, protocol)
-    }
+    return {name: _json_safe(prescription.get(name, "")) for name in _section_fields(section, protocol)}
 
 
 def _clinical_slice(
@@ -286,37 +283,48 @@ def _clinical_slice(
     allowed_sources = {
         "Demo": {"Health_Screening", "On_Examination", "Systemic_Examination"},
         "CC": {"Chief_Complaint", "Health_Screening", "On_Examination", "Systemic_Examination"},
-        "Hx": {"Past_History", "Chief_Complaint", "Health_Screening", "On_Examination", "Systemic_Examination", "Investigation_Results"},
+        "Hx": {
+            "Past_History",
+            "Chief_Complaint",
+            "Health_Screening",
+            "On_Examination",
+            "Systemic_Examination",
+            "Investigation_Results",
+        },
         "Dx": {"Past_History", "Chief_Complaint", "Health_Screening", "On_Examination", "Systemic_Examination"},
         "Inv": {"Past_History", "Chief_Complaint", "Health_Screening", "On_Examination", "Systemic_Examination"},
         "Rx": {"Past_History", "Chief_Complaint", "Health_Screening", "On_Examination", "Systemic_Examination"},
         "Adv": {"Past_History", "Chief_Complaint", "Health_Screening", "On_Examination", "Systemic_Examination"},
     }[section]
-    return [
-        _json_safe(item)
-        for item in clinical_evidence
-        if str(item.get("source", "")) in allowed_sources
-    ]
+    return [_json_safe(item) for item in clinical_evidence if str(item.get("source", "")) in allowed_sources]
 
 
 def _context_slice(section: str, patient_context: Mapping[str, Any]) -> dict[str, Any]:
     if section in {"CC", "Hx"} or section == "Demo":
         keys = (
-            "age_years", "gender", "is_child", "is_elderly", "is_pregnant",
-            "is_lactating", "context_evidence", "warnings",
+            "age_years",
+            "gender",
+            "is_child",
+            "is_elderly",
+            "is_pregnant",
+            "is_lactating",
+            "context_evidence",
+            "warnings",
         )
     elif section in {"Rx", "Adv"}:
         return _json_safe(patient_context)
     else:
         keys = (
-            "age_years", "gender", "is_child", "is_elderly", "is_pregnant",
-            "is_lactating", "active_conditions", "warnings",
+            "age_years",
+            "gender",
+            "is_child",
+            "is_elderly",
+            "is_pregnant",
+            "is_lactating",
+            "active_conditions",
+            "warnings",
         )
-    return {
-        key: _json_safe(patient_context[key])
-        for key in keys
-        if key in patient_context
-    }
+    return {key: _json_safe(patient_context[key]) for key in keys if key in patient_context}
 
 
 def _candidate_fact_selectors(
@@ -368,9 +376,7 @@ def _relevant_medicine_facts(
         fact_section = str(result.get("section", "") or "").strip()
         if generic_id not in selectors:
             continue
-        has_explicit_source = any(
-            kind == "source_field" for kind, _ in selectors[generic_id]
-        )
+        has_explicit_source = any(kind == "source_field" for kind, _ in selectors[generic_id])
         if fact_section and fact_section != section and not has_explicit_source:
             continue
         selected_facts = []
@@ -410,8 +416,7 @@ def _medicine_matches_candidate(
         return True
 
     candidate_text = " ".join(
-        str(candidate.get(key, "") or "")
-        for key in ("evidence", "generic_name", "brand_name", "medicine_name")
+        str(candidate.get(key, "") or "") for key in ("evidence", "generic_name", "brand_name", "medicine_name")
     ).casefold()
     if not candidate_text.strip():
         return False
@@ -459,11 +464,7 @@ def _followup_slice(section: str, followup_context: Mapping[str, Any]) -> dict[s
         )
     else:
         return {}
-    return {
-        key: _json_safe(followup_context[key])
-        for key in keys
-        if key in followup_context
-    }
+    return {key: _json_safe(followup_context[key]) for key in keys if key in followup_context}
 
 
 def _relevant_protocol_rules(
@@ -524,10 +525,7 @@ def build_audit_tasks(
 ) -> dict[str, Any]:
     """Build compact tasks for candidate sections, preserving section order."""
     normalized = _normalized_prescription(prescription)
-    grouped = {
-        section: list(candidates_by_section.get(section, []) or [])
-        for section in SECTIONS
-    }
+    grouped = {section: list(candidates_by_section.get(section, []) or []) for section in SECTIONS}
     has_candidates = any(grouped.values())
     tasks: list[dict[str, Any]] = []
     skipped: list[dict[str, str]] = []
@@ -536,9 +534,7 @@ def build_audit_tasks(
     if not has_candidates:
         return {
             "tasks": [],
-            "skipped_sections": [
-                {"section": section, "reason": "no_candidates"} for section in SECTIONS
-            ],
+            "skipped_sections": [{"section": section, "reason": "no_candidates"} for section in SECTIONS],
             "warnings": [],
         }
 
@@ -554,17 +550,13 @@ def build_audit_tasks(
             "clinical_evidence": _clinical_slice(section, clinical_evidence),
             "patient_context": _context_slice(section, patient_context),
             "candidates": _json_safe(candidates),
-            "medicine_facts": _relevant_medicine_facts(
-                section, candidates, normalized_medicines, medicine_facts
-            ),
+            "medicine_facts": _relevant_medicine_facts(section, candidates, normalized_medicines, medicine_facts),
             "followup_context": _followup_slice(section, followup_context),
             "instructions": _instructions(section, candidates, protocol),
             "output_schema": _json_safe(_OUTPUT_SCHEMA),
         }
         if section in {"Rx", "Adv"}:
-            task["normalized_medicines"] = _relevant_medicines(
-                section, candidates, normalized_medicines
-            )
+            task["normalized_medicines"] = _relevant_medicines(section, candidates, normalized_medicines)
         tasks.append(task)
 
     for section in candidates_by_section:

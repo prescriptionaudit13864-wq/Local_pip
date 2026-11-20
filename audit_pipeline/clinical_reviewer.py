@@ -8,6 +8,7 @@ the prompt describes what a careful physician looks for, and the model decides.
 
 Prototype and tests: benchmark/clinical_reviewer_prototype.py (results in benchmark/results/).
 """
+
 from __future__ import annotations
 
 import json
@@ -24,14 +25,20 @@ SECTIONS: list[tuple[str, str, str, str]] = [
     ("rx", "medicine", "Medication", "Medicines"),
     ("advice", "advice", "Advice", "Advice"),
 ]
-_CONTEXT_FIELDS = [("Screening", "Health_Screening"), ("On examination", "On_Examination"),
-                   ("Systemic examination", "Systemic_Examination"), ("Investigation results", "Investigation_Results"),
-                   ("Antenatal notes", "ANC_Notes")]
+_CONTEXT_FIELDS = [
+    ("Screening", "Health_Screening"),
+    ("On examination", "On_Examination"),
+    ("Systemic examination", "Systemic_Examination"),
+    ("Investigation results", "Investigation_Results"),
+    ("Antenatal notes", "ANC_Notes"),
+]
 _LIST_SPLIT = {"Medication", "Diagnosis", "Investigation", "Advice"}
 
-SYSTEM = ("You are an experienced general physician in Bangladesh checking another doctor's prescription while it is "
-          "being written. You report only real problems that a careful senior colleague would point out, you state "
-          "medical facts only when you are sure of them, and you never invent problems.")
+SYSTEM = (
+    "You are an experienced general physician in Bangladesh checking another doctor's prescription while it is "
+    "being written. You report only real problems that a careful senior colleague would point out, you state "
+    "medical facts only when you are sure of them, and you never invent problems."
+)
 
 TASK = """Check the {title} section ({names}). Use the rest of the prescription only as context.
 
@@ -90,8 +97,15 @@ An entry with no real problem has "problems": []."""
 # are judged by the fine-tuned first check instead and are kept in the response as "hidden" for inspection.
 # Second test (live_review_probe_v5.log): "interaction", "unexplained" and "no_reason" were mostly wrong on correct
 # prescriptions and are judged by the first check (Rx.ddi/Rx.contra, Dx.cc.1, Inv.*), so they are hidden too.
-SHOWN_TYPES = {"sex_age_anatomy", "side_missing", "severity_missing", "contradiction", "implausible",
-               "unsafe_for_patient", "antibiotic_duration"}
+SHOWN_TYPES = {
+    "sex_age_anatomy",
+    "side_missing",
+    "severity_missing",
+    "contradiction",
+    "implausible",
+    "unsafe_for_patient",
+    "antibiotic_duration",
+}
 # Severity is asked of complaints, not of tests, diagnoses or advice.
 _TYPE_SECTIONS = {"severity_missing": {"chiefComplaints"}}
 
@@ -137,8 +151,14 @@ def prescription_text(row: Mapping[str, Any], upto: str | None = None) -> tuple[
     return "\n".join(lines), unwritten
 
 
-def build_messages(row: Mapping[str, Any], section_key: str, *, drug_facts: str = "",
-                   hints: Iterable[str] = (), already: Iterable[str] = ()) -> list[dict[str, str]]:
+def build_messages(
+    row: Mapping[str, Any],
+    section_key: str,
+    *,
+    drug_facts: str = "",
+    hints: Iterable[str] = (),
+    already: Iterable[str] = (),
+) -> list[dict[str, str]]:
     _skey, name, _field, title = section_info(section_key)
     text, unwritten = prescription_text(row, upto=section_key)
     hints, already = list(hints), list(already)
@@ -146,8 +166,13 @@ def build_messages(row: Mapping[str, Any], section_key: str, *, drug_facts: str 
     if drug_facts:
         user += f"\n\nDrug facts (from the drug database):\n{drug_facts}"
     if hints:
-        user += "\n\nRule-checker hints (simple automatic rules, may be wrong; confirm only real problems):\n" + "\n".join(f"- {h}" for h in hints)
-    user += "\n\nAlready reported by the first check (do not repeat):\n" + ("\n".join(f"- {a}" for a in already) if already else "- nothing")
+        user += (
+            "\n\nRule-checker hints (simple automatic rules, may be wrong; confirm only real problems):\n"
+            + "\n".join(f"- {h}" for h in hints)
+        )
+    user += "\n\nAlready reported by the first check (do not repeat):\n" + (
+        "\n".join(f"- {a}" for a in already) if already else "- nothing"
+    )
     count = len(_entries(_field, str(row.get(_field, "") or ""))) or 1
     user += "\n\n" + TASK.format(title=title.lower(), names=name, unwritten=", ".join(unwritten) or "none", count=count)
     return [{"role": "system", "content": SYSTEM}, {"role": "user", "content": user}]
@@ -167,8 +192,9 @@ detail that would not change care.
 Answer with JSON only: {{"keep": [numbers of the real errors]}} (an empty list if none)."""
 
 
-def build_verify_messages(row: Mapping[str, Any], section_key: str, problems: list[dict[str, str]],
-                          drug_facts: str = "") -> list[dict[str, str]]:
+def build_verify_messages(
+    row: Mapping[str, Any], section_key: str, problems: list[dict[str, str]], drug_facts: str = ""
+) -> list[dict[str, str]]:
     """Second look by the same model: each listed problem is re-judged, and only those it keeps are shown. This
     replaces the alert-fatigue filters a hand-written rule would otherwise need."""
     _skey, _name, _field, title = section_info(section_key)
@@ -176,8 +202,10 @@ def build_verify_messages(row: Mapping[str, Any], section_key: str, problems: li
     if drug_facts:
         text += f"\n\nDrug facts (from the drug database):\n{drug_facts}"
     listing = "\n".join(f"{i}. [{p['severity']}] {p['entry']}: {p['problem']}" for i, p in enumerate(problems, 1))
-    return [{"role": "system", "content": SYSTEM},
-            {"role": "user", "content": text + "\n\n" + VERIFY.format(title=title.lower(), listing=listing)}]
+    return [
+        {"role": "system", "content": SYSTEM},
+        {"role": "user", "content": text + "\n\n" + VERIFY.format(title=title.lower(), listing=listing)},
+    ]
 
 
 def _first_json(text: str) -> Any:
@@ -219,8 +247,13 @@ def parse_problems(text: str) -> list[dict[str, str]]:
         return []
     # Entry-by-entry answer {"entries": [{"entry", "problems": [...]}]}: flatten, each problem keeps its entry.
     if isinstance(data.get("entries"), list):
-        problems = [{**p, "entry": str(e.get("entry", ""))} for e in data["entries"] if isinstance(e, Mapping)
-                    for p in (e.get("problems") or []) if isinstance(p, Mapping)]
+        problems = [
+            {**p, "entry": str(e.get("entry", ""))}
+            for e in data["entries"]
+            if isinstance(e, Mapping)
+            for p in (e.get("problems") or [])
+            if isinstance(p, Mapping)
+        ]
     else:
         problems = data.get("problems", [])
     out = []
@@ -228,17 +261,26 @@ def parse_problems(text: str) -> list[dict[str, str]]:
         if not isinstance(p, Mapping) or not str(p.get("problem", "")).strip():
             continue
         severity = str(p.get("severity", "review")).strip().casefold()
-        out.append({"entry": str(p.get("entry", "")).strip(), "problem": str(p.get("problem", "")).strip(),
-                    "severity": severity if severity in {"critical", "review", "documentation"} else "review",
-                    "type": str(p.get("type", "other")).strip().casefold() or "other"})
+        out.append(
+            {
+                "entry": str(p.get("entry", "")).strip(),
+                "problem": str(p.get("problem", "")).strip(),
+                "severity": severity if severity in {"critical", "review", "documentation"} else "review",
+                "type": str(p.get("type", "other")).strip().casefold() or "other",
+            }
+        )
     return out
 
 
-def split_shown(problems: list[dict[str, str]], section_key: str = "") -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+def split_shown(
+    problems: list[dict[str, str]], section_key: str = ""
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
     """(shown, hidden) by the model's own type label: only the reliably judged types are shown."""
+
     def ok(p: dict[str, str]) -> bool:
         kind = p.get("type", "")
         return kind in SHOWN_TYPES and (kind not in _TYPE_SECTIONS or section_key in _TYPE_SECTIONS[kind])
+
     return [p for p in problems if ok(p)], [p for p in problems if not ok(p)]
 
 

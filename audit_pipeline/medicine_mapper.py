@@ -64,9 +64,7 @@ _STRENGTH = re.compile(
     re.IGNORECASE,
 )
 _MG_STRENGTH = re.compile(r"(\d+(?:\.\d+)?)\s*mg\b", re.IGNORECASE)
-_STRENGTH_VALUE_UNIT = re.compile(
-    r"(\d+(?:\.\d+)?)\s*(mcg|mg|gm|g|ml|iu|%)\b", re.IGNORECASE
-)
+_STRENGTH_VALUE_UNIT = re.compile(r"(\d+(?:\.\d+)?)\s*(mcg|mg|gm|g|ml|iu|%)\b", re.IGNORECASE)
 _FREQUENCY_PARENS = re.compile(r"\(([^()]*)\)")
 _INSTRUCTION_BRACKETS = re.compile(r"\[([^\[\]]+)\]\s*$")
 _INSTRUCTION_JSON = re.compile(
@@ -82,13 +80,7 @@ def _clean(value: Any) -> str:
 
 def _key(value: Any) -> str:
     """Case-insensitive exact key; spaces and hyphens are equivalent."""
-    text = (
-        _clean(value)
-        .casefold()
-        .replace("\\'", "'")
-        .replace("\\’", "'")
-        .replace("’", "'")
-    )
+    text = _clean(value).casefold().replace("\\'", "'").replace("\\’", "'").replace("’", "'")
     return re.sub(r"[\s-]+", " ", text).strip()
 
 
@@ -232,9 +224,7 @@ def _dose_calculation(
         else None
     )
     reason = frequency.get("reason", "")
-    liquid_daily, liquid_reason = _liquid_daily_dose_mg(
-        raw, fallback_strength, frequency, spoon_ml=spoon_ml
-    )
+    liquid_daily, liquid_reason = _liquid_daily_dose_mg(raw, fallback_strength, frequency, spoon_ml=spoon_ml)
     if daily is None and liquid_daily is not None:
         daily = liquid_daily
         reason = "liquid mg/day calculated from mg/ml strength"
@@ -267,7 +257,6 @@ def _dose_calculation(
     }
 
 
-
 def _is_liquid_strength(value: Any) -> bool:
     return bool(re.search(r"/\s*\d*(?:\.\d+)?\s*ml\b", _clean(value), re.IGNORECASE))
 
@@ -275,6 +264,7 @@ def _is_liquid_strength(value: Any) -> bool:
 def _is_plain_mg_strength(value: Any) -> bool:
     text = _clean(value)
     return bool(re.search(r"\b\d+(?:\.\d+)?\s*mg\b", text, re.IGNORECASE)) and not _is_liquid_strength(text)
+
 
 def _written_form(raw: str) -> str:
     head = _key(_before_dose_parentheses(raw))
@@ -323,11 +313,7 @@ def _unmatched_head(raw: str) -> str:
 
 
 def _generic_core_key(value: Any) -> str:
-    tokens = [
-        token
-        for token in _key(value).split()
-        if token and token not in _SALT_WORDS and token != "+"
-    ]
+    tokens = [token for token in _key(value).split() if token and token not in _SALT_WORDS and token != "+"]
     return " ".join(tokens)
 
 
@@ -405,10 +391,7 @@ class MedicineMapper:
         This is intentionally used only when the identity maps to one generic
         monograph. It must never turn a similar-looking ingredient into a match.
         """
-        components = [
-            _generic_core_key(component)
-            for component in re.split(r"\s*\+\s*", _clean(value))
-        ]
+        components = [_generic_core_key(component) for component in re.split(r"\s*\+\s*", _clean(value))]
         return " + ".join(sorted(component for component in components if component))
 
     def _resolve_generic_identity(self, value: Any) -> tuple[str, str]:
@@ -469,9 +452,7 @@ class MedicineMapper:
                 continue
             rule = _AliasRule(
                 aliases=aliases,
-                generic_name_candidates=self._as_tuple(
-                    row.get("generic_name_candidates") or row.get("generic_name")
-                ),
+                generic_name_candidates=self._as_tuple(row.get("generic_name_candidates") or row.get("generic_name")),
                 known_supportive_item=bool(row.get("known_supportive_item", False)),
                 supportive_type=_clean(row.get("supportive_type")),
                 requires_meal_timing=bool(row.get("requires_meal_timing", True)),
@@ -519,9 +500,7 @@ class MedicineMapper:
                 )
             )
             form_key = _key(row.dosage_form)
-            form_match = bool(
-                wanted_form and (wanted_form in form_key or form_key in wanted_form)
-            )
+            form_match = bool(wanted_form and (wanted_form in form_key or form_key in wanted_form))
             return int(strength_match), int(form_match), _solid_form_prior(row, raw)
 
         return max(candidates, key=score)
@@ -574,14 +553,10 @@ class MedicineMapper:
         for component in components:
             strength_mg = component.get("strength_mg")
             component["calculated_daily_dose_mg"] = (
-                round(float(strength_mg) * units, 3)
-                if strength_mg is not None and units is not None
-                else None
+                round(float(strength_mg) * units, 3) if strength_mg is not None and units is not None else None
             )
             component["calculated_max_per_administration_mg"] = (
-                round(float(strength_mg) * max_units, 3)
-                if strength_mg is not None and max_units is not None
-                else None
+                round(float(strength_mg) * max_units, 3) if strength_mg is not None and max_units is not None else None
             )
         result["component_strengths"] = components
         primary = components[0] if components else {}
@@ -657,8 +632,7 @@ class MedicineMapper:
             generic_keys = [
                 generic_key
                 for generic_key in self._generic_ids
-                if generic_key.startswith(core + " ")
-                or _generic_core_key(generic_key) == core
+                if generic_key.startswith(core + " ") or _generic_core_key(generic_key) == core
             ]
         if not generic_keys:
             return None
@@ -688,24 +662,14 @@ class MedicineMapper:
                 )
             )
             form_key = _key(row.dosage_form)
-            form_match = bool(
-                wanted_form and (wanted_form in form_key or form_key in wanted_form)
-            )
+            form_match = bool(wanted_form and (wanted_form in form_key or form_key in wanted_form))
             return int(strength_match), int(form_match), _solid_form_prior(row, raw)
 
         scored = [(score(row), row) for row in rows]
         best_score = max((item[0] for item in scored), default=(0, 0))
         best_rows = [row for row_score, row in scored if row_score == best_score]
-        best_generic_keys = {
-            _key(row.generic_name)
-            for row in best_rows
-            if _key(row.generic_name) in self._generic_ids
-        }
-        all_generic_keys = {
-            _key(row.generic_name)
-            for row in rows
-            if _key(row.generic_name) in self._generic_ids
-        }
+        best_generic_keys = {_key(row.generic_name) for row in best_rows if _key(row.generic_name) in self._generic_ids}
+        all_generic_keys = {_key(row.generic_name) for row in rows if _key(row.generic_name) in self._generic_ids}
         safe_keys = best_generic_keys if any(best_score) else all_generic_keys
 
         if len(safe_keys) == 1:
@@ -723,8 +687,7 @@ class MedicineMapper:
                 "matched": True,
                 "match_confidence": "inferred_high",
                 "matching_reason": (
-                    "unambiguous generic-core match"
-                    + (" with strength/form support" if any(best_score) else "")
+                    "unambiguous generic-core match" + (" with strength/form support" if any(best_score) else "")
                 ),
                 "candidate_matches": self._candidate_matches(candidates or rows),
             }
@@ -761,8 +724,7 @@ class MedicineMapper:
             generic_keys = [
                 generic_key
                 for generic_key in self._generic_ids
-                if _looks_like_combo_name(generic_key)
-                and _generic_combo_key(generic_key) == combo
+                if _looks_like_combo_name(generic_key) and _generic_combo_key(generic_key) == combo
             ]
         if not generic_keys:
             return None
@@ -798,16 +760,8 @@ class MedicineMapper:
         scored = [(score(row), row) for row in rows]
         best_score = max((item[0] for item in scored), default=(0, 0, 0))
         best_rows = [row for row_score, row in scored if row_score == best_score]
-        best_generic_keys = {
-            _key(row.generic_name)
-            for row in best_rows
-            if _key(row.generic_name) in self._generic_ids
-        }
-        all_generic_keys = {
-            _key(row.generic_name)
-            for row in rows
-            if _key(row.generic_name) in self._generic_ids
-        }
+        best_generic_keys = {_key(row.generic_name) for row in best_rows if _key(row.generic_name) in self._generic_ids}
+        all_generic_keys = {_key(row.generic_name) for row in rows if _key(row.generic_name) in self._generic_ids}
         safe_keys = best_generic_keys if any(best_score) else all_generic_keys
 
         if len(safe_keys) == 1:

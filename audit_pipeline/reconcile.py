@@ -8,8 +8,11 @@ _STOP = {"the", "and", "for", "with", "that", "this", "from", "should", "not"}
 
 
 def _tokens(finding: Finding) -> set[str]:
-    return {word for word in re.findall(r"[a-z0-9]+", f"{finding.evidence} {finding.why}".lower())
-            if len(word) > 2 and word not in _STOP}
+    return {
+        word
+        for word in re.findall(r"[a-z0-9]+", f"{finding.evidence} {finding.why}".lower())
+        if len(word) > 2 and word not in _STOP
+    }
 
 
 def reconcile(findings: list[Finding], order: tuple[str, ...]) -> tuple[list[Finding], list[str]]:
@@ -29,4 +32,3 @@ def reconcile(findings: list[Finding], order: tuple[str, ...]) -> tuple[list[Fin
             roots.append((finding, tokens))
     summary = [f"{item.section} [{item.concern_id}]: {item.why}" for item, _ in roots]
     return ordered, summary
-

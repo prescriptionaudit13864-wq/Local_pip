@@ -10,9 +10,26 @@ LOW_VALUE_FACT_TYPES = {"storage"}
 LOW_VALUE_RULE_PREFIXES = ("medicine_storage",)
 SAFE_SHORT_ALIASES = {"tb", "uti", "dm", "htn", "ckd", "copd", "hiv", "aom", "ari"}
 ALIAS_STOPWORDS = {
-    "normal", "absent", "present", "high", "low", "mild", "moderate",
-    "severe", "pain", "fever", "headache", "cough", "rash", "nausea",
-    "vomiting", "diarrhea", "diarrhoea", "weakness", "bodyache", "dizziness",
+    "normal",
+    "absent",
+    "present",
+    "high",
+    "low",
+    "mild",
+    "moderate",
+    "severe",
+    "pain",
+    "fever",
+    "headache",
+    "cough",
+    "rash",
+    "nausea",
+    "vomiting",
+    "diarrhea",
+    "diarrhoea",
+    "weakness",
+    "bodyache",
+    "dizziness",
 }
 NON_CONDITION_ALIASES = {
     "adult",
@@ -35,17 +52,112 @@ NON_CONDITION_ALIASES = {
     "women",
 }
 SYMPTOM_STOPWORDS = {
-    "with", "without", "from", "after", "before", "normal", "absent", "present",
-    "patient", "history", "diagnosis", "chief", "complaint", "blood", "pressure",
-    "pulse", "rate", "temperature", "advice", "medication", "examination", "screening",
-    "days", "day", "weeks", "week", "month", "months", "years", "year", "mild",
-    "moderate", "severe", "male", "female", "high", "low", "nad",
+    "with",
+    "without",
+    "from",
+    "after",
+    "before",
+    "normal",
+    "absent",
+    "present",
+    "patient",
+    "history",
+    "diagnosis",
+    "chief",
+    "complaint",
+    "blood",
+    "pressure",
+    "pulse",
+    "rate",
+    "temperature",
+    "advice",
+    "medication",
+    "examination",
+    "screening",
+    "days",
+    "day",
+    "weeks",
+    "week",
+    "month",
+    "months",
+    "years",
+    "year",
+    "mild",
+    "moderate",
+    "severe",
+    "male",
+    "female",
+    "high",
+    "low",
+    "nad",
 }
 SECTION_RELEVANT_FACT_TYPES = {
-    "Dx": {"definition", "case_definition", "clinical_presentation", "symptom", "symptom_criteria", "diagnostic_clue", "diagnostic_criteria", "differential_diagnosis", "likely_pathogen", "risk_factor", "red_flag", "warning_sign", "test_interpretation", "pharmacology", "drug_class"},
-    "Inv": {"recommended_investigation", "diagnostic_test", "test_interpretation", "investigation_not_needed", "imaging_not_needed", "screening_criteria", "specimen_collection", "culture_or_sensitivity", "monitoring"},
-    "Rx": {"recommended_medicine", "alternative_medicine", "avoid_medicine", "no_antibiotic_care", "antibiotic_indication", "dose_or_duration", "route_or_site", "treatment_regimen", "weight_band_dose", "contraindication", "caution", "interaction", "precaution", "pregnancy_lactation", "pediatric_rule", "overdose", "lactation_safety", "pregnancy_safety", "aware_classification", "spectrum", "coverage", "monitoring", "indication"},
-    "Adv": {"recommended_advice", "diet_advice", "exercise_advice", "lifestyle_advice", "followup", "referral_criteria", "admission_criteria", "infection_control", "public_health", "recording_reporting", "specimen_collection"},
+    "Dx": {
+        "definition",
+        "case_definition",
+        "clinical_presentation",
+        "symptom",
+        "symptom_criteria",
+        "diagnostic_clue",
+        "diagnostic_criteria",
+        "differential_diagnosis",
+        "likely_pathogen",
+        "risk_factor",
+        "red_flag",
+        "warning_sign",
+        "test_interpretation",
+        "pharmacology",
+        "drug_class",
+    },
+    "Inv": {
+        "recommended_investigation",
+        "diagnostic_test",
+        "test_interpretation",
+        "investigation_not_needed",
+        "imaging_not_needed",
+        "screening_criteria",
+        "specimen_collection",
+        "culture_or_sensitivity",
+        "monitoring",
+    },
+    "Rx": {
+        "recommended_medicine",
+        "alternative_medicine",
+        "avoid_medicine",
+        "no_antibiotic_care",
+        "antibiotic_indication",
+        "dose_or_duration",
+        "route_or_site",
+        "treatment_regimen",
+        "weight_band_dose",
+        "contraindication",
+        "caution",
+        "interaction",
+        "precaution",
+        "pregnancy_lactation",
+        "pediatric_rule",
+        "overdose",
+        "lactation_safety",
+        "pregnancy_safety",
+        "aware_classification",
+        "spectrum",
+        "coverage",
+        "monitoring",
+        "indication",
+    },
+    "Adv": {
+        "recommended_advice",
+        "diet_advice",
+        "exercise_advice",
+        "lifestyle_advice",
+        "followup",
+        "referral_criteria",
+        "admission_criteria",
+        "infection_control",
+        "public_health",
+        "recording_reporting",
+        "specimen_collection",
+    },
 }
 
 
@@ -73,7 +185,6 @@ def phrase_in_text(phrase: str, text: str) -> bool:
     return phrase in text
 
 
-
 def symptom_tokens(text: str) -> set[str]:
     """Extract conservative symptom/evidence tokens for textbook fallback retrieval."""
     text = normalize_text(text)
@@ -97,15 +208,25 @@ def symptom_overlap(query_text: str, fact: dict[str, Any]) -> set[str]:
 
 
 _CATEGORY_WORDS = {
-    "i": "1", "ii": "2", "iii": "3", "iv": "4", "v": "5",
-    "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+    "i": "1",
+    "ii": "2",
+    "iii": "3",
+    "iv": "4",
+    "v": "5",
+    "one": "1",
+    "two": "2",
+    "three": "3",
+    "four": "4",
+    "five": "5",
 }
 
 
 def category_markers(text: str) -> set[str]:
     norm = normalize_text(text)
     markers: set[str] = set()
-    for match in re.finditer(r"\b(?:category|cat|grade|stage|group|class)\s*(i{1,3}|iv|v|[1-5]|one|two|three|four|five)\b", norm):
+    for match in re.finditer(
+        r"\b(?:category|cat|grade|stage|group|class)\s*(i{1,3}|iv|v|[1-5]|one|two|three|four|five)\b", norm
+    ):
         value = match.group(1).casefold()
         markers.add(_CATEGORY_WORDS.get(value, value))
     return markers
@@ -122,10 +243,7 @@ def _source_condition_match_score(fact: dict[str, Any]) -> int:
     if not condition or condition in NON_CONDITION_ALIASES:
         return 0
     source_text = normalize_text(
-        " ".join(
-            str(fact.get(key) or "")
-            for key in ("source_id", "source_title", "source_guideline", "profile")
-        )
+        " ".join(str(fact.get(key) or "") for key in ("source_id", "source_title", "source_guideline", "profile"))
     )
     if not source_text:
         return 0
@@ -139,6 +257,7 @@ def _source_condition_match_score(fact: dict[str, Any]) -> int:
     if condition_tokens and any(token in source_text for token in condition_tokens):
         return 20
     return 0
+
 
 def listify(value: Any) -> list[str]:
     if value is None or value == "":
@@ -218,12 +337,7 @@ class GuidelineRAG:
         out = []
         for alias in aliases:
             clean = normalize_text(alias)
-            if (
-                clean
-                and clean not in ALIAS_STOPWORDS
-                and clean not in NON_CONDITION_ALIASES
-                and clean not in seen
-            ):
+            if clean and clean not in ALIAS_STOPWORDS and clean not in NON_CONDITION_ALIASES and clean not in seen:
                 seen.add(clean)
                 out.append(clean)
         return out
@@ -259,7 +373,9 @@ class GuidelineRAG:
                 continue
             matched_conditions.add(alias)
             for fact in facts:
-                score = self._score_fact(fact, alias, in_clinical, in_medicine, section, include_context_only, query_text, med_text)
+                score = self._score_fact(
+                    fact, alias, in_clinical, in_medicine, section, include_context_only, query_text, med_text
+                )
                 if score <= 0:
                     continue
                 fid = fact.get("fact_id") or json.dumps(fact, ensure_ascii=False, sort_keys=True)
@@ -271,7 +387,15 @@ class GuidelineRAG:
         if section in {"Dx", "Inv", None}:
             self._add_textbook_symptom_candidates(candidates, query_text, section, include_context_only)
 
-        ranked = sorted(candidates.values(), key=lambda x: (-x[0], int(x[1].get("source_priority") or 99), x[1].get("source_id", ""), x[1].get("fact_type", "")))
+        ranked = sorted(
+            candidates.values(),
+            key=lambda x: (
+                -x[0],
+                int(x[1].get("source_priority") or 99),
+                x[1].get("source_id", ""),
+                x[1].get("fact_type", ""),
+            ),
+        )
         facts = []
         for score, fact, aliases in ranked[:limit]:
             item = dict(fact)
@@ -282,7 +406,6 @@ class GuidelineRAG:
         if not facts:
             warnings.append("no guideline facts matched exact condition/alias terms")
         return RetrievalResult(facts, sorted(matched_conditions), warnings)
-
 
     def _add_textbook_symptom_candidates(
         self,
@@ -304,7 +427,18 @@ class GuidelineRAG:
                 continue
             if not (fact_relevant_to_section(fact, "Dx") or fact_relevant_to_section(fact, "Inv")):
                 continue
-            if not include_context_only and fact.get("candidate_strength") == "context_only" and fact.get("fact_type") not in {"diagnostic_clue", "differential_diagnosis", "red_flag", "recommended_action", "recommended_investigation"}:
+            if (
+                not include_context_only
+                and fact.get("candidate_strength") == "context_only"
+                and fact.get("fact_type")
+                not in {
+                    "diagnostic_clue",
+                    "differential_diagnosis",
+                    "red_flag",
+                    "recommended_action",
+                    "recommended_investigation",
+                }
+            ):
                 continue
             overlap = symptom_overlap(query_text, fact)
             if len(overlap) < 2:
@@ -324,7 +458,17 @@ class GuidelineRAG:
             else:
                 candidates[fid][2].update(aliases)
 
-    def _score_fact(self, fact: dict[str, Any], alias: str, in_clinical: bool, in_medicine: bool, section: str | None, include_context_only: bool, query_text: str = "", med_text: str = "") -> int:
+    def _score_fact(
+        self,
+        fact: dict[str, Any],
+        alias: str,
+        in_clinical: bool,
+        in_medicine: bool,
+        section: str | None,
+        include_context_only: bool,
+        query_text: str = "",
+        med_text: str = "",
+    ) -> int:
         fact_type = str(fact.get("fact_type") or "")
         rule_focus = str(fact.get("rule_focus") or "")
         if fact_type in LOW_VALUE_FACT_TYPES or rule_focus.startswith(LOW_VALUE_RULE_PREFIXES):
@@ -365,7 +509,16 @@ class GuidelineRAG:
             if normalize_text(term) not in NON_CONDITION_ALIASES
         ]
         condition_hit = any(phrase_in_text(term, query_text) for term in condition_terms)
-        medicine_hit = any(phrase_in_text(term, med_text) for term in [fact.get("medicine_name", ""), fact.get("generic_name", ""), *listify(fact.get("recommended_medicines")), *listify(fact.get("alternative_medicines")), *listify(fact.get("avoid_medicines"))])
+        medicine_hit = any(
+            phrase_in_text(term, med_text)
+            for term in [
+                fact.get("medicine_name", ""),
+                fact.get("generic_name", ""),
+                *listify(fact.get("recommended_medicines")),
+                *listify(fact.get("alternative_medicines")),
+                *listify(fact.get("avoid_medicines")),
+            ]
+        )
         if section in {"Rx", "Adv"} and condition_hit and medicine_hit:
             # Exact disease + exact current medicine is the most precise hit.
             score += 70
@@ -402,7 +555,6 @@ class GuidelineRAG:
         if fact.get("local_applicability") == "fallback_only":
             score -= 20
         return score
-
 
 
 def medicine_query_text(raw_medication_text: str = "", normalized_medicines: list[dict[str, Any]] | None = None) -> str:

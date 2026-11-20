@@ -9,6 +9,7 @@
 
 Prints each answer's alerts and the exact fields the model was given for that section.
 """
+
 from __future__ import annotations
 
 import json
@@ -33,8 +34,15 @@ def visit_with(entries: dict, upto: str | None) -> dict:
 def main() -> None:
     n, target = int(_args[0]), _args[1]
     title, sex, age, entries, _exp, _gap = CASES[n - 1]
-    patient = {"id": 970000 + n, "serial": f"ORDER-{n:03d}", "name": f"Order {n}", "gender": sex,
-               "dob": date(date.today().year - age, 1, 1).isoformat(), "ageValue": age, "ageUnit": "years"}
+    patient = {
+        "id": 970000 + n,
+        "serial": f"ORDER-{n:03d}",
+        "name": f"Order {n}",
+        "gender": sex,
+        "dob": date(date.today().year - age, 1, 1).isoformat(),
+        "ageValue": age,
+        "ageUnit": "years",
+    }
     print(f"=== {n}. {title}: section {target}")
     for label, upto in (("as live", target), ("complete", None), ("repeated", target)):
         body, secs = post({"patient": patient, "visit": visit_with(entries, upto), "section": target, "revision": 1})
@@ -42,8 +50,12 @@ def main() -> None:
         alerts = [(a.get("rule_id"), a.get("why")) for a in (live.get("findings") or []) if isinstance(a, dict)]
         print(f"\n-- {label} ({secs:.1f}s): {alerts or 'no alerts'}")
         if label != "repeated":
-            fields = (body.get("pipeline_input") or {})
-            shown = {k: v for k, v in fields.items() if isinstance(v, str) and v.strip()} if isinstance(fields, dict) else {}
+            fields = body.get("pipeline_input") or {}
+            shown = (
+                {k: v for k, v in fields.items() if isinstance(v, str) and v.strip()}
+                if isinstance(fields, dict)
+                else {}
+            )
             print("   fields sent:", json.dumps(shown, ensure_ascii=False)[:700])
 
 

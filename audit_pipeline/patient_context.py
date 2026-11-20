@@ -88,9 +88,7 @@ _REACTION_AFTER_DRUG = re.compile(
     r"(?:rash|urticaria|hives|angioedema|anaphylaxis|hypersensitivity|allergic\s+reaction)\b",
     re.IGNORECASE,
 )
-_NEGATED_FINDING_PREFIX = re.compile(
-    r"\b(?:no|without|denies|denied)\s*$", re.IGNORECASE
-)
+_NEGATED_FINDING_PREFIX = re.compile(r"\b(?:no|without|denies|denied)\s*$", re.IGNORECASE)
 _NEGATED_FINDING_SUFFIX = re.compile(
     r"^\s*(?:[.:-]\s*)?(?:\(\s*-\s*\)|"
     r"\(?\s*(?:absent|negative|normal|nad)\s*\)?)",
@@ -118,10 +116,7 @@ def _text(value: Any) -> str:
 
 
 def _normalized_record(record: Mapping[str, Any]) -> dict[str, Any]:
-    return {
-        _FIELD_ALIASES.get(str(key).strip(), str(key).strip()): value
-        for key, value in record.items()
-    }
+    return {_FIELD_ALIASES.get(str(key).strip(), str(key).strip()): value for key, value in record.items()}
 
 
 def _parse_age_years(value: Any) -> float | None:
@@ -246,10 +241,7 @@ def _match_is_negated(text: str, match: re.Match[str]) -> bool:
     """Recognize simple local negation without inferring clinical meaning."""
     prefix = text[max(0, match.start() - 24) : match.start()]
     suffix = text[match.end() : min(len(text), match.end() + 32)]
-    return bool(
-        _NEGATED_FINDING_PREFIX.search(prefix)
-        or _NEGATED_FINDING_SUFFIX.search(suffix)
-    )
+    return bool(_NEGATED_FINDING_PREFIX.search(prefix) or _NEGATED_FINDING_SUFFIX.search(suffix))
 
 
 def _field_risks(record: Mapping[str, Any]) -> list[dict[str, Any]]:
@@ -297,9 +289,7 @@ def _field_risks(record: Mapping[str, Any]) -> list[dict[str, Any]]:
         for match in _HEPATIC_DISEASE.finditer(text):
             if _match_is_negated(text, match):
                 continue
-            risks.append(
-                _risk_item("hepatic_impairment", source, match.group(0))
-            )
+            risks.append(_risk_item("hepatic_impairment", source, match.group(0)))
         for match in _ABNORMAL_LIVER_LAB.finditer(text):
             if _match_is_negated(text, match):
                 continue
@@ -318,7 +308,9 @@ def _field_risks(record: Mapping[str, Any]) -> list[dict[str, Any]]:
             for match in pattern.finditer(text):
                 if _match_is_negated(text, match):
                     continue
-                substance = (match.groupdict().get("substance") or match.groupdict().get("substance2") or "").strip(" .:-")
+                substance = (match.groupdict().get("substance") or match.groupdict().get("substance2") or "").strip(
+                    " .:-"
+                )
                 substance = re.sub(r"\s+(?:history|noted)$", "", substance, flags=re.IGNORECASE).strip(" .:-")
                 if not substance:
                     continue
@@ -354,14 +346,8 @@ def _context_risks(
     is_elderly: bool,
     age_text: str,
 ) -> list[dict[str, Any]]:
-    risks = [
-        _risk_item("pregnancy", item["source"], item["evidence"])
-        for item in pregnancy_evidence
-    ]
-    risks.extend(
-        _risk_item("lactation", item["source"], item["evidence"])
-        for item in lactation_evidence
-    )
+    risks = [_risk_item("pregnancy", item["source"], item["evidence"]) for item in pregnancy_evidence]
+    risks.extend(_risk_item("lactation", item["source"], item["evidence"]) for item in lactation_evidence)
     if is_child:
         risks.append(_risk_item("pediatric", "Age", age_text))
     if is_elderly:
@@ -405,11 +391,7 @@ def build_patient_context(
 ) -> dict[str, Any]:
     """Create normalized demographic and clinical context with provenance."""
     record = _normalized_record(prescription)
-    evidence = (
-        list(clinical_evidence)
-        if clinical_evidence is not None
-        else interpret_clinical_findings(record)
-    )
+    evidence = list(clinical_evidence) if clinical_evidence is not None else interpret_clinical_findings(record)
     warnings: list[str] = []
     age_years = _parse_age_years(record.get("Age", ""))
     if age_years is None:
@@ -422,9 +404,7 @@ def build_patient_context(
         _PREGNANCY,
         _PREGNANCY_NEGATION,
     )
-    pregnancy_evidence.extend(
-        _clinical_flag_evidence(evidence, "Health_Screening", _PREGNANCY)
-    )
+    pregnancy_evidence.extend(_clinical_flag_evidence(evidence, "Health_Screening", _PREGNANCY))
     lactation_evidence = _flag_evidence(
         record,
         ("Advice", "Diagnosis", "ANC_Notes"),
@@ -476,9 +456,7 @@ def build_patient_context(
         "active_conditions": _active_conditions(evidence),
         "patient_risks": patient_risks,
         "context_evidence": context_evidence,
-        "clinical_context_text": " ".join(
-            _text(record.get(source, "")) for source in _RISK_SOURCES
-        ),
+        "clinical_context_text": " ".join(_text(record.get(source, "")) for source in _RISK_SOURCES),
         "warnings": warnings,
     }
 

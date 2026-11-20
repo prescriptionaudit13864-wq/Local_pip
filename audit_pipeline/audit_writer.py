@@ -192,12 +192,7 @@ def build_audit_prompt(task: Mapping[str, Any], repair_instruction: str = "") ->
         ]
         if repair_instruction:
             lines.append(repair_instruction)
-        lines.extend(
-            [
-                "TASK_JSON="
-                + json.dumps(_compact_task(task), ensure_ascii=False, separators=(",", ":"))
-            ]
-        )
+        lines.extend(["TASK_JSON=" + json.dumps(_compact_task(task), ensure_ascii=False, separators=(",", ":"))])
         return "\n".join(lines)
 
     lines = [
@@ -270,8 +265,7 @@ def build_audit_prompt(task: Mapping[str, Any], repair_instruction: str = "") ->
             "or high-risk safety issues; major for important clinician/"
             "pharmacist review; moderate for relevant non-urgent review; minor "
             "for documentation/completeness issues.",
-            "Write corrections in audit/review language, not as direct treatment "
-            "orders.",
+            "Write corrections in audit/review language, not as direct treatment orders.",
             "Avoid direct imperatives such as: discontinue immediately, stop the "
             "medicine, prescribe a specific replacement, or switch to a named "
             "alternative.",
@@ -301,8 +295,7 @@ def build_audit_prompt(task: Mapping[str, Any], repair_instruction: str = "") ->
                 "mention hepatic impairment, liver function, contraindication, "
                 "or monitoring review. For unknown safety risks, use general "
                 "audit-review language.",
-                "Use urgent clinician/pharmacist review language only for "
-                "contraindicated or high-risk findings.",
+                "Use urgent clinician/pharmacist review language only for contraindicated or high-risk findings.",
             ]
         )
     if section == "Adv":
@@ -314,19 +307,14 @@ def build_audit_prompt(task: Mapping[str, Any], repair_instruction: str = "") ->
         )
     lines.extend(
         [
-            "Do not return diagnosis, explanation, markdown, bullets, or prose "
-            "outside JSON.",
-            "Do not include <think>, reasoning, chain-of-thought, analysis, "
-            "markdown, or prose. Output JSON only.",
+            "Do not return diagnosis, explanation, markdown, bullets, or prose outside JSON.",
+            "Do not include <think>, reasoning, chain-of-thought, analysis, markdown, or prose. Output JSON only.",
             f"REQUIRED_JSON_SKELETON={skeleton}",
             "If no candidate is a true error, return exactly " + empty_output,
             "Return only one valid JSON object and nothing else.",
         ]
     )
-    lines.append(
-        "TASK_JSON="
-        + json.dumps(_compact_task(task), ensure_ascii=False, separators=(",", ":"))
-    )
+    lines.append("TASK_JSON=" + json.dumps(_compact_task(task), ensure_ascii=False, separators=(",", ":")))
     return "\n".join(lines)
 
 
@@ -355,11 +343,7 @@ def _canonical_payload(value: Any, section: str, depth: int = 0) -> Mapping[str,
     for key in ("findings", "errors", "audit_findings", "detected_errors"):
         if key in value:
             findings = value[key]
-            return (
-                {"section": section, "findings": findings}
-                if isinstance(findings, list)
-                else empty
-            )
+            return {"section": section, "findings": findings} if isinstance(findings, list) else empty
 
     finding_keys = {
         "rule_name",
@@ -450,10 +434,7 @@ def _concern_level(value: Any, candidate: Mapping[str, Any]) -> str:
         )
     ):
         return "critical"
-    if any(
-        marker in combined
-        for marker in ("dose.high", "dose.weight", "strength.mismatch", "rag.avoid")
-    ):
+    if any(marker in combined for marker in ("dose.high", "dose.weight", "strength.mismatch", "rag.avoid")):
         return "major"
     # Display level only (the model decided the finding): something impossible for the patient's sex or age
     # (pregnancy in a man, hysterectomy in a man) is major in every section; complaint rules defaulted to "minor".
@@ -494,10 +475,7 @@ def _candidate_indexes(
 def _candidate_match_score(candidate: Mapping[str, Any], raw: Mapping[str, Any]) -> int:
     """Prefer the same per-item candidate when one rule has several items."""
     candidate_evidence = str(candidate.get("evidence", "") or "").casefold()
-    returned = " ".join(
-        str(raw.get(key, "") or "")
-        for key in ("evidence", "why", "correction")
-    ).casefold()
+    returned = " ".join(str(raw.get(key, "") or "") for key in ("evidence", "why", "correction")).casefold()
     if not candidate_evidence or not returned:
         return 0
     if candidate_evidence in returned or returned in candidate_evidence:
@@ -745,12 +723,17 @@ def _provider_rejected_candidate(raw: Mapping[str, Any], why: str, correction: s
         r"\b(confirm|continue|ensure documentation aligns|monitor|follow\s*up)\b",
         combined,
     )
-    if supportive and review_only and not re.search(
-        r"\b(no|missing|omits|lacks|contraindicat|avoid|exceeds|mismatch|inappropriate|unsafe|not\s+recommended|requires\s+review|risk)\b",
-        combined,
+    if (
+        supportive
+        and review_only
+        and not re.search(
+            r"\b(no|missing|omits|lacks|contraindicat|avoid|exceeds|mismatch|inappropriate|unsafe|not\s+recommended|requires\s+review|risk)\b",
+            combined,
+        )
     ):
         return True
     return False
+
 
 def _is_echo(text: str, reference: str) -> bool:
     """True when `text` is (nearly) the reference sentence repeated back."""
@@ -791,6 +774,7 @@ _CONCERN_RANK = {"minor": 1, "moderate": 2, "major": 3, "critical": 4}
 
 def _consolidate_overlapping_findings(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Keep only the most severe finding from each overlapping rule-id group (see above)."""
+
     def group_for(rule_id: str) -> frozenset[str] | None:
         for group in _OVERLAPPING_RULE_GROUPS:
             if rule_id in group:
@@ -846,17 +830,18 @@ def _normalize_findings(
             # The model found this on its own (no rule-engine check proposed it): its finding stands as a
             # candidate of its own. No hypothesis text, so the "only repeats the hypothesis" filter below
             # does not apply.
-            candidate = {"rule_id": returned_id, "rule_name": raw.get("rule_name", ""), "section": section,
-                         "candidate_id": raw.get("candidate_id", ""), "evidence": raw.get("evidence", ""),
-                         "why_candidate": "", "evidence_strength": "model"}
+            candidate = {
+                "rule_id": returned_id,
+                "rule_name": raw.get("rule_name", ""),
+                "section": section,
+                "candidate_id": raw.get("candidate_id", ""),
+                "evidence": raw.get("evidence", ""),
+                "why_candidate": "",
+                "evidence_strength": "model",
+            }
         rule_id = str(candidate.get("rule_id", returned_id)).strip()
         rule_name = _final_rule_name(candidate.get("rule_name", returned_name))
-        why = str(
-            raw.get("why")
-            or raw.get("why_candidate")
-            or candidate.get("why_candidate")
-            or ""
-        ).strip()
+        why = str(raw.get("why") or raw.get("why_candidate") or candidate.get("why_candidate") or "").strip()
         # A model that only repeats the candidate's own hypothesis ("Review whether ...") has not found
         # anything. Weak models do this for every candidate, which floods the panel with identical
         # advice. Evidence-backed (high) candidates and the rules whose wording is fixed below are exempt.
@@ -870,8 +855,8 @@ def _normalize_findings(
             and (
                 not own_why
                 or _is_echo(own_why, hypothesis)
-                or _is_echo(own_why, candidate_evidence)      # "Past history: Diabetic" explains nothing
-                or len(re.findall(r"\w+", own_why)) < 5       # too short to be a reason
+                or _is_echo(own_why, candidate_evidence)  # "Past history: Diabetic" explains nothing
+                or len(re.findall(r"\w+", own_why)) < 5  # too short to be a reason
             )
         ):
             continue
@@ -885,10 +870,12 @@ def _normalize_findings(
             or "Review and correct according to protocol."
         ).strip()
         if (hypothesis and _is_echo(correction, hypothesis)) or _is_echo(correction, candidate_evidence):
-            correction = "Review and correct according to protocol."   # never show the hypothesis/evidence as the fix
+            correction = "Review and correct according to protocol."  # never show the hypothesis/evidence as the fix
         # "Did you mean ...?" only makes sense for spelling/term rules; weak models copy it everywhere.
         is_term_rule = any(word in rule_id.casefold() for word in ("term", "unrecognized", "unclear"))
-        if (re.match(r"(?i)\s*did you mean", correction) and not is_term_rule) or correction == "Review and correct according to protocol.":
+        if (
+            re.match(r"(?i)\s*did you mean", correction) and not is_term_rule
+        ) or correction == "Review and correct according to protocol.":
             correction = RULE_TEXT.get(rule_id, ("", correction))[1] or correction
         if _provider_rejected_candidate(raw, why, correction):
             continue
@@ -896,14 +883,8 @@ def _normalize_findings(
         # neutral wording so an uncertain transliteration is not displayed as
         # an invented diagnosis or an unreliable word-for-word translation.
         if rule_id == "CC.1":
-            why = (
-                "This entry does not clearly describe a clinical symptom, "
-                "health concern, or reason for consultation."
-            )
-            correction = (
-                "Clarify and document the patient's actual symptom or reason "
-                "for consultation."
-            )
+            why = "This entry does not clearly describe a clinical symptom, health concern, or reason for consultation."
+            correction = "Clarify and document the patient's actual symptom or reason for consultation."
         # PrescribeX has a separate Follow-up writer section. Once the model has
         # confirmed Adv.missing, keep the displayed finding scoped to patient
         # advice rather than implying that follow-up belongs in Advice.
@@ -917,16 +898,18 @@ def _normalize_findings(
                 "instructions for the prescribed treatment."
             )
         correction = _sanitize_correction(correction, rule_name, rule_id)
-        evidence = str(raw.get("evidence", "")).strip() or str(
-            candidate.get("evidence", "")
-        ).strip()
+        evidence = str(raw.get("evidence", "")).strip() or str(candidate.get("evidence", "")).strip()
         if not rule_name or not rule_id or not why or not correction or not evidence:
             continue
         key = rule_name, rule_id, evidence
         if key in seen:
             continue
         # The same explanation for the same item under several rules is one concern, not several.
-        text_key = ("text", " ".join(re.findall(r"\w+", evidence.casefold())), " ".join(re.findall(r"\w+", why.casefold())))
+        text_key = (
+            "text",
+            " ".join(re.findall(r"\w+", evidence.casefold())),
+            " ".join(re.findall(r"\w+", why.casefold())),
+        )
         if text_key in seen:
             continue
         seen.add(key)
@@ -948,11 +931,7 @@ def _normalize_findings(
 
 
 def _provider_model_name(provider: ModelProvider) -> str:
-    return str(
-        getattr(provider, "model", "")
-        or getattr(provider, "deployment", "")
-        or type(provider).__name__
-    )
+    return str(getattr(provider, "model", "") or getattr(provider, "deployment", "") or type(provider).__name__)
 
 
 def _response_character_count(response: Any, provider: ModelProvider) -> int:
@@ -1075,31 +1054,26 @@ def write_audit_sections(
                         "section": section,
                         "model": model_name,
                         "attempt": attempt + 1,
-                        "duration_ms": round(
-                            (perf_counter() - call_started) * 1000, 3
-                        ),
+                        "duration_ms": round((perf_counter() - call_started) * 1000, 3),
                         "prompt_char_count": len(prompt),
                         "input_character_count": len(_SYSTEM_MESSAGE) + len(prompt),
-                        "output_char_count": _response_character_count(
-                            response, provider
-                        ),
+                        "output_char_count": _response_character_count(response, provider),
                         "candidate_count": len(task.get("candidates", []) or []),
                         "success": success,
                         "error_type": error_type,
-                        "response_text_preview": (
-                            ""
-                            if success
-                            else _failed_response_preview(response, provider)
-                        ),
+                        "response_text_preview": ("" if success else _failed_response_preview(response, provider)),
                         "parse_error": parse_error,
                     }
                 )
-            if success or (last_error is not None and _is_non_retryable_provider_error(last_error)) or attempt >= max_retries:
+            if (
+                success
+                or (last_error is not None and _is_non_retryable_provider_error(last_error))
+                or attempt >= max_retries
+            ):
                 break
         if last_error is not None:
             warnings.append(
-                f"section {section} provider failed after {attempts_used} attempt(s): "
-                f"{_safe_parse_error(last_error)}"
+                f"section {section} provider failed after {attempts_used} attempt(s): {_safe_parse_error(last_error)}"
             )
 
     return {

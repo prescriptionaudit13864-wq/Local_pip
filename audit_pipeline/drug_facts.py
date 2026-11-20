@@ -13,6 +13,7 @@ Nothing is chosen by matching words in the patient's record and nothing here dec
 model reads the patient's record and these lines, and judges (dose, pregnancy, interaction, contraindication,
 medicine without indication).
 """
+
 from __future__ import annotations
 
 import csv
@@ -29,9 +30,11 @@ DATA = Path(__file__).resolve().parent / "data"
 FACTS_PATH = DATA / "rag" / "drug_extracted_facts_merged.jsonl"
 GENERIC_PATH = DATA / "generic.csv"
 
-MAX_LINE = 170          # characters per fact line
-MAX_DOSE_LINES = 3      # dose lines per medicine
-MAX_CHARS = 3600        # whole Drug_Facts text (every medicine keeps its safety lines; uses and doses share the rest)
+MAX_LINE = 170  # characters per fact line
+MAX_DOSE_LINES = 3  # dose lines per medicine
+MAX_CHARS = 3600  # whole Drug_Facts text (every medicine keeps its safety lines; uses and doses share the rest)
+
+
 def _short(text: Any, limit: int = MAX_LINE) -> str:
     text = re.sub(r"\s+", " ", str(text or "")).strip()
     return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
@@ -59,7 +62,9 @@ def _index() -> tuple[dict[str, list[dict[str, Any]]], dict[str, str], dict[str,
                     continue
                 gid = str(row.get("generic_id", "")).strip()
                 if gid:
-                    facts.setdefault(gid, []).append({"type": row.get("fact_type", ""), "text": row.get("text", ""), **extra})
+                    facts.setdefault(gid, []).append(
+                        {"type": row.get("fact_type", ""), "text": row.get("text", ""), **extra}
+                    )
     classes: dict[str, str] = {}
     uses: dict[str, str] = {}
     if GENERIC_PATH.exists():
@@ -72,12 +77,15 @@ def _index() -> tuple[dict[str, list[dict[str, Any]]], dict[str, str], dict[str,
 
 
 OVERRIDES_PATH = DATA / "rag" / "physician_drug_overrides.json"
-MAX_CONTRA = 4          # contraindication lines per medicine
-MAX_INTERACTIONS = 4    # major-interaction lines per medicine
+MAX_CONTRA = 4  # contraindication lines per medicine
+MAX_INTERACTIONS = 4  # major-interaction lines per medicine
 _PREGNANCY_WORDS = {
-    "whole": "avoid throughout pregnancy", "first": "avoid in the 1st trimester (up to 13 weeks)",
-    "from20": "avoid from 20 weeks of pregnancy", "third": "avoid in the 3rd trimester (from 28 weeks)",
-    "none": "not a concern in pregnancy", "wrong": "limited evidence; use only when justified",
+    "whole": "avoid throughout pregnancy",
+    "first": "avoid in the 1st trimester (up to 13 weeks)",
+    "from20": "avoid from 20 weeks of pregnancy",
+    "third": "avoid in the 3rd trimester (from 28 weeks)",
+    "none": "not a concern in pregnancy",
+    "wrong": "limited evidence; use only when justified",
 }
 
 
@@ -96,7 +104,9 @@ def _overrides() -> dict[str, Any]:
     return {
         "pregnancy": {_norm(k): v for k, v in raw.get("pregnancy", {}).items()},
         "contraindication_notes": {_norm(k): v for k, v in raw.get("contraindication_notes", {}).items()},
-        "interaction_not_major": {frozenset(map(_norm, p["drugs"])): p["note"] for p in raw.get("interaction_not_major", [])},
+        "interaction_not_major": {
+            frozenset(map(_norm, p["drugs"])): p["note"] for p in raw.get("interaction_not_major", [])
+        },
     }
 
 
@@ -110,7 +120,17 @@ def _age_group(age: float | None) -> set[str]:
     return {"adult", "unspecified"}
 
 
-_INJECTED_ROUTES = {"iv", "im", "intravenous", "intramuscular", "injection", "infusion", "parenteral", "subcutaneous", "sc"}
+_INJECTED_ROUTES = {
+    "iv",
+    "im",
+    "intravenous",
+    "intramuscular",
+    "injection",
+    "infusion",
+    "parenteral",
+    "subcutaneous",
+    "sc",
+}
 
 
 def _dose_lines(rows: list[dict[str, Any]], age: float | None, form: str = "") -> list[str]:
@@ -161,7 +181,11 @@ def drug_facts_text(
         brand, generic = str(med.get("brand_name", "") or ""), str(med.get("generic_name", "") or "")
         cls = classes.get(gid, "")
         daily = med.get("calculated_daily_dose_mg")
-        duration = re.search(r"-\s*\((\d+(?:\.\d+)?\s*(?:day|week|month|year)s?(?:\(s\))?)\)", str(med.get("raw_text", "")), re.IGNORECASE)
+        duration = re.search(
+            r"-\s*\((\d+(?:\.\d+)?\s*(?:day|week|month|year)s?(?:\(s\))?)\)",
+            str(med.get("raw_text", "")),
+            re.IGNORECASE,
+        )
         head = f"{brand} = {generic}" + (f" [{cls}]" if cls else "")
         if daily:
             head += f"; prescribed {float(daily):g} mg/day"
@@ -170,18 +194,31 @@ def drug_facts_text(
         safety: list[str] = []
         if reproductive:
             reviewed = over["pregnancy"].get(_norm(generic))
-            preg = next((r for r in rows if r["type"] == "pregnancy_lactation" and r.get("population") == "pregnancy"), None)
+            preg = next(
+                (r for r in rows if r["type"] == "pregnancy_lactation" and r.get("population") == "pregnancy"), None
+            )
             if reviewed:  # the physician's classification replaces the database line
-                safety.append(f"pregnancy (physician reviewed): {_PREGNANCY_WORDS.get(reviewed['decision'], reviewed['decision'])} - "
-                              + _short(reviewed.get("note", ""), 150))
+                safety.append(
+                    f"pregnancy (physician reviewed): {_PREGNANCY_WORDS.get(reviewed['decision'], reviewed['decision'])} - "
+                    + _short(reviewed.get("note", ""), 150)
+                )
             elif preg:
-                safety.append(f"pregnancy: {preg.get('recommendation', '')} - " + _short(preg.get("details") or preg["text"], 110))
-            lact = next((r for r in rows if r["type"] == "pregnancy_lactation" and r.get("population") == "lactation"), None)
+                safety.append(
+                    f"pregnancy: {preg.get('recommendation', '')} - " + _short(preg.get("details") or preg["text"], 110)
+                )
+            lact = next(
+                (r for r in rows if r["type"] == "pregnancy_lactation" and r.get("population") == "lactation"), None
+            )
             if lact:
-                safety.append(f"breastfeeding: {lact.get('recommendation', '')} - " + _short(lact.get("details") or lact["text"], 90))
+                safety.append(
+                    f"breastfeeding: {lact.get('recommendation', '')} - "
+                    + _short(lact.get("details") or lact["text"], 90)
+                )
         groups = []
         for r in rows:
-            group = _short(r.get("contraindicated_condition_or_group") or "", 90) if r["type"] == "contraindication" else ""
+            group = (
+                _short(r.get("contraindicated_condition_or_group") or "", 90) if r["type"] == "contraindication" else ""
+            )
             if group and group not in groups:
                 groups.append(group)
         safety += ["contraindicated: " + g for g in groups[:MAX_CONTRA]]
@@ -196,7 +233,9 @@ def drug_facts_text(
         for other in mapped:
             note = over["interaction_not_major"].get(frozenset((_norm(generic), _norm(other.get("generic_name")))))
             if note and other is not med:
-                safety.append(f"physician note on {other.get('brand_name') or other.get('generic_name')}: " + _short(note, 140))
+                safety.append(
+                    f"physician note on {other.get('brand_name') or other.get('generic_name')}: " + _short(note, 140)
+                )
         extra: list[str] = []  # lower priority: trimmed first when the prescription is long
         used = uses.get(gid) or next((r["text"] for r in rows if r["type"] == "indication"), "")
         if used:

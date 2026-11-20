@@ -27,6 +27,7 @@ SOURCE_LABEL_OVERRIDES = {
     ("pcr lab", "warfarin"): "Warfarin sensitivity test (PCR laboratory)",
 }
 
+
 def _key(value: Any) -> str:
     text = str(value or "").casefold()
     text = re.sub(r"\b(?:govt?\.?\s*rate|government\s*rate)\b", " ", text)
@@ -170,15 +171,17 @@ def search_investigations(
         if needle and identity in seen:
             continue
         seen.add(identity)
-        results.append({
-            "source_no": row["source_no"],
-            "category": row["category"],
-            "display_name": row["display_name"],
-            "canonical_name": row["canonical_name"],
-            "source": row["source"],
-            "source_category": row["source_category"],
-            "source_display_name": row["source_display_name"],
-        })
+        results.append(
+            {
+                "source_no": row["source_no"],
+                "category": row["category"],
+                "display_name": row["display_name"],
+                "canonical_name": row["canonical_name"],
+                "source": row["source"],
+                "source_category": row["source_category"],
+                "source_display_name": row["source_display_name"],
+            }
+        )
         if len(results) >= max(1, min(int(limit or 12), 500)):
             break
     return results

@@ -109,8 +109,12 @@ def _drug_facts(fields: Mapping[str, Any]) -> str:
     from .drug_facts import drug_facts_text
 
     record = " ".join(str(fields.get(k, "") or "") for k in ("Chief_Complaint", "Diagnosis", "Advice", "ANC_Notes"))
-    return drug_facts_text(_mapper().map(fields.get("Medication", "") or ""), age=fields.get("Age"),
-                           gender=fields.get("Gender"), record_text=record)
+    return drug_facts_text(
+        _mapper().map(fields.get("Medication", "") or ""),
+        age=fields.get("Age"),
+        gender=fields.get("Gender"),
+        record_text=record,
+    )
 
 
 def build_finetune_prompt(section: str, fields: Mapping[str, Any]) -> str | None:
@@ -132,8 +136,11 @@ def build_finetune_prompt(section: str, fields: Mapping[str, Any]) -> str | None
                 context[key] = ""
         else:
             # Every training value is a string ("Age": "31"); a number or list from another caller would not match.
-            context[key] = value if isinstance(value, str) else (
-                str(value) if isinstance(value, (int, float, bool)) else json.dumps(value, ensure_ascii=False))
+            context[key] = (
+                value
+                if isinstance(value, str)
+                else (str(value) if isinstance(value, (int, float, bool)) else json.dumps(value, ensure_ascii=False))
+            )
     model_input = {
         "section": section,
         "section_name": entry["section_name"],
@@ -158,9 +165,7 @@ def detected_rule_map(payload: Any) -> dict[str, Mapping[str, Any]]:
     if not isinstance(detected, list):
         return {}
     return {
-        str(item["rule_id"]).strip(): item
-        for item in detected
-        if isinstance(item, Mapping) and item.get("rule_id")
+        str(item["rule_id"]).strip(): item for item in detected if isinstance(item, Mapping) and item.get("rule_id")
     }
 
 
@@ -288,8 +293,7 @@ KNOWLEDGE_QUESTIONS: dict[str, tuple[str, str]] = {
         "Verify the patient's sex/age or correct the complaint.",
     ),
     "CC.time.plausibility": (
-        "Chief complaint: '{entry}'. Is the stated duration medically impossible or implausible for this "
-        "complaint?",
+        "Chief complaint: '{entry}'. Is the stated duration medically impossible or implausible for this complaint?",
         "Verify and correct the stated duration of the complaint.",
     ),
     "CC.context.conflict": (
@@ -343,7 +347,7 @@ def finding_from_answer(candidate: Mapping[str, Any], answer: str, question: str
     if not match or match.group(1).casefold() != "yes":
         return None
     why = match.group(2).split("\n", 1)[0].strip()
-    if "answer yes or no" in why.casefold() or _echoes_question(why, question):   # no explanation of its own
+    if "answer yes or no" in why.casefold() or _echoes_question(why, question):  # no explanation of its own
         why = ""
     rule_id = str(candidate.get("rule_id", "")).strip()
     return {

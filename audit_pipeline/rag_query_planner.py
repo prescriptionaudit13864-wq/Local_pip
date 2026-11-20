@@ -88,24 +88,17 @@ def build_planner_prompt(
         "prescription": {
             "diagnosis": _text(prescription.get("Diagnosis", "")),
             "chief_complaint": _text(
-                prescription.get("Chief_Complaint", "")
-                or prescription.get("Chief Complaint", "")
+                prescription.get("Chief_Complaint", "") or prescription.get("Chief Complaint", "")
             ),
             "health_screening": _text(
-                prescription.get("Health_Screening", "")
-                or prescription.get("Health Screening", "")
+                prescription.get("Health_Screening", "") or prescription.get("Health Screening", "")
             ),
-            "on_examination": _text(
-                prescription.get("On_Examination", "")
-                or prescription.get("On Examination", "")
-            ),
+            "on_examination": _text(prescription.get("On_Examination", "") or prescription.get("On Examination", "")),
             "systemic_examination": _text(
-                prescription.get("Systemic_Examination", "")
-                or prescription.get("Systemic Examination", "")
+                prescription.get("Systemic_Examination", "") or prescription.get("Systemic Examination", "")
             ),
             "investigation_results": _text(
-                prescription.get("Investigation_Results", "")
-                or prescription.get("Investigation Results", "")
+                prescription.get("Investigation_Results", "") or prescription.get("Investigation Results", "")
             ),
             "medication": _text(prescription.get("Medication", "")),
             "advice": _text(prescription.get("Advice", "")),

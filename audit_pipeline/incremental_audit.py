@@ -173,10 +173,7 @@ def summarize_live_report(
     domains = audit_domains_for(section)
     grouped = report.get("errors_by_section", {}) if isinstance(report, Mapping) else {}
     findings = [
-        dict(item)
-        for domain in domains
-        for item in (grouped.get(domain, []) or [])
-        if isinstance(item, Mapping)
+        dict(item) for domain in domains for item in (grouped.get(domain, []) or []) if isinstance(item, Mapping)
     ]
     accepted_rule_keys = {
         (
@@ -197,16 +194,18 @@ def summarize_live_report(
     # back. AUDIT_MODEL_ONLY=0 restores both.
     model_only = (os.getenv("AUDIT_MODEL_ONLY") or "1").strip().casefold() not in {"0", "false", "no", "off"}
     possible_errors = (
-        list(dict.fromkeys(
-            CLINICAL_WARNING_MESSAGES[item] for item in all_warnings if item in CLINICAL_WARNING_MESSAGES
-        ))
+        list(
+            dict.fromkeys(CLINICAL_WARNING_MESSAGES[item] for item in all_warnings if item in CLINICAL_WARNING_MESSAGES)
+        )
         if "CC" in domains and not model_only
         else []
     )
     # The male-pregnancy note restates a complaint-vs-sex finding the audit already shows on the exact line:
     # showing both put the same problem on screen twice.
     if any(str(item.get("rule_id", "")) in _DEMOGRAPHIC_RULES for item in findings):
-        possible_errors = [text for text in possible_errors if text != CLINICAL_WARNING_MESSAGES.get(MALE_PREGNANCY_WARNING)]
+        possible_errors = [
+            text for text in possible_errors if text != CLINICAL_WARNING_MESSAGES.get(MALE_PREGNANCY_WARNING)
+        ]
     warnings = [item for item in all_warnings if item not in CLINICAL_WARNING_MESSAGES]
     rejected = [
         dict(item)
@@ -218,7 +217,8 @@ def summarize_live_report(
             and (
                 str(item.get("section", "")).strip().casefold(),
                 str(item.get("rule_id", "")).strip().casefold(),
-            ) not in accepted_rule_keys
+            )
+            not in accepted_rule_keys
         )
     ]
     if rejected:
@@ -239,10 +239,12 @@ def summarize_live_report(
     # Error fatigue: show the most important concerns first and cap the list. The complete list
     # stays in the final audit report.
     total_findings = len(findings)
-    findings.sort(key=lambda item: (
-        -_LEVEL_RANK.get(str(item.get("concern_level", "")).casefold(), 2),
-        {"high": 0, "medium": 1, "needs_review": 1, "low": 2}.get(str(item.get("confidence", "")).casefold(), 1),
-    ))
+    findings.sort(
+        key=lambda item: (
+            -_LEVEL_RANK.get(str(item.get("concern_level", "")).casefold(), 2),
+            {"high": 0, "medium": 1, "needs_review": 1, "low": 2}.get(str(item.get("confidence", "")).casefold(), 1),
+        )
+    )
     limit = max(1, int(os.getenv("LIVE_AUDIT_MAX_FINDINGS") or 5))
     findings = findings[:limit]
 
@@ -266,7 +268,9 @@ def summarize_live_report(
         if total_concerns == 1:
             summary = "1 concern requires review."
         elif total_concerns > shown:
-            summary = f"{total_concerns} concerns found; the {shown} most important are shown (the final AI Audit lists all)."
+            summary = (
+                f"{total_concerns} concerns found; the {shown} most important are shown (the final AI Audit lists all)."
+            )
         else:
             summary = f"{total_concerns} concerns require review."
 
@@ -317,11 +321,7 @@ def compare_live_with_final(
                 continue
             if str(value.get("status", "")).strip().casefold() not in completed_statuses:
                 continue
-            live_findings.extend(
-                dict(item)
-                for item in (value.get("findings", []) or [])
-                if isinstance(item, Mapping)
-            )
+            live_findings.extend(dict(item) for item in (value.get("findings", []) or []) if isinstance(item, Mapping))
 
     grouped = report.get("errors_by_section", {}) if isinstance(report, Mapping) else {}
     final_findings = [

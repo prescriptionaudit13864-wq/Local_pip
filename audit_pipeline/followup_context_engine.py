@@ -23,7 +23,10 @@ from .advice_interpreter import (
 from .medicine_mapper import MedicineMapper, split_medicines
 from .provider import ModelProvider
 
-_ANTIBIOTIC_RE = re.compile(r"\b(antibiotic|antibacterial|antimicrobial|penicillin|cephalosporin|macrolide|quinolone|fluoroquinolone)\b", re.IGNORECASE)
+_ANTIBIOTIC_RE = re.compile(
+    r"\b(antibiotic|antibacterial|antimicrobial|penicillin|cephalosporin|macrolide|quinolone|fluoroquinolone)\b",
+    re.IGNORECASE,
+)
 _ONGOING_DURATION_RE = re.compile(
     r"\b(?:continue|ongoing|until\s+further\s+(?:advice|notice))\b|চলবে|পরবর্তী\s+নির্দেশ",
     re.IGNORECASE,
@@ -208,13 +211,8 @@ def _prior_medicine_entries(row: Mapping[str, Any]) -> list[dict[str, Any]]:
                     entries.append({"raw_text": raw, "duration_days": parse_duration_days(raw)})
             return entries
 
-    medication_text = _row_value(
-        row, "medication", "medications", "medication & dosing", "medication_text"
-    )
-    return [
-        {"raw_text": raw, "duration_days": parse_duration_days(raw)}
-        for raw in split_medicines(medication_text)
-    ]
+    medication_text = _row_value(row, "medication", "medications", "medication & dosing", "medication_text")
+    return [{"raw_text": raw, "duration_days": parse_duration_days(raw)} for raw in split_medicines(medication_text)]
 
 
 def _fact_index(fact_results: Sequence[Mapping[str, Any]]) -> dict[str, list[dict[str, str]]]:
@@ -230,11 +228,13 @@ def _fact_index(fact_results: Sequence[Mapping[str, Any]]) -> dict[str, list[dic
             text = _text(fact.get("text", ""))
             fact_type = _text(fact.get("fact_type", ""))
             if text and fact_type:
-                facts.append({
-                    "fact_type": fact_type,
-                    "text": text,
-                    "source_field": _text(fact.get("source_field", "")),
-                })
+                facts.append(
+                    {
+                        "fact_type": fact_type,
+                        "text": text,
+                        "source_field": _text(fact.get("source_field", "")),
+                    }
+                )
         if facts:
             result.setdefault(generic_id, []).extend(facts)
     return result
@@ -250,20 +250,12 @@ def _contains_name(text: str, name: str) -> bool:
 
 def _drug_class_text(medicine: Mapping[str, Any], facts_by_id: Mapping[str, Sequence[Mapping[str, str]]]) -> str:
     generic_id = _text(medicine.get("generic_id", ""))
-    return " ".join(
-        fact["text"]
-        for fact in facts_by_id.get(generic_id, [])
-        if fact.get("fact_type") == "drug_class"
-    )
+    return " ".join(fact["text"] for fact in facts_by_id.get(generic_id, []) if fact.get("fact_type") == "drug_class")
 
 
 def _class_tokens(text: str) -> set[str]:
     stop = {"drug", "class", "medicine", "medicines", "therapeutic", "agent", "agents"}
-    return {
-        token
-        for token in re.findall(r"[a-z][a-z0-9-]{4,}", _text(text).casefold())
-        if token not in stop
-    }
+    return {token for token in re.findall(r"[a-z][a-z0-9-]{4,}", _text(text).casefold()) if token not in stop}
 
 
 def _is_antibiotic(medicine: Mapping[str, Any], facts_by_id: Mapping[str, Sequence[Mapping[str, str]]]) -> bool:
@@ -304,9 +296,7 @@ def _query_prior_visits(
 ) -> list[dict[str, Any]]:
     with closing(sqlite3.connect(db_path)) as connection, connection:
         connection.row_factory = sqlite3.Row
-        table = connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='visits'"
-        ).fetchone()
+        table = connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='visits'").fetchone()
         if table is None:
             raise ValueError("SQLite database has no visits table")
         columns = [row[1] for row in connection.execute("PRAGMA table_info(visits)")]
@@ -402,9 +392,7 @@ def build_followup_context(
         validity_source = _config_value(protocol, "investigation_validity", {})
     default_validity = investigation_validity_default
     if investigation_validity_default == 0:
-        default_validity = int(
-            _config_value(protocol, "investigation_validity_default", 0) or 0
-        )
+        default_validity = int(_config_value(protocol, "investigation_validity_default", 0) or 0)
     alias_source = investigation_aliases
     if alias_source is None:
         alias_source = _config_value(protocol, "investigation_aliases", {})
@@ -416,14 +404,12 @@ def build_followup_context(
             _config_value(protocol, "investigation_monitoring_exemptions", {}),
         )
     aliases = {
-        re.sub(r"\s+", " ", str(key).strip().casefold()).rstrip("."):
-        re.sub(r"\s+", " ", str(value).strip().casefold()).rstrip(".")
+        re.sub(r"\s+", " ", str(key).strip().casefold()).rstrip("."): re.sub(
+            r"\s+", " ", str(value).strip().casefold()
+        ).rstrip(".")
         for key, value in dict(alias_source or {}).items()
     }
-    validity = {
-        _canonical_test(key, aliases): int(value)
-        for key, value in dict(validity_source or {}).items()
-    }
+    validity = {_canonical_test(key, aliases): int(value) for key, value in dict(validity_source or {}).items()}
 
     context = _empty_context()
     context["current_patient_id"] = patient_key
@@ -448,15 +434,11 @@ def build_followup_context(
         context["advice_actions"] = advice_actions
 
     today_generic_ids = {
-        _text(item.get("generic_id", ""))
-        for item in today_medicines
-        if _text(item.get("generic_id", ""))
+        _text(item.get("generic_id", "")) for item in today_medicines if _text(item.get("generic_id", ""))
     }
     today_tests = {
         _canonical_test(test, aliases)
-        for test in _split_tests(
-            _row_value(today_prescription, "Investigation", "Investigations")
-        )
+        for test in _split_tests(_row_value(today_prescription, "Investigation", "Investigations"))
     }
     today_results = _parse_results(
         _row_value(today_prescription, "Investigation_Results", "Investigation Results", "investigation_result"),
@@ -469,9 +451,7 @@ def build_followup_context(
         try:
             prior_dt = _as_datetime(prior_raw_date)
         except ValueError:
-            context["warnings"].append(
-                f"prior visit has invalid date and was skipped: {prior_raw_date!r}"
-            )
+            context["warnings"].append(f"prior visit has invalid date and was skipped: {prior_raw_date!r}")
             continue
         prior_date = prior_dt.date()
         age_days = (today_dt.date() - prior_date).days
@@ -494,9 +474,7 @@ def build_followup_context(
             elif medicine_mapper is not None:
                 mapped = medicine_mapper.map_one(raw)
             else:
-                context["warnings"].append(
-                    f"prior medicine could not be resolved without a medicine_mapper: {raw!r}"
-                )
+                context["warnings"].append(f"prior medicine could not be resolved without a medicine_mapper: {raw!r}")
                 mapped = {}
             active = {
                 "prior_visit_date": prior_raw_date,
@@ -509,11 +487,13 @@ def build_followup_context(
                 "evidence": raw,
             }
             if advice_stops_prior_medicine(today_advice, active, actions=advice_actions):
-                context["discontinued_prior_medicines"].append({
-                    **active,
-                    "discontinuation_evidence": _text(today_advice),
-                    "reason": "current advice indicates prior/old medicine should not be continued",
-                })
+                context["discontinued_prior_medicines"].append(
+                    {
+                        **active,
+                        "discontinuation_evidence": _text(today_advice),
+                        "reason": "current advice indicates prior/old medicine should not be continued",
+                    }
+                )
                 continue
             context["active_prior_medicines"].append(active)
             if active["generic_id"] and medicine_fact_lookup is not None:
@@ -522,28 +502,27 @@ def build_followup_context(
                         facts_by_id.setdefault(generic_id, []).extend(facts)
             if active["generic_id"] and active["generic_id"] in today_generic_ids:
                 current_same = next(
-                    (
-                        item for item in today_medicines
-                        if _text(item.get("generic_id", "")) == active["generic_id"]
-                    ),
+                    (item for item in today_medicines if _text(item.get("generic_id", "")) == active["generic_id"]),
                     {},
                 )
                 evidence = (
                     f"Prior visit {prior_raw_date}: {raw}; course_end={active['course_end']} | "
                     f"Current medicine: {_text(current_same.get('raw_text', ''))}"
                 )
-                context["candidates"].append(_followup_candidate(
-                    "Rx",
-                    "duplicate_active_prior_medicine_candidate",
-                    "A prior medicine course is still active and today's prescription repeats the same generic.",
-                    evidence,
-                    prior_visit_date=prior_raw_date,
-                    generic_id=active["generic_id"],
-                    generic_name=active["generic_name"],
-                    prior_medicine=raw,
-                    current_medicine=_text(current_same.get("raw_text", "")),
-                    course_end=active["course_end"],
-                ))
+                context["candidates"].append(
+                    _followup_candidate(
+                        "Rx",
+                        "duplicate_active_prior_medicine_candidate",
+                        "A prior medicine course is still active and today's prescription repeats the same generic.",
+                        evidence,
+                        prior_visit_date=prior_raw_date,
+                        generic_id=active["generic_id"],
+                        generic_name=active["generic_name"],
+                        prior_medicine=raw,
+                        current_medicine=_text(current_same.get("raw_text", "")),
+                        course_end=active["course_end"],
+                    )
+                )
 
         for active in list(context["active_prior_medicines"]):
             prior_id = _text(active.get("generic_id", ""))
@@ -562,9 +541,7 @@ def build_followup_context(
                     continue
                 current_facts = facts_by_id.get(current_id, [])
                 prior_facts = list(facts_by_id.get(prior_id, []))
-                interaction_checks = [
-                    (fact, prior_name) for fact in current_facts
-                ] + [
+                interaction_checks = [(fact, prior_name) for fact in current_facts] + [
                     (fact, current_name) for fact in prior_facts
                 ]
                 for fact, other_name in interaction_checks:
@@ -578,22 +555,24 @@ def build_followup_context(
                             f"Current medicine: {_text(current.get('raw_text', ''))} | "
                             f"Medicine fact: {fact_text}"
                         )
-                        context["candidates"].append(_followup_candidate(
-                            "Rx",
-                            "ddi_with_active_prior_medicine_candidate",
-                            "A current medicine has RAG interaction evidence involving a still-active prior medicine.",
-                            evidence,
-                            prior_visit_date=active.get("prior_visit_date"),
-                            prior_generic_id=prior_id,
-                            prior_generic_name=prior_name,
-                            current_generic_id=current_id,
-                            current_generic_name=current_name,
-                            course_end=active.get("course_end"),
-                            source_field=fact.get("source_field", ""),
-                            rag_supported=True,
-                            evidence_strength="high",
-                            must_review_if_rejected=True,
-                        ))
+                        context["candidates"].append(
+                            _followup_candidate(
+                                "Rx",
+                                "ddi_with_active_prior_medicine_candidate",
+                                "A current medicine has RAG interaction evidence involving a still-active prior medicine.",
+                                evidence,
+                                prior_visit_date=active.get("prior_visit_date"),
+                                prior_generic_id=prior_id,
+                                prior_generic_name=prior_name,
+                                current_generic_id=current_id,
+                                current_generic_name=current_name,
+                                course_end=active.get("course_end"),
+                                source_field=fact.get("source_field", ""),
+                                rag_supported=True,
+                                evidence_strength="high",
+                                must_review_if_rejected=True,
+                            )
+                        )
                 prior_class = _drug_class_text(prior_as_medicine, facts_by_id)
                 current_class = _drug_class_text(current, facts_by_id)
                 overlap = _class_tokens(prior_class) & _class_tokens(current_class)
@@ -604,42 +583,44 @@ def build_followup_context(
                         f"Current medicine: {_text(current.get('raw_text', ''))} | "
                         f"Shared class evidence: {', '.join(sorted(overlap))}"
                     )
-                    context["candidates"].append(_followup_candidate(
-                        "Rx",
-                        "therapeutic_duplication_with_prior_candidate",
-                        "A still-active prior medicine and today's medicine have overlapping therapeutic class evidence.",
-                        evidence,
-                        prior_visit_date=active.get("prior_visit_date"),
-                        prior_generic_id=prior_id,
-                        prior_generic_name=prior_name,
-                        current_generic_id=current_id,
-                        current_generic_name=current_name,
-                        duplicate_class=", ".join(sorted(overlap)),
-                        course_end=active.get("course_end"),
-                    ))
+                    context["candidates"].append(
+                        _followup_candidate(
+                            "Rx",
+                            "therapeutic_duplication_with_prior_candidate",
+                            "A still-active prior medicine and today's medicine have overlapping therapeutic class evidence.",
+                            evidence,
+                            prior_visit_date=active.get("prior_visit_date"),
+                            prior_generic_id=prior_id,
+                            prior_generic_name=prior_name,
+                            current_generic_id=current_id,
+                            current_generic_name=current_name,
+                            duplicate_class=", ".join(sorted(overlap)),
+                            course_end=active.get("course_end"),
+                        )
+                    )
                 if _is_antibiotic(prior_as_medicine, facts_by_id) and _is_antibiotic(current, facts_by_id):
                     evidence = (
                         f"Prior active antibiotic from {active.get('prior_visit_date')}: {active.get('raw_text')} "
                         f"(course_end={active.get('course_end')}) | "
                         f"Current antibiotic: {_text(current.get('raw_text', ''))}"
                     )
-                    context["candidates"].append(_followup_candidate(
-                        "Rx",
-                        "active_antibiotic_overlap_or_switch_candidate",
-                        "A prior antibiotic course may still be active while today's prescription adds or switches antibiotic therapy.",
-                        evidence,
-                        prior_visit_date=active.get("prior_visit_date"),
-                        prior_generic_id=prior_id,
-                        prior_generic_name=prior_name,
-                        current_generic_id=current_id,
-                        current_generic_name=current_name,
-                        course_end=active.get("course_end"),
-                    ))
+                    context["candidates"].append(
+                        _followup_candidate(
+                            "Rx",
+                            "active_antibiotic_overlap_or_switch_candidate",
+                            "A prior antibiotic course may still be active while today's prescription adds or switches antibiotic therapy.",
+                            evidence,
+                            prior_visit_date=active.get("prior_visit_date"),
+                            prior_generic_id=prior_id,
+                            prior_generic_name=prior_name,
+                            current_generic_id=current_id,
+                            current_generic_name=current_name,
+                            course_end=active.get("course_end"),
+                        )
+                    )
 
         ordered_text = _row_value(visit, "investigation", "investigations")
-        result_text = _row_value(
-            visit, "investigation_result", "investigation results", "investigation_results"
-        )
+        result_text = _row_value(visit, "investigation_result", "investigation results", "investigation_results")
         ordered = _split_tests(ordered_text)
         results = _parse_results(result_text, aliases)
         for raw_test in ordered:
@@ -657,19 +638,21 @@ def build_followup_context(
                             "evidence": today_result["values"],
                         }
                     )
-                    context["candidates"].append(_followup_candidate(
-                        "Inv",
-                        "prior_ordered_test_result_followup_candidate",
-                        "A test ordered in a prior visit now has a current result that may need follow-up interpretation.",
-                        (
-                            f"Prior visit {prior_raw_date} ordered: {raw_test} | "
-                            f"Current result: {today_result['values']}"
-                        ),
-                        prior_visit_date=prior_raw_date,
-                        investigation=raw_test,
-                        canonical=canonical,
-                        current_result=today_result["values"],
-                    ))
+                    context["candidates"].append(
+                        _followup_candidate(
+                            "Inv",
+                            "prior_ordered_test_result_followup_candidate",
+                            "A test ordered in a prior visit now has a current result that may need follow-up interpretation.",
+                            (
+                                f"Prior visit {prior_raw_date} ordered: {raw_test} | "
+                                f"Current result: {today_result['values']}"
+                            ),
+                            prior_visit_date=prior_raw_date,
+                            investigation=raw_test,
+                            canonical=canonical,
+                            current_result=today_result["values"],
+                        )
+                    )
                     continue
                 context["prior_ordered_not_done_tests"].append(
                     {
@@ -693,27 +676,26 @@ def build_followup_context(
                 "evidence": _text(result_text),
             }
             context["prior_current_results"].append(current_result)
-            if (
-                canonical in today_tests
-                and not _monitoring_exempt(
-                    canonical, today_prescription, exemption_source, aliases
-                )
+            if canonical in today_tests and not _monitoring_exempt(
+                canonical, today_prescription, exemption_source, aliases
             ):
                 valid_until = (prior_date + timedelta(days=validity_days)).isoformat()
-                context["candidates"].append(_followup_candidate(
-                    "Inv",
-                    "redundant_investigation_candidate",
-                    "A same investigation is ordered today while a recent prior result remains within its configured validity window.",
-                    (
-                        f"Prior visit {prior_raw_date}: {raw_test} result {result['values']} "
-                        f"valid_until={valid_until} | Current ordered test: {raw_test}"
-                    ),
-                    prior_visit_date=prior_raw_date,
-                    investigation=raw_test,
-                    canonical=canonical,
-                    valid_until=valid_until,
-                    prior_result=result["values"],
-                ))
+                context["candidates"].append(
+                    _followup_candidate(
+                        "Inv",
+                        "redundant_investigation_candidate",
+                        "A same investigation is ordered today while a recent prior result remains within its configured validity window.",
+                        (
+                            f"Prior visit {prior_raw_date}: {raw_test} result {result['values']} "
+                            f"valid_until={valid_until} | Current ordered test: {raw_test}"
+                        ),
+                        prior_visit_date=prior_raw_date,
+                        investigation=raw_test,
+                        canonical=canonical,
+                        valid_until=valid_until,
+                        prior_result=result["values"],
+                    )
+                )
 
     seen_candidates: set[tuple[str, str, str]] = set()
     deduped_candidates: list[dict[str, Any]] = []
