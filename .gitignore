@@ -22,3 +22,6 @@ PROJECT_CONTEXT.md
 
 # Results built from the physician-reviewed real prescriptions
 benchmark/results/candidate_coverage*.json
+
+# Local backups made by install_model.ps1
+audit_pipeline/configs/*.before_install.json
