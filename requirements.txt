@@ -1,0 +1,22 @@
+# Python 3.11. Install PyTorch with CUDA first, from the PyTorch index:
+#   pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+# then:  pip install -r requirements.txt
+# Versions are the ones the app was tested with.
+
+# Audit pipeline
+PyYAML==6.0.3
+python-dotenv==1.2.4
+
+# Local model (Gemma 4 12B + LoRA adapter, run in-process)
+transformers==5.21.0
+peft==0.20.0
+accelerate==1.15.0
+safetensors==0.8.0
+tokenizers==0.23.3
+huggingface_hub==2.3.0
+bitsandbytes==0.50.2   # only needed for HF_QUANT=4bit / 8bit
+
+# Optional: external OpenAI-compatible model servers (Ollama, LM Studio) and benchmarks
+openai==3.35.1
+openpyxl==3.1.5
+numpy==2.4.6

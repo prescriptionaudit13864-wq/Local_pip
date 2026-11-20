@@ -555,6 +555,8 @@ missed the adult dose for a child, the 30-day antibiotic and the antibiotic with
 | `FINETUNE_MODEL_FIRST_EXCLUDE` | `none` | rules the model may not raise without a candidate |
 | `FINETUNE_UNSUPPORTED` | `omit` | rules outside the taxonomy are dropped (was `confirm_high`: engine decided) |
 | `AUDIT_MODEL_ONLY` | `1` | no hand-written warnings; rejected candidates not re-added |
+| `AUDIT_REVIEWER` | `1` (default) | `0` turns layer 2 (clinical reviewer) off |
+| `AUDIT_LOG_LEVEL` | `INFO` (default) | `DEBUG` also logs every HTTP request |
 | `FINETUNE_FAST_CONCERNS` | default on | fast-concern decoding |
 | `FINETUNE_MODEL_FIRST` | default on | model may raise rules without a candidate |
 | `GROQ_API_KEY`, `GROQ_MODEL` | set | used only for the comparison test |
