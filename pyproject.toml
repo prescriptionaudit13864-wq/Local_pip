@@ -1,0 +1,27 @@
+[project]
+name = "prescribex-audit"
+version = "0.4.0"
+description = "Live clinical audit of prescriptions with a fine-tuned local language model"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["prescribex-app", ".venv"]
+
+[tool.ruff.lint]
+# pycodestyle errors, pyflakes, import order, bugbear, pyupgrade, simplify
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = [
+    "E501",   # long strings (prompts, messages) are kept on one line on purpose
+    "SIM108", # ternaries are not always clearer
+    "B008",   # function calls in defaults are used deliberately for constants
+    "SIM102", # nested clinical guard conditions read more clearly than one combined `if`
+    "SIM103", # explicit `return True/False` after clinical guards is kept for readability
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["audit_pipeline", "benchmark"]
+
+[tool.ruff.format]
+quote-style = "preserve"

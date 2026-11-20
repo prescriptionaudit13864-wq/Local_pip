@@ -6,15 +6,14 @@ import os
 import re
 import threading
 import time
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping, Protocol
+from typing import Any, Protocol
 
-from .rule_text import RULE_TEXT
 from .finetune_prompt import (
     RULE_ALIASES,
     UNSUPPORTED_POLICIES,
     build_finetune_prompt,
-    candidate_line as _candidate_line,
     build_knowledge_question,
     detected_rule_map,
     finding_from_answer,
@@ -24,6 +23,10 @@ from .finetune_prompt import (
     parse_section_task,
     trained_rule_ids,
 )
+from .finetune_prompt import (
+    candidate_line as _candidate_line,
+)
+from .rule_text import RULE_TEXT
 
 log = logging.getLogger(__name__)
 
@@ -514,7 +517,7 @@ class LocalChatProvider:
                            lambda t, b, _s: self._generate_raw_batch(t, b))([text, *lines.values()], budget, section)
                 content = answers[0]
                 line_answers = {}
-                for line, answer in zip(lines, answers[1:]):
+                for line, answer in zip(lines, answers[1:], strict=False):
                     try:
                         line_answers[line] = dict(self._detected(answer))
                     except ValueError:
@@ -607,7 +610,7 @@ class LocalChatProvider:
             outs = self._generate_raw_batch([texts[i] + written[i] for i in active], _FAST_ROUND_TOKENS, stop=_CONCERN_OPEN)
             rounds += 1
             still = []
-            for i, out in zip(active, outs):
+            for i, out in zip(active, outs, strict=False):
                 if expect[i] and not out.startswith(expect[i]):
                     failed.add(i)  # did not finish the inserted description as trained
                     continue
@@ -723,7 +726,7 @@ class LocalChatProvider:
                 else:
                     answers = [self._complete_raw(text, budget, section) for text in texts]
                 keep = []
-                for (candidate, _), answer in zip(group, answers):
+                for (candidate, _), answer in zip(group, answers, strict=False):
                     try:
                         if trained_id in self._detected(answer):
                             keep.append(candidate)

@@ -7,9 +7,10 @@ phrase rules.
 
 from __future__ import annotations
 
-import re
 import json
-from typing import Any, Mapping
+import re
+from collections.abc import Mapping
+from typing import Any
 
 from .provider import ModelProvider, parse_json_value
 from .text_translation import translated_text

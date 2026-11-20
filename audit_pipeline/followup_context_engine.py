@@ -9,10 +9,11 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from collections.abc import Callable, Mapping, Sequence
 from contextlib import closing
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 from .advice_interpreter import (
     advice_stops_prior_medicine,
@@ -21,7 +22,6 @@ from .advice_interpreter import (
 )
 from .medicine_mapper import MedicineMapper, split_medicines
 from .provider import ModelProvider
-
 
 _ANTIBIOTIC_RE = re.compile(r"\b(antibiotic|antibacterial|antimicrobial|penicillin|cephalosporin|macrolide|quinolone|fluoroquinolone)\b", re.IGNORECASE)
 _ONGOING_DURATION_RE = re.compile(
@@ -78,7 +78,7 @@ def _as_datetime(value: Any) -> datetime:
             except ValueError:
                 parsed = None
         if parsed is None:
-            raise ValueError(f"visit_date has unsupported format: {text!r}")
+            raise ValueError(f"visit_date has unsupported format: {text!r}") from None
     return parsed.replace(tzinfo=None) if parsed.tzinfo else parsed
 
 

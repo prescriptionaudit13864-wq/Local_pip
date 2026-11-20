@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from .frequency_parser import normalize_digits
 from .text_translation import translated_text
-
 
 _WARNING_TERMS = re.compile(
     r"\b(caution|contraindicat\w*|risk|avoid|not recommended|"

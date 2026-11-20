@@ -9,11 +9,11 @@ clinical evidence such as abnormal labs.
 from __future__ import annotations
 
 import re
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from .frequency_parser import normalize_digits
 from .text_translation import translated_text
-
 
 CLINICAL_SOURCES = (
     "Chief_Complaint",

@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-
 _PHRASE_TRANSLATIONS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(?:আহারের|খাবারের|খাওয়ার|খাওয়ার)(?:\s+\d+\s*(?:মিনিট|ঘণ্টা))?\s*(?:পর|পরে)"), "after food"),
     (re.compile(r"(?:আহারের|খাবারের|খাওয়ার|খাওয়ার)(?:\s+\d+\s*(?:মিনিট|ঘণ্টা))?\s*(?:পূর্বে|আগে)"), "before food"),

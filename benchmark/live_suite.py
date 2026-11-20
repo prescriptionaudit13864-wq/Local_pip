@@ -141,7 +141,7 @@ def main() -> None:
                 missed += 1
                 print(f"  MISSED: {section} {family} {line or ''}")
         # An alert is wrong when it matches no expectation: a false alarm, a wrong line, or a leak.
-        wrong = [a for a in alerts if not any(matches(a, s, f, l) for s, f, l in expected)]
+        wrong = [a for a in alerts if not any(matches(a, s, f, w) for s, f, w in expected)]
         for a in wrong:
             print(f"  WRONG:  {a['section']} {a['rule_id']} | {a['evidence'][:80]}")
         if not gap:

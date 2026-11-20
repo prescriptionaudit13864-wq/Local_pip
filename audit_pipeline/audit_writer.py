@@ -9,13 +9,13 @@ from __future__ import annotations
 import json
 import os
 import re
+from collections.abc import Mapping, Sequence
 from difflib import SequenceMatcher
 from time import perf_counter
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from .provider import ModelProvider, parse_json_value
 from .rule_text import RULE_TEXT
-
 
 _SYSTEM_MESSAGE = (
     "This is a prescription audit system. Review only the provided candidates "

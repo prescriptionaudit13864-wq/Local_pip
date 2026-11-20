@@ -39,7 +39,7 @@ SYMPTOM_STOPWORDS = {
     "patient", "history", "diagnosis", "chief", "complaint", "blood", "pressure",
     "pulse", "rate", "temperature", "advice", "medication", "examination", "screening",
     "days", "day", "weeks", "week", "month", "months", "years", "year", "mild",
-    "moderate", "severe", "male", "female", "normal", "high", "low", "nad",
+    "moderate", "severe", "male", "female", "high", "low", "nad",
 }
 SECTION_RELEVANT_FACT_TYPES = {
     "Dx": {"definition", "case_definition", "clinical_presentation", "symptom", "symptom_criteria", "diagnostic_clue", "diagnostic_criteria", "differential_diagnosis", "likely_pathogen", "risk_factor", "red_flag", "warning_sign", "test_interpretation", "pharmacology", "drug_class"},
@@ -214,7 +214,8 @@ class GuidelineRAG:
         aliases.extend(listify(fact.get("alternative_medicines")))
         aliases.extend(listify(fact.get("avoid_medicines")))
         aliases.extend(listify(fact.get("drug_class")))
-        seen = set(); out = []
+        seen = set()
+        out = []
         for alias in aliases:
             clean = normalize_text(alias)
             if (
@@ -223,7 +224,8 @@ class GuidelineRAG:
                 and clean not in NON_CONDITION_ALIASES
                 and clean not in seen
             ):
-                seen.add(clean); out.append(clean)
+                seen.add(clean)
+                out.append(clean)
         return out
 
     def retrieve(

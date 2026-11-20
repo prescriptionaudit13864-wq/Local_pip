@@ -11,12 +11,11 @@ import csv
 import os
 import re
 import sqlite3
-from contextlib import closing
 import tempfile
 import zipfile
+from contextlib import closing
 from pathlib import Path
 from typing import Any
-
 
 RELEASE_ID = "2026-01"
 LANGUAGE = "en"

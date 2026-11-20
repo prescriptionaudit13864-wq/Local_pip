@@ -36,10 +36,11 @@ import re
 import subprocess
 import sys
 import traceback
+from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
-from typing import Any, Mapping
+from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 BENCH = Path(__file__).resolve().parent
@@ -201,6 +202,7 @@ def build_provider(model: str) -> tuple[Any, dict[str, Any]]:
     for name in ("LLM_BASE_URL", "LLM_MODEL"):  # always load in-process
         os.environ.pop(name, None)
     import torch
+
     from audit_pipeline.provider import LocalChatProvider
 
     if torch.cuda.is_available():

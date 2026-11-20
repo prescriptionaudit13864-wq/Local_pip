@@ -6,11 +6,11 @@ parsers and RAG routing. It does not decide audit errors.
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from .frequency_parser import normalize_digits
 from .text_translation import translated_text
-
 
 FIELDS_FOR_LANGUAGE_CONTEXT = (
     "Past_History",

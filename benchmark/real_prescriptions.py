@@ -146,7 +146,7 @@ def records(book, title: str) -> list[dict[str, Any]]:
     header = [str(h or "").strip() for h in rows[0]]
     out = []
     for row in rows[1:]:
-        item = {h: ("" if v is None else str(v).strip()) for h, v in zip(header, row)}
+        item = {h: ("" if v is None else str(v).strip()) for h, v in zip(header, row, strict=False)}
         if item.get("Prescription ID") and item["Prescription ID"] != EXAMPLE:
             out.append(item)
     return out

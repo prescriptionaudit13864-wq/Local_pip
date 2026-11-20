@@ -13,7 +13,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-
 _DIGIT_TRANSLATION = str.maketrans(
     {
         "\u09e6": "0", "\u09e7": "1", "\u09e8": "2", "\u09e9": "3", "\u09ea": "4",

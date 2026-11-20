@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import csv
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import yaml
 
 from .frequency_parser import parse_frequency
-
 
 _EMPTY = {"", "nan", "none", "null"}
 _SALT_WORDS = {
@@ -284,7 +284,7 @@ def _written_form(raw: str) -> str:
     return ""
 
 
-def _solid_form_prior(row: "_MedicineRow", raw: str) -> int:
+def _solid_form_prior(row: _MedicineRow, raw: str) -> int:
     """Prefer plausible solid oral products when raw text has solid mg strength.
 
     This is a generic ranking heuristic for ambiguous brand variants. It is not

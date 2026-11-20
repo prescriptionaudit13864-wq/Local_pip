@@ -6,11 +6,11 @@ a model and does not convert candidates into final findings.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Mapping, Sequence
-
+from typing import Any
 
 SECTIONS = ("Demo", "CC", "Hx", "Dx", "Inv", "Rx", "Adv")
 
@@ -300,12 +300,7 @@ def _clinical_slice(
 
 
 def _context_slice(section: str, patient_context: Mapping[str, Any]) -> dict[str, Any]:
-    if section in {"CC", "Hx"}:
-        keys = (
-            "age_years", "gender", "is_child", "is_elderly", "is_pregnant",
-            "is_lactating", "context_evidence", "warnings",
-        )
-    elif section == "Demo":
+    if section in {"CC", "Hx"} or section == "Demo":
         keys = (
             "age_years", "gender", "is_child", "is_elderly", "is_pregnant",
             "is_lactating", "context_evidence", "warnings",

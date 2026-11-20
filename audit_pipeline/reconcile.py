@@ -4,7 +4,6 @@ import re
 
 from .models import Finding
 
-
 _STOP = {"the", "and", "for", "with", "that", "this", "from", "should", "not"}
 
 

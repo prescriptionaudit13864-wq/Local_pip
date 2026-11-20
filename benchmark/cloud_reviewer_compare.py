@@ -62,8 +62,13 @@ def ask(api, model: str, messages, prefix: str, max_tokens: int) -> tuple[str, f
 
 
 def main() -> None:
-    from audit_pipeline.clinical_reviewer import (build_messages, build_verify_messages, in_section, parse_keep,
-                                                  parse_problems)
+    from audit_pipeline.clinical_reviewer import (
+        build_messages,
+        build_verify_messages,
+        in_section,
+        parse_keep,
+        parse_problems,
+    )
     from audit_pipeline.finetune_prompt import _drug_facts
     api, model = client()
     local = {(r["n"], r["section"]): r for r in json.loads(LOCAL.read_text(encoding="utf-8"))} if LOCAL.exists() else {}

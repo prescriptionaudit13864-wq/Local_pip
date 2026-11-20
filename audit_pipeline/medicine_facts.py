@@ -11,9 +11,9 @@ import html
 import json
 import re
 from collections import defaultdict
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
-
+from typing import Any
 
 SECTION_FIELDS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "Rx": (

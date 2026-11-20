@@ -13,13 +13,13 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
-
 from run_benchmark import BENCH, matches
 
 # Results kept in the folder from models that were dropped from the comparison.

@@ -12,7 +12,6 @@ docs/PrescribeX_Technical_Documentation.md). With the local provider nothing lea
 from __future__ import annotations
 
 import argparse
-from contextlib import nullcontext
 import json
 import logging
 import os
@@ -20,10 +19,12 @@ import sqlite3
 import sys
 import tempfile
 import threading
-from time import perf_counter
+from collections.abc import Mapping
+from contextlib import nullcontext
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Mapping
+from time import perf_counter
+from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from dotenv import load_dotenv
@@ -35,13 +36,13 @@ from .app_adapter import (
     normalize_payload,
     visit_to_row,
 )
+from .icd11_terminology import ICD11Terminology
 from .incremental_audit import (
     audit_domains_for,
     compare_live_with_final,
     scope_live_record,
     summarize_live_report,
 )
-from .icd11_terminology import ICD11Terminology
 from .investigation_catalog import investigation_categories, load_catalog, search_investigations
 from .orchestrator import AuditOptions, PrescriptionAuditOrchestrator
 from .provider import create_provider
@@ -165,8 +166,15 @@ class AuditService:
         """Second layer (audit_pipeline/clinical_reviewer.py): the base model reviews the section just written, in the
         context of the prescription so far, after the fast fine-tuned check. The payload is the section-audit payload
         plus "layer1": the first check's findings (their text), so the reviewer does not repeat them."""
-        from .clinical_reviewer import (build_messages, build_verify_messages, concrete_hints, in_section, parse_keep, split_shown,
-                                        parse_problems)
+        from .clinical_reviewer import (
+            build_messages,
+            build_verify_messages,
+            concrete_hints,
+            in_section,
+            parse_keep,
+            parse_problems,
+            split_shown,
+        )
         from .finetune_prompt import _drug_facts, flatten_candidates, parse_section_task
 
         # AUDIT_REVIEWER=0 in .env switches layer 2 off (the app then shows only the fast check).

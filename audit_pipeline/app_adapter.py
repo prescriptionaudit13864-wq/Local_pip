@@ -19,10 +19,11 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from collections.abc import Iterable, Mapping
 from contextlib import closing
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 from .frequency_parser import normalize_digits
 
@@ -169,7 +170,7 @@ def _to_datetime(value: Any) -> datetime | None:
         if number > 1e11:  # milliseconds
             number /= 1000.0
         if number > 1e8:
-            return datetime.fromtimestamp(number, tz=timezone.utc).replace(tzinfo=None)
+            return datetime.fromtimestamp(number, tz=UTC).replace(tzinfo=None)
         return None
     text = _s(value)
     try:
@@ -182,7 +183,7 @@ def _to_datetime(value: Any) -> datetime | None:
                 continue
         return None
     if parsed.tzinfo is not None:
-        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+        parsed = parsed.astimezone(UTC).replace(tzinfo=None)
     return parsed
 
 

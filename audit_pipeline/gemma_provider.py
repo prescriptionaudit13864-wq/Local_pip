@@ -20,7 +20,8 @@ import json
 import os
 import urllib.error
 import urllib.request
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from .finetune_prompt import (
     UNSUPPORTED_POLICIES,

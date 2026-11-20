@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from .clinical_finding_interpreter import interpret_clinical_findings
 from .text_translation import translated_text
-
 
 _PREGNANCY = re.compile(
     r"\b(pregnan(?:t|cy)|gestation(?:al)?|gravid(?:a)?|antenatal|anc\b|trimester)\b",

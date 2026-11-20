@@ -6,11 +6,12 @@ final-report stages. Clinical decisions remain owned by those individual stages.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
 from pathlib import Path
 from time import perf_counter
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 import yaml
 
@@ -32,7 +33,6 @@ from .protocol import load_protocol, resolve_protocol_path
 from .rag_query_planner import plan_guideline_rag_seeds
 from .rule_candidate_engine import generate_rule_candidates
 from .safety_candidate_engine import generate_safety_candidates
-
 
 _FACT_SECTIONS = ("Rx", "Adv", "Dx")
 _STANDARD_ALIASES = {

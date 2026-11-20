@@ -14,7 +14,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-
 LEGACY_CATALOG_PATH = Path(__file__).resolve().parent / "data" / "bd_investigation_catalog.csv"
 CATALOG_PATH = Path(__file__).resolve().parent / "data" / "ibnsina_investigation_catalog.csv"
 IBNSINA_CATALOG_PATH = CATALOG_PATH

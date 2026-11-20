@@ -8,12 +8,12 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from .frequency_parser import normalize_digits
 from .investigation_catalog import match_investigation
 from .text_translation import translated_text
-
 
 SECTIONS = ("Demo", "CC", "Hx", "Dx", "Inv", "Rx", "Adv")
 
@@ -2064,9 +2064,7 @@ def _add_protocol_review_candidates(
             if trigger_field:
                 if not _field(prescription, trigger_field):
                     continue
-            elif concern_id in _PROTOCOL_REVIEW_EXCLUDED:
-                continue
-            elif concern_id in generated and concern_id not in _REVIEW_EVEN_IF_GENERATED:
+            elif concern_id in _PROTOCOL_REVIEW_EXCLUDED or concern_id in generated and concern_id not in _REVIEW_EVEN_IF_GENERATED:
                 continue
             if any(item.get("rule_id") == concern_id for item in grouped[section]):
                 continue

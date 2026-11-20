@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from .models import Finding
 from .reconcile import reconcile
-
 
 SECTIONS = ("Demo", "CC", "Hx", "Dx", "Inv", "Rx", "Adv")
 _REQUIRED_FINDING_FIELDS = (

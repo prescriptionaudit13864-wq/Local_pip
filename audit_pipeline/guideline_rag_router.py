@@ -8,12 +8,12 @@ medicine, and advice/follow-up.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from .guideline_rag import GuidelineRAG, medicine_query_text
 from .text_translation import translated_text
-
 
 SECTIONS = ("Dx", "Inv", "Rx", "Adv")
 

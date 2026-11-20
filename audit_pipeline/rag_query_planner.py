@@ -9,12 +9,12 @@ deterministic seeds.
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping, Sequence
 from dataclasses import replace
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from .guideline_rag_router import GuidelineRAGSeed
 from .provider import parse_json_value
-
 
 SYSTEM_PROMPT = """You are a retrieval query planner for a prescription audit system.
 Your only job is to improve RAG search terms. Do not decide whether there is an error.

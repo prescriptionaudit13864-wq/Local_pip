@@ -33,7 +33,8 @@ def ids(text: str) -> set[str]:
 
 
 def main() -> None:
-    rows = [json.loads(line) for line in open(DATA / "gold_v4_knowledge_validation.jsonl", encoding="utf-8")]
+    with open(DATA / "gold_v4_knowledge_validation.jsonl", encoding="utf-8") as fh:
+        rows = [json.loads(line) for line in fh]
     rows = [r for r in rows if r["label_source"] == "multi_physician_gold_v2"
             and (SECTIONS is None or r["target_section"] in SECTIONS)]
     rows.sort(key=lambda r: -len(r["output"]["detected_errors"]))

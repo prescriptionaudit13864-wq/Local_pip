@@ -12,7 +12,8 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Iterable, Mapping
+from collections.abc import Iterable, Mapping
+from typing import Any
 
 # Writing order of the app (frontend section key -> reviewer section name, prescription field, title).
 SECTIONS: list[tuple[str, str, str, str]] = [
