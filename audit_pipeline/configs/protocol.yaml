@@ -28,6 +28,12 @@ auditor_role: >
 #   The visit type is provided as a fixed fact. Never infer or modify the visit type yourself.
 #   Never invent a problem that is not supported by the prescription. Do not flag trivial, stylistic, speculative, or low-confidence issues. If the available evidence is insufficient, do not report an error.
 
+# Physician rule (Nov 2026 review): every oral medicine needs before/after-meal timing, not only medicines whose
+# guideline mentions food. false = ask only when medicine evidence says timing matters.
+meal_timing_required_for_all_oral: true
+# The final audit on save also runs the rulebook review the live checks use. false = live checks only.
+review_in_final_audit: true
+
 # Visit type is computed by YOUR classify_visit() in the notebook and passed in.
 # These concerns apply only when results exist (followup).
 followup_only_concerns: [Dx.inv.1]

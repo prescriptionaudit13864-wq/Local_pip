@@ -1,7 +1,7 @@
 {
   "CC": {
     "section_name": "Chief complaint",
-    "instruction": "Review only the Chief complaint section. Select every matching CC error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "instruction": "Review only the Chief complaint section. Select every matching CC error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain rule_id, rule_name, concern, and why: one short sentence naming the entry in this prescription that is wrong and what is wrong or missing about it.",
     "allowed_error_types": [
       {
         "rule_id": "CC.1",
@@ -32,6 +32,11 @@
         "rule_id": "CC.hs",
         "rule_name": "clinical_finding_complaint_mismatch",
         "concern": "Chief complaint should align with clinically significant screening or examination findings."
+      },
+      {
+        "rule_id": "CC.time",
+        "rule_name": "implausible_duration",
+        "concern": "The stated duration or onset is impossible for this patient or complaint, for example a duration longer than the patient's age or a pregnancy longer than ten months."
       }
     ],
     "context_keys": [
@@ -45,13 +50,8 @@
   },
   "Dx": {
     "section_name": "Diagnosis",
-    "instruction": "Review only the Diagnosis section. Select every matching Dx error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "instruction": "Review only the Diagnosis section. Select every matching Dx error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain rule_id, rule_name, concern, and why: one short sentence naming the entry in this prescription that is wrong and what is wrong or missing about it.",
     "allowed_error_types": [
-      {
-        "rule_id": "Dx.cc.1",
-        "rule_name": "diagnosis_complaint_mismatch",
-        "concern": "Diagnosis should plausibly explain the chief complaint as a whole."
-      },
       {
         "rule_id": "Dx.cc.1",
         "rule_name": "diagnosis_does_not_explain_complaint",
@@ -75,7 +75,7 @@
       {
         "rule_id": "Dx.hs.1",
         "rule_name": "diagnosis_contradicts_clinical_findings",
-        "concern": "Diagnosis correctly interprets the investigation results."
+        "concern": "Diagnosis is compatible with all clinically significant clinical findings and does not contradict them. Ignore findings explicitly documented as normal unless contradicted elsewhere."
       },
       {
         "rule_id": "Dx.hs.2",
@@ -102,12 +102,12 @@
   },
   "Adv": {
     "section_name": "Advice / counseling",
-    "instruction": "Review only the Advice / counseling section. Select every matching Adv error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "instruction": "Review only the Advice / counseling section. Select every matching Adv error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain rule_id, rule_name, concern, and why: one short sentence naming the entry in this prescription that is wrong and what is wrong or missing about it.",
     "allowed_error_types": [
       {
         "rule_id": "Adv.cc",
         "rule_name": "diagnosis_specific_counseling_missing",
-        "concern": "Diagnosis correctly interprets the investigation results."
+        "concern": "A specific counselling instruction that the diagnosis clearly requires is present (not generic completeness). Only flag a concrete, well-established missing instruction. CULTURAL CONTEXT (Bangladesh): advice must fit local food habits and culture. Do NOT recommend or flag advice about avoiding milk/calcium with iron (uncommon dietary conflict locally) or about alcohol (not culturally relevant unless an alcohol history exists). Avoiding tea/coffee near iron IS relevant and acceptable. Prefer locally meaningful advice."
       },
       {
         "rule_id": "Adv.hs",
@@ -132,19 +132,17 @@
       "Diagnosis",
       "Medication",
       "Advice",
-      "ANC_Notes",
-      "Health_Screening",
-      "On_Examination"
+      "ANC_Notes"
     ]
   },
   "Rx": {
     "section_name": "Treatment / medication",
-    "instruction": "Review only the Treatment / medication section. Select every matching Rx error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "instruction": "Review only the Treatment / medication section. Select every matching Rx error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain rule_id, rule_name, concern, and why: one short sentence naming the entry in this prescription that is wrong and what is wrong or missing about it.",
     "allowed_error_types": [
       {
         "rule_id": "Rx.cc.mis",
         "rule_name": "medicine_contradicts_diagnosis_or_complaint",
-        "concern": "Diagnosis correctly interprets the investigation results."
+        "concern": "No medicine contradicts the diagnosis or complaints. When the diagnosis only partially matches the picture, check that the chosen generic is still appropriate for the condition being treated."
       },
       {
         "rule_id": "Rx.cc.sym",
@@ -195,12 +193,23 @@
         "rule_id": "Rx.timing",
         "rule_name": "medicine_timing_missing",
         "concern": "Before or after meal timing specified (most common Rx error)."
+      },
+      {
+        "rule_id": "Rx.risk.pregnancy",
+        "rule_name": "medicine_unsafe_in_pregnancy_or_lactation",
+        "concern": "A medicine is to be avoided or is contraindicated in this patient's pregnancy or breastfeeding according to the drug facts, and no reason or safer choice is recorded."
+      },
+      {
+        "rule_id": "Rx.contra",
+        "rule_name": "medicine_contraindicated_by_patient_condition",
+        "concern": "A medicine is contraindicated by a condition recorded for this patient (for example kidney or liver disease, peptic ulcer, asthma or a bleeding disorder) according to the drug facts."
       }
     ],
     "context_keys": [
       "Age",
       "Gender",
       "Chief_Complaint",
+      "Past_History",
       "Health_Screening",
       "On_Examination",
       "Systemic_Examination",
@@ -208,12 +217,13 @@
       "Investigation_Results",
       "Diagnosis",
       "Medication",
+      "Drug_Facts",
       "Advice"
     ]
   },
   "Inv": {
     "section_name": "Investigation",
-    "instruction": "Review only the Investigation section. Select every matching Inv error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "instruction": "Review only the Investigation section. Select every matching Inv error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain rule_id, rule_name, concern, and why: one short sentence naming the entry in this prescription that is wrong and what is wrong or missing about it.",
     "allowed_error_types": [
       {
         "rule_id": "Inv.cc",
@@ -250,13 +260,12 @@
       "Systemic_Examination",
       "Investigation",
       "Investigation_Results",
-      "Diagnosis",
-      "Advice"
+      "Diagnosis"
     ]
   },
   "Demo": {
     "section_name": "Demographics",
-    "instruction": "Review only the Demographics section. Select every matching Demo error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain only rule_id, rule_name, and concern.",
+    "instruction": "Review only the Demographics section. Select every matching Demo error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain rule_id, rule_name, concern, and why: one short sentence naming the entry in this prescription that is wrong and what is wrong or missing about it.",
     "allowed_error_types": [
       {
         "rule_id": "Demo.1",
@@ -272,6 +281,41 @@
     "context_keys": [
       "Age",
       "Gender"
+    ]
+  },
+  "Hx": {
+    "section_name": "Past history",
+    "instruction": "Review only the Past history section. Select every matching Hx error type from the allowed_error_types list. Do not invent rules. Return JSON only with has_error, section, and detected_errors. Each detected error must contain rule_id, rule_name, concern, and why: one short sentence naming the entry in this prescription that is wrong and what is wrong or missing about it.",
+    "allowed_error_types": [
+      {
+        "rule_id": "Hx.context.demo",
+        "rule_name": "history_demographic_mismatch",
+        "concern": "Past history is impossible for the patient's sex or age, for example a hysterectomy in a male or menopause in a child."
+      },
+      {
+        "rule_id": "Hx.time.plausibility",
+        "rule_name": "history_implausible_timing",
+        "concern": "The stated duration or onset of a past condition is impossible for this patient, for example a duration longer than the patient's age."
+      },
+      {
+        "rule_id": "Hx.duplicate",
+        "rule_name": "history_duplicate_entry",
+        "concern": "The same condition is recorded twice under different names."
+      },
+      {
+        "rule_id": "Hx.detail",
+        "rule_name": "history_safety_detail_missing",
+        "concern": "An allergy without the allergen, or an operation without the procedure, is recorded; the missing detail is needed for safe treatment."
+      }
+    ],
+    "context_keys": [
+      "Age",
+      "Gender",
+      "Past_History",
+      "Chief_Complaint",
+      "Health_Screening",
+      "On_Examination",
+      "Systemic_Examination"
     ]
   }
 }

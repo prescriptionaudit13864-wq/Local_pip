@@ -139,7 +139,8 @@ _FOLLOWUP_CONTEXT_CC = re.compile(
     re.IGNORECASE,
 )
 _MEAL_TIMING = re.compile(
-    r"\b(?:before|after)\s+(?:the\s+)?(?:food|meals?|eating)\b|"
+    r"\b(?:before|after|with)\s+(?:the\s+)?(?:food|meals?|eating)\b|"
+    r"\bempty\s+stomach\b|"
     r"\b(?:ac|pc)\b",
     re.IGNORECASE,
 )
@@ -169,11 +170,14 @@ _ROUTE_INSTRUCTION = re.compile(
     r"external\s+use)\b",
     re.IGNORECASE,
 )
+# A bare "N weeks" is a gestational age only when it is the whole entry ("28 weeks"); "swelling for 1 week"
+# or "cough 2 weeks" is a complaint duration and must not mark the patient as pregnant.
 _PREGNANCY_CONTEXT = re.compile(
-    r"\b(pregnan\w*|gravida|gestation|antenatal|anc|trimester|"
-    r"\d+\s*(?:weeks?|wks?)\b)",
-    re.IGNORECASE,
+    r"\b(pregnan\w*|gravida|gestation\w*|antenatal|anc|trimester)\b|"
+    r"^\s*\d+\s*(?:weeks?|wks?)\s*$",
+    re.IGNORECASE | re.MULTILINE,
 )
+_GESTATIONAL_WEEKS = re.compile(r"\b\d+\s*(?:weeks?|wks?)\b", re.IGNORECASE)
 _PREGNANCY_DANGER_SIGN = re.compile(
     r"\b(?:less|reduced|decreased|no)\s+fetal\s+movement\b|"
     r"\bbleeding\s+during\s+pregnancy\b|"
@@ -340,7 +344,9 @@ def _has_pregnancy_context(
             "Health Screening",
         )
     )
-    return _PREGNANCY_CONTEXT.search(combined) is not None
+    # In obstetric notes any "N weeks" is a gestational age.
+    anc = " ".join(_field(prescription, name) for name in ("ANC_Notes", "ANC/PNC Notes"))
+    return _PREGNANCY_CONTEXT.search(combined) is not None or _GESTATIONAL_WEEKS.search(anc) is not None
 
 
 def _pregnancy_danger_evidence(prescription: Mapping[str, Any]) -> str:
@@ -1756,7 +1762,10 @@ def generate_rule_candidates(
             raw
             and not _NON_ORAL_FORM.search(form_and_raw)
             and not _timing_rule_exempt(medicine, protocol)
-            and _meal_timing_required_by_evidence(medicine, medicine_facts_by_id, protocol)
+            and (
+                _cfg(protocol, "meal_timing_required_for_all_oral", False)
+                or _meal_timing_required_by_evidence(medicine, medicine_facts_by_id, protocol)
+            )
             and not _has_meal_timing(medicine)
         ):
             grouped["Rx"].append(_candidate(
@@ -1980,7 +1989,10 @@ def generate_rule_candidates(
         guideline_facts_by_section,
     )
 
-    if live_section_audit:
+    # The final audit on save runs the same rulebook review as the live checks; otherwise an alert the doctor
+    # saw while typing could vanish from the saved report (measured: 71% vs 46% of physician-labelled errors
+    # reachable, benchmark/candidate_coverage.py). review_in_final_audit: false restores live-only.
+    if live_section_audit or _cfg(protocol, "review_in_final_audit", True):
         _add_protocol_review_candidates(grouped, rule_ids, prescription, protocol)
 
     for section in SECTIONS:
@@ -2007,6 +2019,12 @@ _PROTOCOL_REVIEW_EXCLUDED = {
 }
 _PROTOCOL_REVIEW_SECTIONS = ("Dx", "Inv", "Rx", "Adv")
 _ALIASED_RULE_IDS = {"CC.demo", "Dx.demo", "Rx.dup"}  # produced under another id (e.g. CC.context.demo)
+# Rules an engine can raise, but only in narrow cases (a numeric dose limit, one medicine type, an alias),
+# so physician-labelled errors of these kinds mostly had no candidate. They get the rulebook review whenever
+# no engine raised them for this prescription.
+_REVIEW_EVEN_IF_GENERATED = {"Rx.instr", "Rx.demo", "Rx.cc.mis"}
+# Follow-up-only rules reviewed on a first visit too when their trigger is present in the record.
+_REVIEW_WHEN_FIELD_PRESENT = {"Dx.inv.1": "Investigation_Results"}
 
 
 def _protocol_review_context(section: str, prescription: Mapping[str, Any]) -> str:
@@ -2040,7 +2058,15 @@ def _add_protocol_review_candidates(
             if not isinstance(rule, Mapping):
                 continue
             concern_id = _text(rule.get("id", ""))
-            if not concern_id or concern_id in generated or concern_id in _PROTOCOL_REVIEW_EXCLUDED:
+            if not concern_id:
+                continue
+            trigger_field = _REVIEW_WHEN_FIELD_PRESENT.get(concern_id)
+            if trigger_field:
+                if not _field(prescription, trigger_field):
+                    continue
+            elif concern_id in _PROTOCOL_REVIEW_EXCLUDED:
+                continue
+            elif concern_id in generated and concern_id not in _REVIEW_EVEN_IF_GENERATED:
                 continue
             if any(item.get("rule_id") == concern_id for item in grouped[section]):
                 continue

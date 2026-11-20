@@ -1,0 +1,1534 @@
+[
+ {
+  "n": 1,
+  "group": "doctor",
+  "case": "CC: loss of weight for 1 day",
+  "section": "chiefComplaints",
+  "layer1_s": 8.7,
+  "review_s": 1.5,
+  "layer1": [
+   [
+    "CC.time.plausibility",
+    "'Loss of weight for 1 day': this is not plausible in that time; check the entry."
+   ]
+  ],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 2,
+  "group": "doctor",
+  "case": "CC: increased weight for 1 day",
+  "section": "chiefComplaints",
+  "layer1_s": 7.7,
+  "review_s": 1.1,
+  "layer1": [
+   [
+    "CC.time.plausibility",
+    "'Increased weight for 1 day': this is not plausible in that time; check the entry."
+   ]
+  ],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 3,
+  "group": "doctor",
+  "case": "CC: weight gain 6 kg in 1 day",
+  "section": "chiefComplaints",
+  "layer1_s": 8.2,
+  "review_s": 1.2,
+  "layer1": [
+   [
+    "CC.time.plausibility",
+    "'Weight gain 6 kg in 1 day': this is not plausible in that time; check the entry."
+   ]
+  ],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 4,
+  "group": "doctor",
+  "case": "CC: elbow pain (no side, no duration)",
+  "section": "chiefComplaints",
+  "layer1_s": 6.6,
+  "review_s": 4.3,
+  "layer1": [
+   [
+    "CC.3",
+    "Duration is not mentioned for 'Elbow pain'."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Elbow pain",
+    "problem": "The side (left or right) is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 5,
+  "group": "doctor",
+  "case": "CC: ear pain (no side)",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 5.4,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Ear pain for 3 days",
+    "problem": "The side of the ear (left, right, or both) is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 6,
+  "group": "doctor",
+  "case": "CC/Inv/Dx: elbow, sides disagree",
+  "section": "chiefComplaints",
+  "layer1_s": 2.3,
+  "review_s": 4.9,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Elbow pain for 3 days",
+    "problem": "The side (left or right) is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 6,
+  "group": "doctor",
+  "case": "CC/Inv/Dx: elbow, sides disagree",
+  "section": "investigations",
+  "layer1_s": 2.7,
+  "review_s": 5.7,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "X-ray of right elbow",
+    "problem": "The side of the elbow is not specified in the chief complaint.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 6,
+  "group": "doctor",
+  "case": "CC/Inv/Dx: elbow, sides disagree",
+  "section": "diagnosis",
+  "layer1_s": 2.3,
+  "review_s": 7.8,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Left elbow joint pain",
+    "problem": "The diagnosis of left elbow pain contradicts the chief complaint of right elbow pain.",
+    "severity": "review"
+   },
+   {
+    "entry": "Left elbow joint pain",
+    "problem": "The diagnosis of left elbow pain contradicts the X-ray of the right elbow.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 7,
+  "group": "doctor",
+  "case": "CC: pregnancy in a man + headache with no duration",
+  "section": "chiefComplaints",
+  "layer1_s": 13.6,
+  "review_s": 5.4,
+  "layer1": [
+   [
+    "CC.3",
+    "Duration is not mentioned for 'Headache'."
+   ],
+   [
+    "CC.context.demo",
+    "'Pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Pregnancy for 2 months",
+    "problem": "The complaint of pregnancy is not plausible for a male patient.",
+    "severity": "critical"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 8,
+  "group": "doctor",
+  "case": "CC: severe chest pain without severity details",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 4.8,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Chest pain for 2 hours",
+    "problem": "Severity of chest pain must be stated as it decides emergency care.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 9,
+  "group": "doctor",
+  "case": "Inv: PSA for a woman",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 5.3,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Lower abdominal pain for 1 week",
+    "problem": "The severity of the abdominal pain is not stated, which is required to determine if emergency care is necessary.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 9,
+  "group": "doctor",
+  "case": "Inv: PSA for a woman",
+  "section": "investigations",
+  "layer1_s": 7.3,
+  "review_s": 4.7,
+  "layer1": [
+   [
+    "Inv.dx",
+    "More investigations regarding abdominal pain."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "PSA (Prostate Specific Antigen)",
+    "problem": "The test is not clinically indicated for a female patient.",
+    "severity": "critical"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 10,
+  "group": "doctor",
+  "case": "Inv: Pap smear for a man",
+  "section": "chiefComplaints",
+  "layer1_s": 2.6,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 10,
+  "group": "doctor",
+  "case": "Inv: Pap smear for a man",
+  "section": "investigations",
+  "layer1_s": 8.1,
+  "review_s": 4.8,
+  "layer1": [
+   [
+    "Inv.dx",
+    "Urinary symptom needs a urine routine examination, which is not requested."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Pap smear",
+    "problem": "A Pap smear is an inappropriate investigation for a male patient.",
+    "severity": "critical"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 11,
+  "group": "doctor",
+  "case": "Dx: male, GDM first",
+  "section": "chiefComplaints",
+  "layer1_s": 2.5,
+  "review_s": 1.5,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 11,
+  "group": "doctor",
+  "case": "Dx: male, GDM first",
+  "section": "diagnosis",
+  "layer1_s": 8.0,
+  "review_s": 4.8,
+  "layer1": [
+   [
+    "Dx.context.demo",
+    "'Gestational diabetes mellitus' does not fit a male patient: check the complaint and the recorded sex."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Pregnancy in 3rd trimester",
+    "problem": "The diagnosis of pregnancy is not plausible for a male patient.",
+    "severity": "critical"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 12,
+  "group": "doctor",
+  "case": "Dx: male, pregnancy first",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 12,
+  "group": "doctor",
+  "case": "Dx: male, pregnancy first",
+  "section": "diagnosis",
+  "layer1_s": 8.3,
+  "review_s": 4.6,
+  "layer1": [
+   [
+    "Dx.context.demo",
+    "'Pregnancy in 3rd trimester' does not fit a male patient: check the complaint and the recorded sex."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Gestational diabetes mellitus",
+    "problem": "The diagnosis of gestational diabetes is not plausible for a male patient.",
+    "severity": "critical"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 13,
+  "group": "doctor",
+  "case": "Rx: antibiotic with no infection",
+  "section": "chiefComplaints",
+  "layer1_s": 2.6,
+  "review_s": 4.7,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Headache for 2 days",
+    "problem": "The location of the headache is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 13,
+  "group": "doctor",
+  "case": "Rx: antibiotic with no infection",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 5.5,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Tension headache",
+    "problem": "The diagnosis does not specify if the headache is sudden and severe, which would require emergency assessment.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 13,
+  "group": "doctor",
+  "case": "Rx: antibiotic with no infection",
+  "section": "rx",
+  "layer1_s": 10.6,
+  "review_s": 7.0,
+  "layer1": [
+   [
+    "Rx.over",
+    "Azithrocin is prescribed, but no condition that calls for it is recorded in the complaints, diagnosis or past history."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Napa 500 mg (1 + 0 + 1) - (3 day(s))",
+    "problem": "The dose of 1000 mg per day is sub-therapeutic for an adult with a headache.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 14,
+  "group": "doctor",
+  "case": "Rx: antibiotic for 30 days",
+  "section": "chiefComplaints",
+  "layer1_s": 2.5,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 14,
+  "group": "doctor",
+  "case": "Rx: antibiotic for 30 days",
+  "section": "diagnosis",
+  "layer1_s": 2.3,
+  "review_s": 5.8,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Urinary tract infection",
+    "problem": "The diagnosis does not specify if the infection is localized to the lower urinary tract (cystitis) or upper urinary tract (pyelonephritis).",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 14,
+  "group": "doctor",
+  "case": "Rx: antibiotic for 30 days",
+  "section": "rx",
+  "layer1_s": 16.4,
+  "review_s": 6.9,
+  "layer1": [
+   [
+    "Rx.cc.sym",
+    "Burning micturition is a symptom of UTI, but no antibiotic is prescribed for the infection."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Ciprocin 500 mg (1 + 0 + 1) - (30 day(s))",
+    "problem": "The antibiotic course is longer than 14 days without a stated reason.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 15,
+  "group": "doctor",
+  "case": "Rx: antibiotic twice daily, gastric medicine once",
+  "section": "chiefComplaints",
+  "layer1_s": 2.6,
+  "review_s": 1.3,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 15,
+  "group": "doctor",
+  "case": "Rx: antibiotic twice daily, gastric medicine once",
+  "section": "diagnosis",
+  "layer1_s": 2.3,
+  "review_s": 6.0,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Urinary tract infection",
+    "problem": "The diagnosis does not specify if the infection is localized to the bladder (cystitis) or involves the kidneys (pyelonephritis).",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 15,
+  "group": "doctor",
+  "case": "Rx: antibiotic twice daily, gastric medicine once",
+  "section": "rx",
+  "layer1_s": 3.2,
+  "review_s": 6.9,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Ciprocin 500 mg (1 + 0 + 1)",
+    "problem": "Ciprofloxacin absorption may be significantly reduced if taken with dairy products or certain antacids.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 16,
+  "group": "suite",
+  "case": "Doctor's visit: male, wrong complaints, vague history",
+  "section": "chiefComplaints",
+  "layer1_s": 15.0,
+  "review_s": 4.6,
+  "layer1": [
+   [
+    "CC.3",
+    "Duration is not documented for multiple patient-reported complaints."
+   ],
+   [
+    "CC.context.demo",
+    "'Pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "pregnancy for two days",
+    "problem": "The complaint of pregnancy is not plausible for a male patient.",
+    "severity": "critical"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 16,
+  "group": "suite",
+  "case": "Doctor's visit: male, wrong complaints, vague history",
+  "section": "pastHistory",
+  "layer1_s": 16.0,
+  "review_s": 8.0,
+  "layer1": [
+   [
+    "Hx.detail",
+    "'Allergic' does not name the allergen or the reaction."
+   ],
+   [
+    "Hx.detail",
+    "'Surgical History' does not name the operation or roughly when it was done."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "High Pressure",
+    "problem": "The specific blood pressure reading or current status is not documented.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 17,
+  "group": "suite",
+  "case": "Female-only history in a man",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 17,
+  "group": "suite",
+  "case": "Female-only history in a man",
+  "section": "pastHistory",
+  "layer1_s": 8.1,
+  "review_s": 5.5,
+  "layer1": [
+   [
+    "Hx.context.demo",
+    "'Hysterectomy' does not fit a male patient: check the complaint and the recorded sex."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Hysterectomy",
+    "problem": "A hysterectomy is a surgical procedure to remove the uterus, which is not anatomically possible for a male patient.",
+    "severity": "critical"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 18,
+  "group": "suite",
+  "case": "Clean history",
+  "section": "chiefComplaints",
+  "layer1_s": 2.5,
+  "review_s": 5.0,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Headache for 3 days",
+    "problem": "The location of the headache is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 18,
+  "group": "suite",
+  "case": "Clean history",
+  "section": "pastHistory",
+  "layer1_s": 2.5,
+  "review_s": 1.5,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 19,
+  "group": "suite",
+  "case": "History longer than life",
+  "section": "chiefComplaints",
+  "layer1_s": 2.5,
+  "review_s": 1.5,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 19,
+  "group": "suite",
+  "case": "History longer than life",
+  "section": "pastHistory",
+  "layer1_s": 8.3,
+  "review_s": 1.2,
+  "layer1": [
+   [
+    "Hx.time.plausibility",
+    "'Diabetes for 30 years' is longer than the patient's age of 26 years."
+   ]
+  ],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 20,
+  "group": "suite",
+  "case": "Diagnosis does not explain complaint",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 20,
+  "group": "suite",
+  "case": "Diagnosis does not explain complaint",
+  "section": "diagnosis",
+  "layer1_s": 8.8,
+  "review_s": 5.4,
+  "layer1": [
+   [
+    "Dx.cc.1",
+    "Itching all over the body is the complaint, but bronchitis does not explain it."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Acute bronchitis",
+    "problem": "The diagnosis does not explain the patient's chief complaint of itching all over the body.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 21,
+  "group": "suite",
+  "case": "Clean diagnosis",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 21,
+  "group": "suite",
+  "case": "Clean diagnosis",
+  "section": "diagnosis",
+  "layer1_s": 2.3,
+  "review_s": 5.8,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Urinary tract infection",
+    "problem": "The diagnosis does not specify if the infection is localized to the lower urinary tract (cystitis) or upper urinary tract (pyelonephritis).",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 22,
+  "group": "suite",
+  "case": "Suspected dengue without NS1",
+  "section": "chiefComplaints",
+  "layer1_s": 2.8,
+  "review_s": 5.9,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Headache for 3 days",
+    "problem": "The severity of the headache is not stated, which is required to determine if it is a sudden severe headache requiring emergency care.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 22,
+  "group": "suite",
+  "case": "Suspected dengue without NS1",
+  "section": "investigations",
+  "layer1_s": 8.8,
+  "review_s": 5.2,
+  "layer1": [
+   [
+    "Inv.relevance",
+    "No chest symptom or finding is recorded, so the reason for the chest X-ray is not clear."
+   ],
+   [
+    "Inv.hs",
+    "No chest symptom or finding is recorded, so the reason for the chest X-ray is not clear."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Chest X-ray",
+    "problem": "The test is ordered without a corresponding respiratory symptom or clinical finding in the history.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 22,
+  "group": "suite",
+  "case": "Suspected dengue without NS1",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 5.2,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Suspected dengue fever",
+    "problem": "The diagnosis does not explain the result of the Chest X-ray.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 23,
+  "group": "suite",
+  "case": "Clean diabetes tests",
+  "section": "chiefComplaints",
+  "layer1_s": 2.5,
+  "review_s": 1.4,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 23,
+  "group": "suite",
+  "case": "Clean diabetes tests",
+  "section": "investigations",
+  "layer1_s": 2.7,
+  "review_s": 5.7,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "HbA1c",
+    "problem": "The test is ordered without a stated reason or clinical context in the prescription.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 23,
+  "group": "suite",
+  "case": "Clean diabetes tests",
+  "section": "diagnosis",
+  "layer1_s": 2.6,
+  "review_s": 6.3,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Type 2 diabetes mellitus",
+    "problem": "The diagnosis is not yet confirmed as the results of the ordered HbA1c and Fasting blood sugar tests are not present.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 24,
+  "group": "suite",
+  "case": "Adult paracetamol dose for a 4-year-old",
+  "section": "chiefComplaints",
+  "layer1_s": 2.5,
+  "review_s": 1.4,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 24,
+  "group": "suite",
+  "case": "Adult paracetamol dose for a 4-year-old",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 5.9,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Fever",
+    "problem": "The diagnosis does not explain the cause of the fever or provide a specific clinical assessment for a 5-year-old child.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 24,
+  "group": "suite",
+  "case": "Adult paracetamol dose for a 4-year-old",
+  "section": "rx",
+  "layer1_s": 2.6,
+  "review_s": 6.4,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Napa 500 mg (1 + 1 + 1)",
+    "problem": "The prescribed dose of 500 mg is an adult dose and is unsafe for a 5-year-old child.",
+    "severity": "critical"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 24,
+  "group": "suite",
+  "case": "Adult paracetamol dose for a 4-year-old",
+  "section": "advice",
+  "layer1_s": 2.3,
+  "review_s": 1.3,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 25,
+  "group": "suite",
+  "case": "Hyperlipidaemia without diet advice",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 5.1,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Follow up",
+    "problem": "The chief complaint does not specify the condition or reason for the follow-up.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 25,
+  "group": "suite",
+  "case": "Hyperlipidaemia without diet advice",
+  "section": "diagnosis",
+  "layer1_s": 2.5,
+  "review_s": 5.6,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Hyperlipidaemia",
+    "problem": "The diagnosis is not supported by any reported investigations or clinical findings in the current record.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 25,
+  "group": "suite",
+  "case": "Hyperlipidaemia without diet advice",
+  "section": "rx",
+  "layer1_s": 2.8,
+  "review_s": 3.9,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 25,
+  "group": "suite",
+  "case": "Hyperlipidaemia without diet advice",
+  "section": "advice",
+  "layer1_s": 6.8,
+  "review_s": 4.8,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Come back with report",
+    "problem": "The prescription does not specify which report is required for the follow-up.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 1.3,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "investigations",
+  "layer1_s": 2.5,
+  "review_s": 1.4,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "diagnosis",
+  "layer1_s": 2.3,
+  "review_s": 6.2,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Acute cystitis",
+    "problem": "The diagnosis of acute cystitis in a 36-year-old male requires consideration of potential prostatic involvement or upper urinary tract infection.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "rx",
+  "layer1_s": 8.7,
+  "review_s": 7.8,
+  "layer1": [
+   [
+    "Rx.cc.sym",
+    "Burning micturition is a complaint, but no antibiotic for urinary infection is prescribed."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Ciprocin 500 mg (1 + 0 + 1) - (5 day(s))",
+    "problem": "Ciprofloxacin should not be taken concurrently with milk or other dairy products, and its absorption is affected by magnesium or aluminum containing antacids.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "advice",
+  "layer1_s": 2.5,
+  "review_s": 1.6,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 27,
+  "group": "suite",
+  "case": "Impossible duration",
+  "section": "chiefComplaints",
+  "layer1_s": 7.9,
+  "review_s": 1.4,
+  "layer1": [
+   [
+    "CC.time.plausibility",
+    "'Weight loss for 1 day': this is not plausible in that time; check the entry."
+   ]
+  ],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 28,
+  "group": "suite",
+  "case": "Infant cold, no danger-sign advice",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 1.1,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 28,
+  "group": "suite",
+  "case": "Infant cold, no danger-sign advice",
+  "section": "diagnosis",
+  "layer1_s": 2.3,
+  "review_s": 1.3,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 28,
+  "group": "suite",
+  "case": "Infant cold, no danger-sign advice",
+  "section": "rx",
+  "layer1_s": 8.0,
+  "review_s": 9.2,
+  "layer1": [
+   [
+    "Rx.cc.sym",
+    "Runny nose is a complaint, but nothing is prescribed for it."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Antista 2 mg/5 ml (1/2 tsp twice)",
+    "problem": "The dose of 1/2 tsp (approx 2.5 ml) of a 2 mg/5 ml solution equals 1 mg, which is the correct dose for a 2-year-old, but the prescription lacks a clear frequency (e.g., every 4-6 hours or twice daily).",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 28,
+  "group": "suite",
+  "case": "Infant cold, no danger-sign advice",
+  "section": "advice",
+  "layer1_s": 2.4,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 29,
+  "group": "clean",
+  "case": "Clean: adult cystitis",
+  "section": "chiefComplaints",
+  "layer1_s": 2.7,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 29,
+  "group": "clean",
+  "case": "Clean: adult cystitis",
+  "section": "diagnosis",
+  "layer1_s": 2.3,
+  "review_s": 1.1,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 29,
+  "group": "clean",
+  "case": "Clean: adult cystitis",
+  "section": "rx",
+  "layer1_s": 3.1,
+  "review_s": 7.4,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Ciprocin 500 mg (1 + 0 + 1) - (5 day(s))",
+    "problem": "Ciprofloxacin is contraindicated with magnesium or aluminum containing antacids, which are common in patients with urinary symptoms.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 29,
+  "group": "clean",
+  "case": "Clean: adult cystitis",
+  "section": "advice",
+  "layer1_s": 2.5,
+  "review_s": 1.6,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 30,
+  "group": "clean",
+  "case": "Clean: child common cold",
+  "section": "chiefComplaints",
+  "layer1_s": 2.8,
+  "review_s": 1.4,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 30,
+  "group": "clean",
+  "case": "Clean: child common cold",
+  "section": "diagnosis",
+  "layer1_s": 2.3,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 30,
+  "group": "clean",
+  "case": "Clean: child common cold",
+  "section": "rx",
+  "layer1_s": 2.7,
+  "review_s": 7.0,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Napa 120 mg/5 ml (1 tsp thrice daily)",
+    "problem": "The prescribed dose of 1 tsp (120 mg) is below the recommended range of 125-250 mg for a child of this age.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 30,
+  "group": "clean",
+  "case": "Clean: child common cold",
+  "section": "advice",
+  "layer1_s": 2.7,
+  "review_s": 1.6,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 31,
+  "group": "clean",
+  "case": "Clean: gastritis",
+  "section": "chiefComplaints",
+  "layer1_s": 2.8,
+  "review_s": 1.4,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 31,
+  "group": "clean",
+  "case": "Clean: gastritis",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 5.6,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Gastritis",
+    "problem": "The diagnosis does not account for the possibility of peptic ulcer disease given the duration of epigastric pain.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 31,
+  "group": "clean",
+  "case": "Clean: gastritis",
+  "section": "rx",
+  "layer1_s": 2.9,
+  "review_s": 8.0,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Seclo 20 mg (1 + 0 + 1)",
+    "problem": "The prescribed dose of 40 mg/day for GERD/gastritis is typically administered as a single daily dose, but the drug facts specify divided doses only for doses exceeding 80 mg.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 31,
+  "group": "clean",
+  "case": "Clean: gastritis",
+  "section": "advice",
+  "layer1_s": 2.5,
+  "review_s": 1.5,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "chiefComplaints",
+  "layer1_s": 2.5,
+  "review_s": 1.3,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "pastHistory",
+  "layer1_s": 2.3,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 1.4,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "rx",
+  "layer1_s": 9.6,
+  "review_s": 1.4,
+  "layer1": [
+   [
+    "Rx.cc.sym",
+    "Follow-up of hypertension with only one medicine is not enough; the blood pressure is not mentioned, and the medicine does not fit the target BP."
+   ]
+  ],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "advice",
+  "layer1_s": 2.5,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "chiefComplaints",
+  "layer1_s": 2.7,
+  "review_s": 1.1,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "investigations",
+  "layer1_s": 2.6,
+  "review_s": 6.0,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Fasting blood sugar",
+    "problem": "The test is not suitable for a patient presenting with symptoms of hyperglycemia as it does not reflect long-term glycemic control.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 5.9,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Type 2 diabetes mellitus",
+    "problem": "The diagnosis is not yet confirmed as the results of the ordered Fasting blood sugar and HbA1c are not provided.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "rx",
+  "layer1_s": 2.8,
+  "review_s": 7.3,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Comet 500 mg (1 + 0 + 1)",
+    "problem": "The prescription does not specify if the medication is the XR (Extended Release) or the immediate release formulation, which affects the dosing schedule.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "advice",
+  "layer1_s": 2.5,
+  "review_s": 1.7,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 34,
+  "group": "clean",
+  "case": "Clean: scabies",
+  "section": "chiefComplaints",
+  "layer1_s": 2.5,
+  "review_s": 1.5,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 34,
+  "group": "clean",
+  "case": "Clean: scabies",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 1.4,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 34,
+  "group": "clean",
+  "case": "Clean: scabies",
+  "section": "rx",
+  "layer1_s": 3.0,
+  "review_s": 5.8,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Lorix 5%",
+    "problem": "The prescription does not specify that all household members/close contacts should be treated simultaneously.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 34,
+  "group": "clean",
+  "case": "Clean: scabies",
+  "section": "advice",
+  "layer1_s": 2.4,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "chiefComplaints",
+  "layer1_s": 2.4,
+  "review_s": 1.2,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "investigations",
+  "layer1_s": 2.5,
+  "review_s": 6.7,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "X-ray of left knee",
+    "problem": "The documentation does not specify if the X-ray was for a plain view, weight-bearing, or a specific view (e.g., lateral, AP).",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 1.6,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "rx",
+  "layer1_s": 9.7,
+  "review_s": 7.4,
+  "layer1": [
+   [
+    "Rx.cc.sym",
+    "Osteoarthritis of the knee is a diagnosis, but no treatment for the joint itself (like a lubricant or anti-inflammatory gel) is prescribed."
+   ]
+  ],
+  "review": [
+   {
+    "entry": "Napa 500 mg (1 + 0 + 1) - (7 day(s))",
+    "problem": "The dose of 1000 mg per day is sub-therapeutic for chronic osteoarthritis pain management.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "advice",
+  "layer1_s": 2.5,
+  "review_s": 1.5,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "chiefComplaints",
+  "layer1_s": 2.8,
+  "review_s": 5.7,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Pregnancy 12 weeks, first antenatal visit",
+    "problem": "The entry is a clinical status/reason for visit rather than a patient complaint.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "investigations",
+  "layer1_s": 2.9,
+  "review_s": 6.5,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "VDRL",
+    "problem": "Syphilis screening is standard, but the prescription lacks a specific request for a repeat or follow-up if positive, which is critical in pregnancy.",
+    "severity": "documentation"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "diagnosis",
+  "layer1_s": 2.4,
+  "review_s": 1.4,
+  "layer1": [],
+  "review": [],
+  "review_status": "done"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "rx",
+  "layer1_s": 2.7,
+  "review_s": 7.0,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "Feofol 150 mg (0 + 0 + 1)",
+    "problem": "The dosage of 150 mg is insufficient for a pregnant woman, as the standard requirement is typically 300 mg of elemental iron daily.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "advice",
+  "layer1_s": 2.5,
+  "review_s": 6.1,
+  "layer1": [],
+  "review": [
+   {
+    "entry": "severe headache or reduced fetal movement",
+    "problem": "Reduced fetal movement is not clinically possible at 12 weeks of pregnancy as the fetus is too small to be felt.",
+    "severity": "review"
+   }
+  ],
+  "review_status": "done"
+ }
+]

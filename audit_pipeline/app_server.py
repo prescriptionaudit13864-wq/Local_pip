@@ -158,6 +158,78 @@ class AuditService:
             "live_audit": live_audit,
         }
 
+    def review_section(self, payload: Mapping[str, Any]) -> dict[str, Any]:
+        """Second layer (audit_pipeline/clinical_reviewer.py): the base model reviews the section just written, in the
+        context of the prescription so far, after the fast fine-tuned check. The payload is the section-audit payload
+        plus "layer1": the first check's findings (their text), so the reviewer does not repeat them."""
+        from .clinical_reviewer import (build_messages, build_verify_messages, concrete_hints, in_section, parse_keep, split_shown,
+                                        parse_problems)
+        from .finetune_prompt import _drug_facts, flatten_candidates, parse_section_task
+
+        # AUDIT_REVIEWER=0 in .env switches layer 2 off (the app then shows only the fast check).
+        if os.getenv("AUDIT_REVIEWER", "1").strip().lower() in {"0", "off", "false", "no"}:
+            return {"review": {"status": "off", "problems": [], "hidden": []}}
+        started = perf_counter()
+        section = str(payload.get("section", "") or "").strip()
+        try:
+            domains = audit_domains_for(section)
+        except ValueError as exc:
+            raise PayloadError(str(exc)) from exc
+        with self._lock:
+            orchestrator = self._ready()
+        provider = self._provider
+        if not getattr(provider, "can_review", lambda: False)():
+            return {"success": True, "section": section,
+                    "review": {"status": "unavailable", "problems": [],
+                               "reason": "Load HF_MODEL as the base model with HF_ADAPTER to enable the clinical review."}}
+        item = normalize_payload(payload)
+        record = scope_live_record(section, item["record"])
+        record.setdefault("id", item["visit_id"])
+        row = visit_to_row(item["patient"], record, item["visit_dt"])
+
+        class _Recorder:  # stands in for the model: collects the rule engine's candidates, decides nothing
+            def __init__(self) -> None:
+                self.tasks: list[dict[str, Any]] = []
+
+            def audit(self, *, system: str, prompt: str, max_tokens: int) -> dict:  # noqa: ARG002
+                task = parse_section_task(prompt)
+                self.tasks.append(task)
+                return {"section": task.get("section", ""), "findings": []}
+
+        recorder = _Recorder()
+        try:
+            orchestrator.audit_prescription(row, orchestrator.options_for_row(
+                prescription_id=item["visit_id"], patient_id=row["Patient_ID"], visit_date=row["Visit_Date"],
+                target_sections=domains, live_section_audit=True, llm_rag_router=False, max_retries=0,
+                provider=recorder))
+        except Exception as exc:  # noqa: BLE001 - hints are optional context
+            print(f"[review] rule-engine hints unavailable: {type(exc).__name__}: {exc}", file=sys.stderr)
+        candidates = [c for t in recorder.tasks for c in flatten_candidates(t.get("candidates"))
+                      if str(c.get("section", "")) in domains]
+        facts = _drug_facts(row) if section == "rx" and str(row.get("Medication", "")).strip() else ""
+        already = [str(x) for x in (payload.get("layer1") or []) if str(x).strip()][:12]
+        messages = build_messages(row, section, drug_facts=facts, hints=concrete_hints(candidates, ""), already=already)
+        with self._audit_slots:
+            # Entry-by-entry answer: the JSON closes with "]}]}" (the last entry's problems, then the list).
+            text = provider.review(messages, 600, prefix='{"entries": [', stop="]}]}")
+            proposed = in_section(row, section, parse_problems(text))
+            # Only the types the reviewer judges reliably are shown; the rest are returned as "hidden".
+            candidates_shown, hidden = split_shown(proposed, section)
+            problems = candidates_shown
+            if candidates_shown:  # second look by the same model: only problems it confirms are shown
+                keep = parse_keep(provider.review(build_verify_messages(row, section, candidates_shown, facts), 60,
+                                                  prefix='{"keep": ['), len(candidates_shown))
+                problems = [p for i, p in enumerate(candidates_shown, 1) if i in keep]
+        print(f"[review] section={section} proposed={len(proposed)} hidden_types={len(hidden)} shown={len(problems)} "
+              f"took={perf_counter() - started:.1f}s", flush=True)
+        result = {"success": True, "section": section,
+                  "review": {"status": "done", "problems": problems, "hidden": hidden, "revision": payload.get("revision"),
+                             "duration_ms": round((perf_counter() - started) * 1000, 3)}}
+        if payload.get("debug"):  # for tests only: the model's raw first answer and what the second look dropped
+            result["review"]["raw"] = text
+            result["review"]["proposed"] = proposed
+        return result
+
     def _audit(
         self,
         payload: Mapping[str, Any] | str | Path,
@@ -298,12 +370,14 @@ def _make_handler(service: AuditService):
 
         def do_POST(self) -> None:  # noqa: N802
             path = self.path.split("?")[0]
-            if path not in ("/audit", "/api/audit", "/audit/section", "/api/audit/section"):
-                return self._send(404, {"success": False, "error": "use POST /audit or /audit/section"})
+            if path not in ("/audit", "/api/audit", "/audit/section", "/api/audit/section", "/audit/review", "/api/audit/review"):
+                return self._send(404, {"success": False, "error": "use POST /audit, /audit/section or /audit/review"})
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 payload = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
-                result = service.audit_section(payload) if path.endswith("/section") else service.audit(payload)
+                result = (service.audit_section(payload) if path.endswith("/section")
+                          else service.review_section(payload) if path.endswith("/review")
+                          else service.audit(payload))
                 self._send(200, result)
             except PayloadError as exc:
                 self._send(400, {"success": False, "error": str(exc)})

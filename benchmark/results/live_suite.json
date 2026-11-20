@@ -1,0 +1,351 @@
+{
+ "totals": {
+  "caught": 9,
+  "missed": 3,
+  "wrong": 1
+ },
+ "results": [
+  {
+   "case": "Doctor's visit: male, wrong complaints, vague history",
+   "known_gap": false,
+   "caught": 5,
+   "missed": 1,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "chiefComplaints",
+     "rule_id": "CC.3",
+     "evidence": "Complaint: vaginal cramp; Complaint: fever",
+     "why": "Duration is not documented for multiple patient-reported complaints."
+    },
+    {
+     "section": "chiefComplaints",
+     "rule_id": "CC.context.demo",
+     "evidence": "Complaint: pregnancy for two days",
+     "why": "'Pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+    },
+    {
+     "section": "pastHistory",
+     "rule_id": "Hx.detail",
+     "evidence": "Past history: Allergic",
+     "why": "'Allergic' does not name the allergen or the reaction."
+    },
+    {
+     "section": "pastHistory",
+     "rule_id": "Hx.detail",
+     "evidence": "Past history: Surgical History",
+     "why": "'Surgical History' does not name the operation or roughly when it was done."
+    }
+   ]
+  },
+  {
+   "case": "Female-only history in a man",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "pastHistory",
+     "rule_id": "Hx.context.demo",
+     "evidence": "Past history: Hysterectomy",
+     "why": "'Hysterectomy' does not fit a male patient: check the complaint and the recorded sex."
+    }
+   ]
+  },
+  {
+   "case": "Clean history",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "History longer than life",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "pastHistory",
+     "rule_id": "Hx.time.plausibility",
+     "evidence": "Past history: Diabetes for 30 years",
+     "why": "'Diabetes for 30 years' is longer than the patient's age of 25 years."
+    }
+   ]
+  },
+  {
+   "case": "Diagnosis does not explain complaint",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "diagnosis",
+     "rule_id": "Dx.cc.1",
+     "evidence": "Diagnosis: Acute bronchitis | Chief complaint: Itching all over body for 7 days",
+     "why": "Itching all over the body is the complaint, but bronchitis does not explain it."
+    }
+   ]
+  },
+  {
+   "case": "Clean diagnosis",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Suspected dengue without NS1",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "investigations",
+     "rule_id": "Inv.relevance",
+     "evidence": "Ordered investigation: Chest X-ray",
+     "why": "No chest symptom or finding is recorded, so the reason for the chest X-ray is not clear."
+    },
+    {
+     "section": "investigations",
+     "rule_id": "Inv.hs",
+     "evidence": "Diagnosis: none | Investigation: Chest X-ray | Investigation_Results: none | Chief_Complaint: Fever for 3 days Headache for 3 days | Health_Screening: none | On_Examination: none | Systemic_Examination: none | Age: 25 | Gender: F",
+     "why": "No chest symptom or finding is recorded, so the reason for the chest X-ray is not clear."
+    }
+   ]
+  },
+  {
+   "case": "Clean diabetes tests",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Adult paracetamol dose for a 4-year-old",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 1,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Hyperlipidaemia without diet advice",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 1,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Clean adult UTI",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [
+    [
+     "rx",
+     "Rx.cc.sym",
+     "Diagnosis: Acute cystitis | Medication: Ciprocin 500 mg (1 + 0 + 1) - (5 day(s)) [After meal] | Chief_Complaint: Burning micturition for 3 days | Health_Screening: none | Age: 35 | Gender: M"
+    ]
+   ],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.cc.sym",
+     "evidence": "Diagnosis: Acute cystitis | Medication: Ciprocin 500 mg (1 + 0 + 1) - (5 day(s)) [After meal] | Chief_Complaint: Burning micturition for 3 days | Health_Screening: none | Age: 35 | Gender: M",
+     "why": "Burning micturition is a complaint, but no antibiotic for urinary infection is prescribed."
+    }
+   ]
+  },
+  {
+   "case": "Impossible duration",
+   "known_gap": true,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "chiefComplaints",
+     "rule_id": "CC.time.plausibility",
+     "evidence": "Complaint: Weight loss for 1 day",
+     "why": "'Weight loss for 1 day': this is not plausible in that time; check the entry."
+    }
+   ]
+  },
+  {
+   "case": "Infant cold, no danger-sign advice",
+   "known_gap": true,
+   "caught": 0,
+   "missed": 1,
+   "wrong": [
+    [
+     "rx",
+     "Rx.cc.sym",
+     "Diagnosis: Common cold | Medication: Antista 2 mg/5 ml (1/2 tsp twice) - (5 day(s)) [After meal] | Chief_Complaint: Runny nose for 2 days | Health_Screening: none | Age: 23 months | Gender: M"
+    ]
+   ],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.cc.sym",
+     "evidence": "Diagnosis: Common cold | Medication: Antista 2 mg/5 ml (1/2 tsp twice) - (5 day(s)) [After meal] | Chief_Complaint: Runny nose for 2 days | Health_Screening: none | Age: 23 months | Gender: M",
+     "why": "Runny nose is a complaint, but nothing is given for it."
+    }
+   ]
+  }
+ ],
+ "timings": [
+  [
+   "chiefComplaints",
+   14.43559660000028
+  ],
+  [
+   "pastHistory",
+   15.04904230000102
+  ],
+  [
+   "chiefComplaints",
+   2.4788938000056078
+  ],
+  [
+   "pastHistory",
+   7.953906100003223
+  ],
+  [
+   "chiefComplaints",
+   2.2519583999965107
+  ],
+  [
+   "pastHistory",
+   2.612352700001793
+  ],
+  [
+   "chiefComplaints",
+   2.2838424000001396
+  ],
+  [
+   "pastHistory",
+   8.549769900004321
+  ],
+  [
+   "chiefComplaints",
+   2.43114880000212
+  ],
+  [
+   "diagnosis",
+   8.18898540000373
+  ],
+  [
+   "chiefComplaints",
+   2.2965552999958163
+  ],
+  [
+   "diagnosis",
+   2.322210399994219
+  ],
+  [
+   "chiefComplaints",
+   2.5741463000013027
+  ],
+  [
+   "investigations",
+   8.86721160000161
+  ],
+  [
+   "diagnosis",
+   2.3921214000001783
+  ],
+  [
+   "chiefComplaints",
+   2.5460385999977007
+  ],
+  [
+   "investigations",
+   2.5897955000036745
+  ],
+  [
+   "diagnosis",
+   2.5344980000008945
+  ],
+  [
+   "chiefComplaints",
+   2.389961000000767
+  ],
+  [
+   "diagnosis",
+   2.561202200005937
+  ],
+  [
+   "rx",
+   2.5946572000029846
+  ],
+  [
+   "advice",
+   2.3828336999940802
+  ],
+  [
+   "chiefComplaints",
+   2.4383165999970515
+  ],
+  [
+   "diagnosis",
+   2.0196346000011545
+  ],
+  [
+   "rx",
+   2.096262700004445
+  ],
+  [
+   "advice",
+   5.153838199999882
+  ],
+  [
+   "chiefComplaints",
+   1.8231049000023631
+  ],
+  [
+   "investigations",
+   1.9293953999949736
+  ],
+  [
+   "diagnosis",
+   1.7614102999941679
+  ],
+  [
+   "rx",
+   6.214564900001278
+  ],
+  [
+   "advice",
+   1.774420400004601
+  ],
+  [
+   "chiefComplaints",
+   5.7604041999948095
+  ],
+  [
+   "chiefComplaints",
+   1.8272163000001456
+  ],
+  [
+   "diagnosis",
+   1.7521963000035612
+  ],
+  [
+   "rx",
+   5.873336600001494
+  ],
+  [
+   "advice",
+   1.7564741000023787
+  ]
+ ]
+}

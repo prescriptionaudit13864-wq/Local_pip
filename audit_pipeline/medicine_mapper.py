@@ -493,6 +493,10 @@ class MedicineMapper:
         wanted_strength = _compact(_written_strength(raw))
         wanted_strength_mg = _mg_from_strength_text(_written_strength(raw))
         wanted_form = _key(_written_form(raw))
+        wanted_parts = sorted(
+            re.sub(r"\s+", "", p).casefold()
+            for p in re.findall(r"\d+(?:\.\d+)?\s*(?:mg|mcg|gm|g|iu)\b", _before_dose_parentheses(raw), re.IGNORECASE)
+        )
 
         def score(row: _MedicineRow) -> tuple[int, int, int]:
             row_strength_mg = _mg_from_strength_text(row.strength)
@@ -500,6 +504,13 @@ class MedicineMapper:
                 wanted_strength
                 and (
                     _compact(row.strength) == wanted_strength
+                    # combination strengths written in another order: "200 mcg / 200 mg / 100 mg"
+                    # is the same product as "100 mg+200 mg+200 mcg"
+                    or (
+                        len(wanted_parts) > 1
+                        and sorted(p for p in re.split(r"[+/]", _compact(row.strength).strip("()")) if p)
+                        == wanted_parts
+                    )
                     or (
                         wanted_strength_mg is not None
                         and row_strength_mg is not None

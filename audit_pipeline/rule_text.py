@@ -35,6 +35,16 @@ RULE_TEXT = {
     "Adv.hs": ("Follow-up advice for a significant finding is missing.", "Document follow-up advice for the finding."),
     "Adv.precau": ("A high-risk precaution is missing from the advice.", "Document the relevant precautions."),
     "Adv.refer": ("Referral for a serious condition is not documented.", "Review whether referral is needed."),
+    "CC.term.unclear": ("The complaint wording is unclear or not recognizable.", "Clarify or correct the complaint wording."),
+    "CC.context.conflict": ("These complaints or obstetric notes contradict each other.", "Reconcile the contradictory entries."),
+    "Hx.term.unclear": ("This past-history entry is unclear or not a recognizable condition.", "Clarify or correct the past-history term."),
+    "Hx.context.conflict": ("This past history conflicts with the current clinical findings.", "Reconcile the past history with the current findings."),
+    "CC.time": ("The stated duration is impossible for this patient or complaint.", "Verify and correct the stated duration."),
+    "Hx.context.demo": ("This past history does not fit the patient's age or sex.", "Verify the patient's age and sex, or correct the past history."),
+    "Hx.time.plausibility": ("The stated duration of this past condition is impossible for this patient.", "Verify and correct the onset or duration in the past history."),
+    "Hx.duplicate": ("The same condition is recorded twice under different names.", "Merge the duplicate past-history entries."),
+    "Hx.detail": ("The allergen or the operation performed is not recorded.", "Document the allergen and reaction, or the procedure, in the past history."),
     "Demo.1": ("Age or gender is invalid or inconsistent.", "Verify age and gender."),
     "Demo.2": ("Weight is missing where dosing depends on it.", "Record the patient's weight."),
 }
+

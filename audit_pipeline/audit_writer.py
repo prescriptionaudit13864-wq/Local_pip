@@ -251,6 +251,14 @@ def build_audit_prompt(task: Mapping[str, Any], repair_instruction: str = "") ->
                 "Request status, stage, severity, site, laterality, procedure, allergen, reaction, or onset only when the missing detail could materially change present care.",
                 "Treat unusual but possible histories as needing clarification, not as impossible. Confirm a conflict only when the supplied facts directly contradict after chronology and disease state are considered.",
                 "Do not infer an allergy, organ impairment, operation, or disease that is not stated in the source history.",
+                "Each history candidate is a check to perform, not a suspected error. Decide it with your own medical knowledge and confirm it only when that check actually finds a problem.",
+                "Hx.term.unclear: confirm when a condition name is unrecognizable, not a real disease, or clearly mistyped. Accept understandable Bengali, Banglish, and shorthand such as DM, HTN, BA, IHD, sugar, pressure, or gastric.",
+                "Hx.context.demo: confirm when the history cannot fit the patient's age or sex/anatomy, such as a caesarean section, hysterectomy, or past pregnancy for a male, prostate surgery for a female, or menopause in a child.",
+                "Hx.detail: confirm when a missing detail would change present care, such as an allergy without the allergen or reaction, an operation without the procedure, or 'heart disease' or 'kidney problem' with no type or status.",
+                "Hx.time.plausibility: confirm when the timing is impossible or unclear for this patient, such as a duration longer than the patient's age, an onset in the future, or a lifelong adult disease in an infant.",
+                "Hx.context.conflict: confirm when the history directly contradicts current complaints, examination, results, or obstetric notes, such as 'never pregnant' with antenatal notes, or 'no diabetes' with diabetic results.",
+                "Hx.duplicate: confirm when two entries are the same condition under different names (high pressure and hypertension, sugar and diabetes) or when one condition is stated as both present and absent.",
+                "For each confirmed check, why must say in your own words what is clinically wrong with this specific history, not repeat the check description.",
             ]
         )
     if repair_instruction:
@@ -343,7 +351,8 @@ def _canonical_payload(value: Any, section: str, depth: int = 0) -> Mapping[str,
     if not value:
         return empty
 
-    for key in ("findings", "errors", "audit_findings"):
+    # detected_errors: a fine-tune asked with a chat prompt may still answer in its training format.
+    for key in ("findings", "errors", "audit_findings", "detected_errors"):
         if key in value:
             findings = value[key]
             return (
@@ -445,6 +454,10 @@ def _concern_level(value: Any, candidate: Mapping[str, Any]) -> str:
         marker in combined
         for marker in ("dose.high", "dose.weight", "strength.mismatch", "rag.avoid")
     ):
+        return "major"
+    # Display level only (the model decided the finding): something impossible for the patient's sex or age
+    # (pregnancy in a man, hysterectomy in a man) is major in every section; complaint rules defaulted to "minor".
+    if rule_id.endswith(".demo") or ".context.demo" in rule_id or "demographic" in rule_name:
         return "major"
     if importance in {"moderate_review", "moderate"} or evidence_strength == "medium":
         return "moderate"
@@ -769,6 +782,9 @@ _OVERLAPPING_RULE_GROUPS: tuple[frozenset[str], ...] = (
     # appropriate", Inv.relevance asks "is this clinically relevant to the patient" -- same
     # underlying mismatch from two angles.
     frozenset({"Inv.demo.1", "Inv.relevance"}),
+    # Taught together (v7 data, 2026-11-14) when the drug facts list the patient's condition as a
+    # contraindication (e.g. propranolol in asthma): one drug-disease conflict, two rule names.
+    frozenset({"Rx.contra", "Rx.cc.mis"}),
 )
 _CONCERN_RANK = {"minor": 1, "moderate": 2, "major": 3, "critical": 4}
 
@@ -825,7 +841,14 @@ def _normalize_findings(
             by_name,
         )
         if candidate is None:
-            continue
+            if not raw.get("model_first") or not returned_id:
+                continue
+            # The model found this on its own (no rule-engine check proposed it): its finding stands as a
+            # candidate of its own. No hypothesis text, so the "only repeats the hypothesis" filter below
+            # does not apply.
+            candidate = {"rule_id": returned_id, "rule_name": raw.get("rule_name", ""), "section": section,
+                         "candidate_id": raw.get("candidate_id", ""), "evidence": raw.get("evidence", ""),
+                         "why_candidate": "", "evidence_strength": "model"}
         rule_id = str(candidate.get("rule_id", returned_id)).strip()
         rule_name = _final_rule_name(candidate.get("rule_name", returned_name))
         why = str(

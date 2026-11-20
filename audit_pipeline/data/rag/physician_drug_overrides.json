@@ -1,0 +1,201 @@
+{
+ "source": "Physician sign-off of 69 drug facts, 2026-11-11 (LLM_Trainer/review_pages/physician_drugfacts_answers.json)",
+ "pregnancy": {
+  "chlorpheniramine maleate": {
+   "decision": "none",
+   "note": "Can be used during pregnancy when indicated, including the first trimester. May cause sedation."
+  },
+  "domperidone maleate": {
+   "decision": "none",
+   "note": "Not contraindicated because of pregnancy. Consider when preferred antiemetics fail; assess maternal QT risk."
+  },
+  "fexofenadine hydrochloride": {
+   "decision": "none",
+   "note": "Reassuring pregnancy data. Loratadine or cetirizine generally preferred because of greater experience."
+  },
+  "butamirate citrate": {
+   "decision": "first",
+   "note": "First-trimester avoidance is a labeling precaution. In later pregnancy, use only if necessary because human data are limited."
+  },
+  "fluconazole": {
+   "decision": "whole",
+   "note": "Avoid routine oral use in pregnancy. First-trimester and prolonged high-dose exposure are particular concerns. Serious systemic infections may justify specialist use."
+  },
+  "hydroxyzine hydrochloride": {
+   "decision": "whole",
+   "note": "Product labeling advises against use; early-pregnancy restriction and possible neonatal effects near delivery. Human teratogenicity is not established."
+  },
+  "ketotifen fumarate (oral)": {
+   "decision": "wrong",
+   "note": "Insufficient human pregnancy data to establish safety or harm. Prefer better-studied alternatives; precautionary review."
+  },
+  "terbinafine hydrochloride": {
+   "decision": "wrong",
+   "note": "Route-dependent. Topical cream, gel or spray is generally acceptable; oral tablets are not routinely recommended."
+  },
+  "loratadine": {
+   "decision": "none",
+   "note": "Generally considered suitable throughout pregnancy."
+  },
+  "ibuprofen": {
+   "decision": "from20",
+   "note": "Avoid from 20 weeks unless specifically indicated and strongly restrict from 30 weeks."
+  },
+  "ivermectin (tablet)": {
+   "decision": "whole",
+   "note": "Avoid routine oral use because safety evidence is limited. Specialist exceptions exist; not proven to be uniformly teratogenic."
+  },
+  "aceclofenac": {
+   "decision": "from20",
+   "note": "NSAID class warning applies from 20 weeks, with stronger restriction from 30 weeks."
+  },
+  "rupatadine fumarate": {
+   "decision": "wrong",
+   "note": "Limited pregnancy data do not establish fetal harm. Avoid routinely as a precaution; prefer loratadine or cetirizine."
+  },
+  "metformin hydrochloride": {
+   "decision": "none",
+   "note": "Can be used for gestational or pre-existing diabetes when appropriate. Insulin is not universally required instead."
+  },
+  "diclofenac sodium": {
+   "decision": "from20",
+   "note": "Systemic NSAID restrictions begin at 20 weeks. Topical formulations require separate assessment."
+  },
+  "norethisterone acetate": {
+   "decision": "whole",
+   "note": "Contraindicated for its usual indications during established pregnancy."
+  },
+  "desloratadine": {
+   "decision": "none",
+   "note": "Reassuring human pregnancy data, although loratadine or cetirizine is generally preferred."
+  },
+  "mecobalamin": {
+   "decision": "none",
+   "note": "Vitamin B12 supplementation is acceptable in pregnancy at appropriate therapeutic doses."
+  },
+  "tolfenamic acid": {
+   "decision": "from20",
+   "note": "NSAID precautions apply from 20 weeks, not just the third trimester."
+  },
+  "tranexamic acid": {
+   "decision": "wrong",
+   "note": "Not universally contraindicated in pregnancy. May be used for specific obstetric bleeding indications under clinical supervision."
+  },
+  "dexibuprofen": {
+   "decision": "from20",
+   "note": "Same NSAID gestational restrictions as ibuprofen; significant concerns begin at 20 weeks."
+  },
+  "losartan potassium": {
+   "decision": "whole",
+   "note": "Avoid throughout pregnancy; particularly severe fetal renal toxicity during the second and third trimesters."
+  },
+  "gliclazide": {
+   "decision": "whole",
+   "note": "Not recommended for routine diabetes treatment in pregnancy. Insulin-based management generally preferred."
+  },
+  "imipramine hydrochloride": {
+   "decision": "none",
+   "note": "Not absolutely contraindicated in pregnancy. Can be continued when clinically justified; monitor for neonatal adaptation effects near delivery."
+  },
+  "naproxen sodium": {
+   "decision": "from20",
+   "note": "Avoid from 20 weeks unless specifically justified, and avoid from approximately 30 weeks."
+  },
+  "ketorolac tromethamine": {
+   "decision": "from20",
+   "note": "NSAID risk begins at 20 weeks; additionally contraindicated during labour and delivery."
+  },
+  "cinnarizine": {
+   "decision": "wrong",
+   "note": "Not routinely recommended due to limited human data, but not established as uniformly fetotoxic. Prefer alternatives."
+  },
+  "glimepiride": {
+   "decision": "whole",
+   "note": "Not recommended as routine therapy; switch to more appropriate diabetes management, generally insulin."
+  },
+  "tibolone": {
+   "decision": "whole",
+   "note": "Contraindicated during pregnancy. It is a postmenopausal hormone treatment."
+  },
+  "atorvastatin calcium": {
+   "decision": "whole",
+   "note": "Stop in most pregnancies. Rare high-cardiovascular-risk exceptions require specialist assessment."
+  },
+  "aspirin": {
+   "decision": "wrong",
+   "note": "Dose-dependent. Low-dose aspirin is used throughout pregnancy for appropriate indications; analgesic-dose aspirin carries NSAID-type fetal risks."
+  },
+  "fenofibrate": {
+   "decision": "wrong",
+   "note": "Not used routinely, but may be considered after the first trimester for severe hypertriglyceridaemia when benefits outweigh risks."
+  },
+  "propranolol hydrochloride": {
+   "decision": "none",
+   "note": "Can be used during pregnancy when indicated. Monitor fetal growth and possible neonatal bradycardia or hypoglycaemia."
+  },
+  "secnidazole": {
+   "decision": "first",
+   "note": "First-trimester avoidance appears in some regional labels; limited human evidence does not establish a trimester-specific teratogenic effect."
+  },
+  "calcium carbonate": {
+   "decision": "none",
+   "note": "Generally safe at recommended doses. Avoid excessive calcium intake."
+  },
+  "tiemonium methylsulphate": {
+   "decision": "wrong",
+   "note": "Insufficient human pregnancy safety evidence to classify as established safe. Use only when justified."
+  },
+  "calcium orotate": {
+   "decision": "wrong",
+   "note": "Calcium supplementation may be appropriate, but a specific pregnancy hypertension-prevention benefit of calcium orotate is not established."
+  },
+  "riboflavin": {
+   "decision": "none",
+   "note": "Vitamin B2 is safe at recommended nutritional doses."
+  },
+  "allylestrenol": {
+   "decision": "wrong",
+   "note": "Used in some countries for pregnancy-related indications, but not adequate evidence of universal safety or effectiveness. Requires specialist and indication-specific review."
+  }
+ },
+ "contraindication_notes": {
+  "azithromycin dihydrate": [
+   "Chronic liver disease alone is not a contraindication: Not contraindicated for all chronic liver disease. Contraindicated with previous azithromycin-associated cholestatic jaundice or hepatic dysfunction."
+  ],
+  "diclofenac sodium": [
+   "Asthma alone is not a contraindication: Asthma alone is not a contraindication. Flag if there is aspirin/NSAID-exacerbated respiratory disease."
+  ],
+  "dexibuprofen": [
+   "Asthma alone is not a contraindication: Asthma alone is insufficient. Flag if there is previous NSAID-induced bronchospasm or hypersensitivity."
+  ],
+  "rosuvastatin": [
+   "Chronic liver disease alone is not a contraindication: Stable compensated liver disease is not itself an absolute contraindication. Flag active hepatic disease or significant unexplained transaminase elevation."
+  ],
+  "atorvastatin calcium": [
+   "Chronic liver disease alone is not a contraindication: Stable liver disease alone is not an absolute contraindication. Flag active liver disease or important unexplained hepatic injury."
+  ]
+ },
+ "interaction_not_major": [
+  {
+   "drugs": [
+    "chlorpheniramine maleate",
+    "calcium carbonate"
+   ],
+   "note": "No established major interaction between these oral drugs."
+  },
+  {
+   "drugs": [
+    "glimepiride",
+    "calcium carbonate"
+   ],
+   "note": "Not a major interaction. A moderate absorption interaction may occur; separate administration by about 2 hours and monitor glucose."
+  },
+  {
+   "drugs": [
+    "atenolol",
+    "calcium carbonate"
+   ],
+   "note": "Not a major interaction. Calcium carbonate can reduce atenolol absorption; separate administration by at least 2 hours and monitor response."
+  }
+ ]
+}

@@ -1,0 +1,313 @@
+{
+ "totals": {
+  "caught": 8,
+  "missed": 4,
+  "wrong": 0
+ },
+ "results": [
+  {
+   "case": "Doctor's visit: male, wrong complaints, vague history",
+   "known_gap": false,
+   "caught": 3,
+   "missed": 3,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "chiefComplaints",
+     "rule_id": "CC.context.demo",
+     "evidence": "Complaint: pregnancy for two days",
+     "why": "The complaint does not fit the patient's age or gender."
+    },
+    {
+     "section": "pastHistory",
+     "rule_id": "Hx.detail",
+     "evidence": "Past history: Allergic",
+     "why": "The allergen or the operation performed is not recorded."
+    },
+    {
+     "section": "pastHistory",
+     "rule_id": "Hx.detail",
+     "evidence": "Past history: Surgical History",
+     "why": "The allergen or the operation performed is not recorded."
+    }
+   ]
+  },
+  {
+   "case": "Female-only history in a man",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "pastHistory",
+     "rule_id": "Hx.context.demo",
+     "evidence": "Past history: Hysterectomy",
+     "why": "This past history does not fit the patient's age or sex."
+    }
+   ]
+  },
+  {
+   "case": "Clean history",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "History longer than life",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "pastHistory",
+     "rule_id": "Hx.time.plausibility",
+     "evidence": "Past history: Diabetes for 30 years",
+     "why": "The stated duration of this past condition is impossible for this patient."
+    }
+   ]
+  },
+  {
+   "case": "Diagnosis does not explain complaint",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "diagnosis",
+     "rule_id": "Dx.cc.1",
+     "evidence": "Diagnosis: Acute bronchitis | Chief complaint: Itching all over body for 7 days",
+     "why": "The diagnosis does not explain the chief complaint."
+    }
+   ]
+  },
+  {
+   "case": "Clean diagnosis",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Suspected dengue without NS1",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 1,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Clean diabetes tests",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Adult paracetamol dose for a 4-year-old",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.dose.high",
+     "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+     "why": "Calculated daily dose 1500 mg/day exceeds RAG-supported regimen-derived daily amount 1000 mg/day (250 mg per dose, q6h_like)."
+    }
+   ]
+  },
+  {
+   "case": "Hyperlipidaemia without diet advice",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "advice",
+     "rule_id": "Adv.cc",
+     "evidence": "Diagnosis: Hyperlipidaemia | Medication: Atova 10 mg (0 + 0 + 1) - (1 month(s)) [After meal] | Advice: Come back with report | Chief_Complaint: Follow up | Health_Screening: none",
+     "why": "Diagnosis specific counselling is missing."
+    }
+   ]
+  },
+  {
+   "case": "Clean adult UTI",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Impossible duration",
+   "known_gap": true,
+   "caught": 0,
+   "missed": 1,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Infant cold, no danger-sign advice",
+   "known_gap": true,
+   "caught": 0,
+   "missed": 1,
+   "wrong": [],
+   "alerts": []
+  }
+ ],
+ "timings": [
+  [
+   "chiefComplaints",
+   4.088143799999671
+  ],
+  [
+   "pastHistory",
+   5.115310599998338
+  ],
+  [
+   "chiefComplaints",
+   1.2843928999973286
+  ],
+  [
+   "pastHistory",
+   3.113733099999081
+  ],
+  [
+   "chiefComplaints",
+   1.286945799998648
+  ],
+  [
+   "pastHistory",
+   1.3182593000019551
+  ],
+  [
+   "chiefComplaints",
+   1.2847235999979603
+  ],
+  [
+   "pastHistory",
+   3.1684023999987403
+  ],
+  [
+   "chiefComplaints",
+   1.3033945999995922
+  ],
+  [
+   "diagnosis",
+   3.2142504999974335
+  ],
+  [
+   "chiefComplaints",
+   1.3158102000015788
+  ],
+  [
+   "diagnosis",
+   1.2582985999979428
+  ],
+  [
+   "chiefComplaints",
+   1.414133899997978
+  ],
+  [
+   "investigations",
+   1.4468559000015375
+  ],
+  [
+   "diagnosis",
+   1.2434170999986236
+  ],
+  [
+   "chiefComplaints",
+   1.2960187999997288
+  ],
+  [
+   "investigations",
+   1.4385303000017302
+  ],
+  [
+   "diagnosis",
+   1.2542614999983925
+  ],
+  [
+   "chiefComplaints",
+   1.2885090999989188
+  ],
+  [
+   "diagnosis",
+   1.2564329000015277
+  ],
+  [
+   "rx",
+   2.984230000001844
+  ],
+  [
+   "advice",
+   1.2707527999991726
+  ],
+  [
+   "chiefComplaints",
+   1.2949545000010403
+  ],
+  [
+   "diagnosis",
+   1.2451910999989195
+  ],
+  [
+   "rx",
+   3.141049400001066
+  ],
+  [
+   "advice",
+   3.050242499997694
+  ],
+  [
+   "chiefComplaints",
+   1.305962800000998
+  ],
+  [
+   "investigations",
+   1.4339868999995815
+  ],
+  [
+   "diagnosis",
+   1.253933899999538
+  ],
+  [
+   "rx",
+   3.0066704000018944
+  ],
+  [
+   "advice",
+   1.2999310999985028
+  ],
+  [
+   "chiefComplaints",
+   1.295555400000012
+  ],
+  [
+   "chiefComplaints",
+   1.2825668999976187
+  ],
+  [
+   "diagnosis",
+   1.246577599999
+  ],
+  [
+   "rx",
+   3.1576041000007535
+  ],
+  [
+   "advice",
+   1.2674370999993698
+  ]
+ ]
+}

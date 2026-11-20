@@ -547,6 +547,23 @@ const runLiveAuditRequest = async (payload) => {
   return json;
 };
 
+// Second layer: the clinical reviewer (audit_pipeline/clinical_reviewer.py) reads the prescription written so far and
+// reviews the section just saved, after the fast check. It is slower (a few seconds) and runs in the background.
+const runReviewRequest = async (payload) => {
+  let res;
+  try {
+    res = await fetch('/audit-api/audit/review', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  } catch {
+    throw new Error('Cannot reach the audit server for the clinical review.');
+  }
+  const text = await res.text();
+  let json = null;
+  try { json = JSON.parse(text); } catch { /* proxy error page */ }
+  if (!json) throw new Error(`Unexpected response (HTTP ${res.status})`);
+  if (!res.ok || !json.success) throw new Error(json.error || `HTTP ${res.status}`);
+  return json;
+};
+
 const searchIcd11 = async (query, signal) => {
   const res = await fetch(`/audit-api/icd11/search?q=${encodeURIComponent(query)}&limit=12`, { signal });
   const json = await res.json();
@@ -577,8 +594,19 @@ const LIVE_AUDIT_STYLE = {
 const SectionAuditBadge = ({ audit, onRetry }) => {
   const [open, setOpen] = useState(false);
   const state = audit || { status: 'idle', summary: 'Save this section to run its live audit.', findings: [] };
-  const style = LIVE_AUDIT_STYLE[state.status] || LIVE_AUDIT_STYLE.idle;
-  const Icon = state.status === 'checking' ? Loader2 : state.status === 'clear' ? Check : state.status === 'critical' ? AlertTriangle : ShieldCheck;
+  const review = state.review || null;
+  const reviewProblems = review?.problems || [];
+  // The clinical review can raise the badge: a critical problem shows as a major concern, a review-level one as
+  // "needs review" when the fast check found nothing.
+  // Every confirmed review problem counts, missing details included (a missing side or site is an error for the
+  // doctors using this), so the badge never stays green when the review found something.
+  const effectiveStatus = reviewProblems.some(p => p.severity === 'critical') ? 'critical'
+    : (state.status === 'clear' && reviewProblems.length > 0) ? 'moderate'
+    : state.status;
+  const style = LIVE_AUDIT_STYLE[effectiveStatus] || LIVE_AUDIT_STYLE.idle;
+  const Icon = state.status === 'checking' ? Loader2 : effectiveStatus === 'clear' ? Check : effectiveStatus === 'critical' ? AlertTriangle : ShieldCheck;
+  const mainProblems = reviewProblems;  // missing details are shown as cards too, not folded away
+  const docProblems = [];
   return (
     <div className="relative">
       <button
@@ -618,6 +646,35 @@ const SectionAuditBadge = ({ audit, onRetry }) => {
               )}
             </div>
           ))}
+          {review && (
+            <div className="mt-3 border-t border-[#E6EAF0] pt-3">
+              <p className="text-[10px] font-bold uppercase text-[#4264D0]">Clinical review</p>
+              {review.status === 'checking' && (
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-[#808493]"><Loader2 size={12} className="animate-spin" />Reviewing this section with the prescription so far…</p>
+              )}
+              {review.status === 'done' && reviewProblems.length === 0 && (
+                <p className="mt-1 text-xs text-[#28CD85]">No further problem found.</p>
+              )}
+              {(review.status === 'error' || review.status === 'unavailable') && (
+                <p className="mt-1 text-xs text-[#808493]">{review.reason || 'Clinical review unavailable.'}</p>
+              )}
+              {mainProblems.map((problem, index) => (
+                <div key={`review-${index}`} className="mt-2 rounded-xl bg-[#F4F6F8]/70 p-3">
+                  <span className={`text-[10px] font-bold uppercase ${problem.severity === 'critical' ? 'text-[#E0565F]' : 'text-[#B87400]'}`}>{problem.severity === 'documentation' ? 'missing detail' : problem.severity}</span>
+                  {problem.entry && <span className="ml-2 text-[10px] font-semibold text-[#808493]">{problem.entry}</span>}
+                  <p className="mt-1 text-xs text-[#2B324B]">{problem.problem}</p>
+                </div>
+              ))}
+              {docProblems.length > 0 && (
+                <details className="mt-2 text-xs text-[#5E6474]">
+                  <summary className="cursor-pointer select-none font-semibold">Missing details ({docProblems.length})</summary>
+                  {docProblems.map((problem, index) => (
+                    <p key={`doc-${index}`} className="mt-1 break-words">{problem.entry ? <span className="font-semibold">{problem.entry}: </span> : null}{problem.problem}</p>
+                  ))}
+                </details>
+              )}
+            </div>
+          )}
           {(state.possible_errors || []).length > 0 && (
             <div className="mt-3 rounded-xl bg-[#FFF7E6] p-3">
               <p className="text-[10px] font-bold uppercase text-[#B87400]">Possible error{state.possible_errors.length > 1 ? 's' : ''}</p>
@@ -3179,16 +3236,30 @@ export default function App() {
       [sectionKey]: { status: 'checking', summary: 'Checking the available prescription evidence…', findings: [], revision },
     }));
     try {
-      const result = await runLiveAuditRequest({
+      const payload = {
         section: sectionKey,
         revision,
         patient: { id: activePatient.id, name: activePatient.name, serial: activePatient.serial, dob: activePatient.dob, ageValue: activePatient.ageValue, ageUnit: activePatient.ageUnit, gender: activePatient.gender },
         visit: buildLiveVisitRecord(sectionKey, visitOverrides),
         history: activePatient.visitHistory || [],
-      });
+      };
+      const result = await runLiveAuditRequest(payload);
       if (liveAuditRevisions.current[sectionKey] !== revision) return;
-      setLiveAudits(prev => ({ ...prev, [sectionKey]: result.live_audit }));
+      setLiveAudits(prev => ({ ...prev, [sectionKey]: { ...result.live_audit, review: { status: 'checking', problems: [] } } }));
       saveSectionToBackend(activePatient, currentVisitId, `liveAudit_${sectionKey}`, result.live_audit);
+      // Clinical review in the background; the fast check's findings are passed so they are not repeated.
+      const layer1 = (result.live_audit.findings || []).map(f => f.why).filter(Boolean);
+      runReviewRequest({ ...payload, layer1 })
+        .then(reviewResult => {
+          if (liveAuditRevisions.current[sectionKey] !== revision) return;
+          const review = reviewResult.review?.status === 'off' ? undefined : reviewResult.review;
+          setLiveAudits(prev => ({ ...prev, [sectionKey]: { ...(prev[sectionKey] || {}), review } }));
+          saveSectionToBackend(activePatient, currentVisitId, `liveReview_${sectionKey}`, reviewResult.review);
+        })
+        .catch(err => {
+          if (liveAuditRevisions.current[sectionKey] !== revision) return;
+          setLiveAudits(prev => ({ ...prev, [sectionKey]: { ...(prev[sectionKey] || {}), review: { status: 'error', problems: [], reason: err.message } } }));
+        });
     } catch (err) {
       if (liveAuditRevisions.current[sectionKey] !== revision) return;
       saveSectionToBackend(activePatient, currentVisitId, `liveAudit_${sectionKey}`, { status: 'error', error: err.message, findings: [] });

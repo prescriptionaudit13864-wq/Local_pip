@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrescribeX full technical review</title>
+<style>
+:root{
+  --bg:#f6f5f1;--card:#ffffff;--ink:#1c1c1a;--mut:#615f59;--line:#dedcd3;--soft:#efede6;
+  --accent:#3c3489;--accent-soft:#eeedfe;
+  --gray-f:#f1efe8;--gray-s:#8d8b83;--gray-t:#3d3c38;
+  --teal-f:#e1f5ee;--teal-s:#0f8a6a;--teal-t:#074a3b;
+  --purple-f:#eeedfe;--purple-s:#6a60d0;--purple-t:#32297f;
+  --amber-f:#faeeda;--amber-s:#b8760f;--amber-t:#5c3205;
+  --blue-f:#e6f1fb;--blue-s:#2f7fcb;--blue-t:#0b3d70;
+  --lane:#fbfaf7;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(40,36,20,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#171715;--card:#222220;--ink:#efeee8;--mut:#b2b0a7;--line:#3d3c38;--soft:#2b2b28;
+  --accent:#b9b4f5;--accent-soft:#2a2660;
+  --gray-f:#2c2c2a;--gray-s:#a9a79f;--gray-t:#ecebe5;
+  --teal-f:#06362d;--teal-s:#5dcaa5;--teal-t:#a8e8d2;
+  --purple-f:#27225e;--purple-s:#a9a3ee;--purple-t:#d4d1fa;
+  --amber-f:#432706;--amber-s:#efa633;--amber-t:#fbd391;
+  --blue-f:#06304f;--blue-s:#7db2ea;--blue-t:#bcd9f4;
+  --lane:#1d1d1b;--shadow:none}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+code{font:12.5px ui-monospace,"Cascadia Mono",Consolas,monospace;background:var(--soft);border:1px solid var(--line);padding:1px 6px;border-radius:5px;white-space:nowrap}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1080px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:18px}
+.brand{font-weight:700;letter-spacing:.2px}
+.bar nav{display:flex;gap:4px;margin-left:auto}
+.bar a{color:var(--mut);text-decoration:none;font-size:14px;padding:6px 12px;border-radius:99px}
+.bar a:hover{background:var(--soft);color:var(--ink)}
+.bar button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:99px;cursor:pointer}
+.bar button:hover{border-color:var(--accent)}
+
+main{max-width:1080px;margin:0 auto;padding:0 24px 80px}
+.hero{padding:56px 0 28px}
+.eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+h1{font-size:44px;line-height:1.1;margin:10px 0 14px;font-weight:700;letter-spacing:-.02em}
+.sub{font-size:19px;color:var(--mut);max-width:760px;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 18px;box-shadow:var(--shadow)}
+.chip b{display:block;font-size:26px;line-height:1.1;color:var(--accent)}
+.chip span{font-size:13px;color:var(--mut)}
+
+section{margin-top:56px}
+h2{font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+.kicker{color:var(--mut);margin:0 0 18px;max-width:780px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:20px}
+svg{width:100%;height:auto;display:block}
+svg text{font-family:"Segoe UI",system-ui,sans-serif}
+.th{font-size:14px;font-weight:600}.ts{font-size:12px}.lane-t{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.arr{stroke:var(--mut);stroke-width:1.6;fill:none}
+.lane{fill:var(--lane);stroke:var(--line);stroke-width:1}
+.lane-t{fill:var(--mut)}
+.n-gray rect{fill:var(--gray-f);stroke:var(--gray-s)}.n-gray .th,.n-gray .ts{fill:var(--gray-t)}
+.n-teal rect{fill:var(--teal-f);stroke:var(--teal-s)}.n-teal .th,.n-teal .ts{fill:var(--teal-t)}
+.n-purple rect{fill:var(--purple-f);stroke:var(--purple-s)}.n-purple .th,.n-purple .ts{fill:var(--purple-t)}
+.n-amber rect{fill:var(--amber-f);stroke:var(--amber-s);stroke-dasharray:5 4}.n-amber .th,.n-amber .ts{fill:var(--amber-t)}
+.node rect{stroke-width:1.2}
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px;font-size:13px;color:var(--mut)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1.2px solid}
+.l-gray{background:var(--gray-f);border-color:var(--gray-s)!important}.l-teal{background:var(--teal-f);border-color:var(--teal-s)!important}.l-purple{background:var(--purple-f);border-color:var(--purple-s)!important}.l-amber{background:var(--amber-f);border-color:var(--amber-s)!important}
+
+/* engine explorer */
+.band{border:1px solid var(--line);border-radius:14px;padding:14px 16px 16px;background:var(--lane);margin-bottom:6px}
+.band h3{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.band h3 em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;font-size:12px;background:var(--soft);border:1px solid var(--line);border-radius:99px;padding:1px 10px}
+.row{display:grid;gap:10px}
+.st{all:unset;box-sizing:border-box;cursor:pointer;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card);display:block;transition:transform .12s,border-color .12s,box-shadow .12s}
+.st:hover{transform:translateY(-2px);border-color:var(--accent)}
+.st:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.st .no{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:12px;font-weight:700;margin-right:8px;background:var(--soft);color:var(--ink)}
+.st b{font-size:15px}.st small{display:block;color:var(--mut);font-size:12.5px;margin-top:3px}
+.st.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.st.on .no{background:var(--accent);color:var(--card)}
+.st.ai{background:var(--purple-f)}
+.down{text-align:center;color:var(--mut);line-height:1;font-size:18px;margin:2px 0}
+.detail{margin-top:14px;border-radius:16px;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow);padding:20px 22px;display:grid;grid-template-columns:1.6fr 1fr;gap:24px}
+.detail h4{margin:0 0 6px;font-size:20px}
+.detail p{margin:6px 0}
+.kv{display:grid;gap:10px;align-content:start;font-size:14px}
+.kv div{border-left:3px solid var(--line);padding-left:12px}
+.kv span{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.pill{display:inline-block;font-size:12px;font-weight:600;border-radius:99px;padding:2px 10px}
+.p-no{background:var(--teal-f);color:var(--teal-t)}.p-yes{background:var(--purple-f);color:var(--purple-t)}.p-opt{background:var(--amber-f);color:var(--amber-t)}
+
+/* steps */
+.steps{display:grid;gap:16px}
+.step{display:grid;grid-template-columns:56px 1fr;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:20px 22px}
+.badge{width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--card);display:grid;place-items:center;font-weight:700;font-size:18px}
+.step h3{margin:2px 0 6px;font-size:19px}
+.step p{margin:6px 0}.step ul{margin:6px 0;padding-left:20px}.step li{margin:4px 0}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.callout{background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin:10px 0;font-size:15px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:11px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);background:var(--soft)}
+th:first-child{border-top-left-radius:10px}th:last-child{border-top-right-radius:10px}
+td:first-child{font-weight:600;white-space:nowrap}
+footer{margin-top:56px;color:var(--mut);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+
+@media (max-width:760px){h1{font-size:32px}.detail{grid-template-columns:1fr}.bar nav{display:none}.row{grid-template-columns:1fr!important}.step{grid-template-columns:1fr}}
+@media print{.bar{display:none}body{background:#fff}.panel,.step,.detail,.chip{box-shadow:none;break-inside:avoid}section{break-inside:auto}}
+
+.tbl{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:6px 6px 2px;overflow-x:auto;margin:12px 0}
+.tbl table{font-size:14px}
+.tbl td:first-child{white-space:normal}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.big div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.big b{display:block;font-size:24px;color:var(--accent);line-height:1.15}
+.big span{font-size:13px;color:var(--mut)}
+.verdict{border:2px solid var(--teal-s);background:var(--teal-f);color:var(--teal-t);border-radius:16px;padding:18px 22px;margin:14px 0}
+.verdict h3{margin:0 0 6px;font-size:21px}
+.warn{border:1px solid var(--amber-s);background:var(--amber-f);color:var(--amber-t);border-radius:12px;padding:10px 14px;margin:12px 0;font-size:15px}
+h3.sub3{font-size:18px;margin:26px 0 6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.bar-in{flex-wrap:wrap}
+.bar nav{flex-wrap:wrap}
+.tag{display:inline-block;font-size:11.5px;font-weight:600;border-radius:99px;padding:1px 9px;border:1px solid var(--line);background:var(--soft);color:var(--mut)}
+.tag.ok{background:var(--teal-f);color:var(--teal-t);border-color:var(--teal-s)}
+.tag.no{background:var(--amber-f);color:var(--amber-t);border-color:var(--amber-s)}
+.pre{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font:12.5px/1.6 ui-monospace,Consolas,monospace;overflow-x:auto;white-space:pre}
+
+</style></head><body>
+<div class="bar"><div class="bar-in"><span class="brand">PrescribeX</span><nav><a href="#flow">Diagrams</a><a href="#steps">Steps</a><a href="#kb">Knowledge base</a><a href="#retrieval">Retrieval</a><a href="#rules">Rules</a><a href="#ai">AI model</a><a href="#bench">Benchmark</a><a href="#risks">Risks</a></nav><button onclick="window.print()">Print / PDF</button></div></div>
+<main>
+<header class="hero">
+  <div class="eyebrow">Full technical review</div>
+  <h1>PrescribeX audit pipeline: architecture, knowledge base and retrieval</h1>
+  <p class="sub">Fixed clinical rules raise possible mistakes, using facts looked up from a 100,000-fact knowledge base. A local language model then confirms or rejects each one. It is never allowed to invent a new mistake.</p>
+  <div class="chips">
+    <div class="chip"><b>14</b><span>engine stages</span></div>
+    <div class="chip"><b>63,623</b><span>guideline facts, 18 sources</span></div>
+    <div class="chip"><b>43,066</b><span>drug facts, 1,713 generics</span></div>
+    <div class="chip"><b>0</b><span>vector indexes: no FAISS, no embeddings</span></div>
+    <div class="chip"><b>53</b><span>rule IDs in the protocol</span></div>
+  </div>
+</header>
+<section id="flow">
+  <h2>Diagram 1: end-to-end flow</h2>
+  <p class="kicker">One prescription section travels from the browser to the Python audit server, to the local model and back. Follow the numbers.</p>
+  <div class="panel">
+  <svg viewBox="0 0 1000 520" role="img" aria-label="Swimlane diagram of the end-to-end audit flow">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+    <rect class="lane" x="20" y="20" width="960" height="135" rx="16"/>
+    <rect class="lane" x="20" y="170" width="960" height="150" rx="16"/>
+    <rect class="lane" x="20" y="335" width="960" height="135" rx="16"/>
+    <text class="lane-t" x="38" y="44">Browser · React app</text>
+    <text class="lane-t" x="38" y="194">Audit server · Python, port 8765</text>
+    <text class="lane-t" x="38" y="359">Local AI model · GPU</text>
+
+    <g style="color:var(--mut)">
+      <g class="node n-gray"><rect x="40" y="70" width="140" height="62" rx="10"/><text class="th" x="110" y="93" text-anchor="middle">Saved to disk</text><text class="ts" x="110" y="113" text-anchor="middle">JSON files + Excel</text></g>
+      <g class="node n-gray"><rect x="215" y="70" width="200" height="62" rx="10"/><text class="th" x="315" y="93" text-anchor="middle">1 · Doctor saves</text><text class="ts" x="315" y="113" text-anchor="middle">One section in App.jsx</text></g>
+      <g class="node n-amber"><rect x="450" y="70" width="310" height="62" rx="10"/><text class="th" x="605" y="93" text-anchor="middle">At the end: "Run audit"</text><text class="ts" x="605" y="113" text-anchor="middle">Repeats steps 2 to 7 for all sections</text></g>
+      <g class="node n-gray"><rect x="800" y="70" width="170" height="62" rx="10"/><text class="th" x="885" y="93" text-anchor="middle">7 · Badge shown</text><text class="ts" x="885" y="113" text-anchor="middle">Clear · moderate · critical</text></g>
+
+      <g class="node n-gray"><rect x="215" y="215" width="200" height="72" rx="10"/><text class="th" x="315" y="240" text-anchor="middle">3 · Flatten the visit</text><text class="ts" x="315" y="261" text-anchor="middle">app_adapter.py</text></g>
+      <g class="node n-teal"><rect x="460" y="215" width="170" height="72" rx="10"/><text class="th" x="545" y="240" text-anchor="middle">4 · Rule engine</text><text class="ts" x="545" y="261" text-anchor="middle">Fixed rules, no AI</text></g>
+      <g class="node n-teal"><rect x="665" y="215" width="130" height="72" rx="10"/><text class="th" x="730" y="240" text-anchor="middle">Knowledge</text><text class="ts" x="730" y="261" text-anchor="middle">Drugs · guidelines</text></g>
+      <g class="node n-teal"><rect x="820" y="215" width="150" height="72" rx="10"/><text class="th" x="895" y="240" text-anchor="middle">6 · Clean-up</text><text class="ts" x="895" y="261" text-anchor="middle">Filter and merge</text></g>
+
+      <g class="node n-purple"><rect x="215" y="385" width="200" height="72" rx="10"/><text class="th" x="315" y="410" text-anchor="middle">Model set in .env</text><text class="ts" x="315" y="431" text-anchor="middle">Loaded once, on the GPU</text></g>
+      <g class="node n-purple"><rect x="460" y="385" width="170" height="72" rx="10"/><text class="th" x="545" y="410" text-anchor="middle">5 · AI review</text><text class="ts" x="545" y="431" text-anchor="middle">Confirm or reject</text></g>
+
+      <line class="arr" x1="213" y1="101" x2="182" y2="101" marker-end="url(#ah)"/>
+      <line class="arr" x1="315" y1="132" x2="315" y2="213" marker-end="url(#ah)"/>
+      <line class="arr" x1="417" y1="251" x2="458" y2="251" marker-end="url(#ah)"/>
+      <line class="arr" x1="663" y1="251" x2="632" y2="251" marker-end="url(#ah)"/>
+      <line class="arr" x1="545" y1="287" x2="545" y2="383" marker-end="url(#ah)"/>
+      <line class="arr" x1="417" y1="421" x2="458" y2="421" marker-end="url(#ah)" style="stroke-dasharray:4 4"/>
+      <path class="arr" d="M632 421 L895 421 L895 289" marker-end="url(#ah)"/>
+      <line class="arr" x1="895" y1="215" x2="895" y2="134" marker-end="url(#ah)"/>
+    </g>
+    <text class="ts" x="327" y="168" fill="currentColor" style="fill:var(--mut)">2 · request to /audit/section</text>
+    <text class="ts" x="640" y="441" style="fill:var(--mut)">answers go back as JSON</text>
+  </svg>
+  <div class="legend">
+    <span><i class="l-gray"></i>App and files</span>
+    <span><i class="l-teal"></i>Fixed rules and data</span>
+    <span><i class="l-purple"></i>AI model</span>
+    <span><i class="l-amber"></i>Final review</span>
+  </div>
+  </div>
+</section>
+
+<!-- ============ DIAGRAM 2 ============ -->
+<section id="engine">
+  <h2>Diagram 2: inside the 14-stage engine</h2>
+  <p class="kicker">This is box 4 and box 6 above, opened up. Click any stage to see what it does. Only stage 13 (and the optional stage 6) uses an AI model.</p>
+
+  <div class="band">
+    <h3>A · Understand the input</h3>
+    <div class="row" style="grid-template-columns:repeat(5,1fr)">
+      <button class="st" data-s="1"><span class="no">1</span><b>Standardize</b><small>Clean field names</small></button>
+      <button class="st" data-s="2"><span class="no">2</span><b>Findings</b><small>Symptoms and exam</small></button>
+      <button class="st" data-s="3"><span class="no">3</span><b>Language</b><small>Bangla to English</small></button>
+      <button class="st" data-s="4"><span class="no">4</span><b>Patient</b><small>Age, pregnancy, organs</small></button>
+      <button class="st" data-s="5"><span class="no">5</span><b>Medicines</b><small>Brand to generic</small></button>
+    </div>
+  </div>
+  <div class="down">▼</div>
+  <div class="band">
+    <h3>B · Fetch knowledge <em>7 and 8 run at the same time</em></h3>
+    <div class="row" style="grid-template-columns:repeat(3,1fr)">
+      <button class="st" data-s="6"><span class="no">6</span><b>Search planner</b><small>Optional AI helper, final audit only</small></button>
+      <button class="st" data-s="7"><span class="no">7</span><b>Drug facts</b><small>Per medicine, per section</small></button>
+      <button class="st" data-s="8"><span class="no">8</span><b>Guideline search</b><small>Small targeted lookups</small></button>
+    </div>
+  </div>
+  <div class="down">▼</div>
+  <div class="band">
+    <h3>C · Raise candidates <em>9 and 10 run at the same time</em></h3>
+    <div class="row" style="grid-template-columns:repeat(4,1fr)">
+      <button class="st" data-s="9"><span class="no">9</span><b>Safety</b><small>Dose, allergy, pregnancy</small></button>
+      <button class="st" data-s="10"><span class="no">10</span><b>Follow-up</b><small>Earlier visits</small></button>
+      <button class="st" data-s="11"><span class="no">11</span><b>Rule engine</b><small>Merge and trim candidates</small></button>
+      <button class="st" data-s="12"><span class="no">12</span><b>Audit tasks</b><small>One small task per section</small></button>
+    </div>
+  </div>
+  <div class="down">▼</div>
+  <div class="band">
+    <h3>D · Model review and report</h3>
+    <div class="row" style="grid-template-columns:repeat(2,1fr)">
+      <button class="st ai" data-s="13"><span class="no">13</span><b>Model reviews candidates</b><small>Confirm or reject, retry if JSON is bad</small></button>
+      <button class="st" data-s="14"><span class="no">14</span><b>Final report</b><small>Validate, dedupe, summarise</small></button>
+    </div>
+  </div>
+
+  <div class="detail" id="detail" aria-live="polite">
+    <div><h4 id="d-title"></h4><p id="d-what"></p><p id="d-extra" style="color:var(--mut);font-size:14px"></p></div>
+    <div class="kv">
+      <div><span>Code file</span><code id="d-file"></code></div>
+      <div><span>Uses an AI model?</span><b id="d-ai"></b></div>
+      <div><span>In a live audit</span><b id="d-live" style="font-weight:500"></b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STEPS ============ -->
+
+<section id="kbmap">
+  <h2>Diagram 3: knowledge base and retrieval</h2>
+  <p class="kicker">Where every piece of reference data lives, how it is loaded, and how it is looked up. Everything on this diagram is plain files and dictionaries. There is no vector search.</p>
+  <div class="panel">
+  <svg viewBox="0 0 1000 450" role="img" aria-label="Knowledge base and retrieval diagram">
+    <text class="lane-t" x="20" y="14">Files on disk</text>
+    <text class="lane-t" x="292" y="14">Loader (Python class)</text>
+    <text class="lane-t" x="548" y="14">How it is looked up</text>
+    <text class="lane-t" x="792" y="14">Result</text>
+
+    <!-- Row A -->
+    <g class="node n-gray"><rect x="20" y="24" width="220" height="70" rx="10"/><text class="th" x="32" y="46">guideline_facts_merged.jsonl</text><text class="ts" x="32" y="64">63,623 facts · 97 MB</text><text class="ts" x="32" y="80">guides, books, monographs</text></g>
+    <g class="node n-teal"><rect x="290" y="24" width="220" height="70" rx="10"/><text class="th" x="302" y="46">GuidelineRAG</text><text class="ts" x="302" y="64">reads the whole file into RAM</text><text class="ts" x="302" y="80">builds alias → facts dictionary</text></g>
+    <g class="node n-teal"><rect x="546" y="24" width="220" height="70" rx="10"/><text class="th" x="558" y="46">Exact phrase match + score</text><text class="ts" x="558" y="64">hand-written points, no AI</text><text class="ts" x="558" y="80">top 3–4 facts per question</text></g>
+    <!-- Row B -->
+    <g class="node n-gray"><rect x="20" y="112" width="220" height="62" rx="10"/><text class="th" x="32" y="134">drug_extracted_facts_merged</text><text class="ts" x="32" y="152">43,066 facts · 1,713 generics</text></g>
+    <g class="node n-gray"><rect x="20" y="186" width="220" height="50" rx="10"/><text class="th" x="32" y="208">generic.csv</text><text class="ts" x="32" y="224">1,711 drug monographs</text></g>
+    <g class="node n-teal"><rect x="290" y="128" width="220" height="90" rx="10"/><text class="th" x="302" y="150">MedicineFactStore</text><text class="ts" x="302" y="168">annotated facts first,</text><text class="ts" x="302" y="184">generic.csv fills the gaps,</text><text class="ts" x="302" y="200">text cut at 1,200 characters</text></g>
+    <g class="node n-teal"><rect x="546" y="128" width="220" height="90" rx="10"/><text class="th" x="558" y="150">Lookup by generic_id</text><text class="ts" x="558" y="168">per medicine × section</text><text class="ts" x="558" y="184">(Rx, Advice, Diagnosis)</text><text class="ts" x="558" y="200">fixed field list per section</text></g>
+    <!-- Row C -->
+    <g class="node n-gray"><rect x="20" y="254" width="220" height="62" rx="10"/><text class="th" x="32" y="276">medicine.csv</text><text class="ts" x="32" y="294">28,582 brand rows</text><text class="ts" x="32" y="308">+ medicine_aliases.yaml</text></g>
+    <g class="node n-teal"><rect x="290" y="250" width="220" height="70" rx="10"/><text class="th" x="302" y="272">MedicineMapper</text><text class="ts" x="302" y="290">name dictionaries built at start</text><text class="ts" x="302" y="306">no fuzzy matching</text></g>
+    <g class="node n-teal"><rect x="546" y="250" width="220" height="70" rx="10"/><text class="th" x="558" y="272">Exact name → generic_id</text><text class="ts" x="558" y="290">alias → combo → generic → brand</text><text class="ts" x="558" y="306">else "unmatched"</text></g>
+    <!-- Row D -->
+    <g class="node n-gray"><rect x="20" y="340" width="220" height="74" rx="10"/><text class="th" x="32" y="362">ICD-11 SQLite · 2 test lists</text><text class="ts" x="32" y="380">35,664 codes · 266 + 1,497 tests</text><text class="ts" x="32" y="396">for the app's search boxes</text></g>
+    <g class="node n-teal"><rect x="290" y="346" width="220" height="62" rx="10"/><text class="th" x="302" y="368">ICD11Terminology</text><text class="ts" x="302" y="384">InvestigationCatalog</text></g>
+    <g class="node n-teal"><rect x="546" y="346" width="220" height="62" rx="10"/><text class="th" x="558" y="368">Name / code search</text><text class="ts" x="558" y="384">not sent to the AI model</text></g>
+
+    <!-- Result column -->
+    <g class="node n-purple"><rect x="792" y="24" width="190" height="296" rx="10"/><text class="th" x="804" y="48">Candidates + evidence</text><text class="ts" x="804" y="70">Every rule candidate carries</text><text class="ts" x="804" y="86">the facts that support it.</text><text class="ts" x="804" y="116">Stages 7 and 8 feed the</text><text class="ts" x="804" y="132">rule engine (stage 11),</text><text class="ts" x="804" y="148">which packs them into</text><text class="ts" x="804" y="164">audit tasks (stage 12).</text><text class="ts" x="804" y="194">Facts are shown to the</text><text class="ts" x="804" y="210">model as plain text,</text><text class="ts" x="804" y="226">not as vectors.</text></g>
+    <g class="node n-gray"><rect x="792" y="346" width="190" height="62" rx="10"/><text class="th" x="804" y="368">Doctor's search box</text><text class="ts" x="804" y="384">in the browser</text></g>
+    <g class="node n-amber"><rect x="290" y="420" width="476" height="26" rx="8"/><text class="th" x="302" y="438" style="font-size:13px">NOT USED: FAISS · embeddings · sentence-transformers · BM25 · vector database</text></g>
+
+    <path class="arr" d="M240 59 H288" marker-end="url(#ah)"/><path class="arr" d="M510 59 H544" marker-end="url(#ah)"/><path class="arr" d="M766 59 H790" marker-end="url(#ah)"/>
+    <path class="arr" d="M240 143 H262 Q270 143 270 150 H288" marker-end="url(#ah)"/><path class="arr" d="M240 211 H262 Q270 211 270 200 H288" marker-end="url(#ah)"/><path class="arr" d="M510 173 H544" marker-end="url(#ah)"/><path class="arr" d="M766 173 H780 Q784 173 784 160 V160 H790" marker-end="url(#ah)"/>
+    <path class="arr" d="M240 285 H288" marker-end="url(#ah)"/><path class="arr" d="M510 285 H544" marker-end="url(#ah)"/><path class="arr" d="M766 285 H790" marker-end="url(#ah)"/>
+    <path class="arr" d="M240 377 H288" marker-end="url(#ah)"/><path class="arr" d="M510 377 H544" marker-end="url(#ah)"/><path class="arr" d="M766 377 H790" marker-end="url(#ah)"/>
+  </svg>
+  <div class="legend"><span><i class="l-gray"></i>Data file</span><span><i class="l-teal"></i>Plain Python code (no AI)</span><span><i class="l-purple"></i>Handed on to the AI reviewer</span><span><i class="l-amber"></i>Not present</span></div>
+  </div>
+</section>
+
+<section id="steps">
+  <h2>Explanation of each step</h2>
+  <p class="kicker">The nine steps in the order they happen. Step numbers match Diagram 1.</p>
+  <div class="steps">
+
+    <div class="step"><div class="badge">1</div><div>
+      <h3>The doctor saves a section</h3>
+      <p>The app has six audited sections: Chief Complaint, Past History, Investigation, Diagnosis, Rx (medicines) and Advice. Every save does two things:</p>
+      <ul>
+        <li>It writes a JSON file to <code>backend/data/patient_x/visit_NN/</code> and updates the Excel workbook (Patient Info, Prescription Data, Prescription Log).</li>
+        <li>It starts a live audit for that section.</li>
+      </ul>
+      <p>Each live audit has a revision number. If the doctor edits the section again before the answer arrives, the older answer is thrown away.</p>
+      <div class="files"><code>App.jsx</code><code>backendPlugin.js</code><code>database.js</code></div>
+    </div></div>
+
+    <div class="step"><div class="badge">2</div><div>
+      <h3>The request reaches the Python bridge</h3>
+      <p>The browser calls <code>/audit-api/audit/section</code>. Vite forwards it to the Python server on port 8765 and waits up to 5 minutes. The server runs at most 2 audits at once, so a slow model does not pile up requests.</p>
+      <div class="files"><code>vite.config.js</code><code>app_server.py</code></div>
+    </div></div>
+
+    <div class="step"><div class="badge">3</div><div>
+      <h3>The adapter flattens the visit</h3>
+      <p>The app saves structured data. The adapter turns it into one flat row of text, for example <code>Napa 500 mg (1 + 0 + 1) - (5 day(s))</code>. It also turns a date of birth into an age such as "8 months", converts Bangla digits and fixes dose fractions.</p>
+      <p>For a live audit it keeps only the fields that section is allowed to see. Chief Complaint, Past History and Diagnosis do not load earlier visits. Investigation, Rx and Advice build a small temporary database of the patient's earlier visits, so the engine can spot repeats and interactions.</p>
+      <div class="files"><code>app_adapter.py</code><code>incremental_audit.py</code></div>
+    </div></div>
+
+    <div class="step"><div class="badge">4</div><div>
+      <h3>The 14-stage engine raises candidates</h3>
+      <p>A candidate means "this might be a mistake". Examples are <code>Rx.ddi</code> (drug interaction), <code>Rx.over</code> (too much medicine) and <code>Adv.refer</code> (referral missing). The rulebook has 53 rule IDs across Demo, CC (chief complaint), Hx (history), Dx (diagnosis), Inv (investigation), Rx and Adv.</p>
+      <p>Everything here is fixed code with no AI. Weak, low-evidence candidates are dropped before the model sees them. The result is one compact task per section.</p>
+      <div class="callout">Because the model only sees what the rules raise, the rules decide how many real errors can be caught (recall). The model's job is to remove false alarms (precision).</div>
+      <div class="files"><code>orchestrator.py</code><code>rule_candidate_engine.py</code><code>safety_candidate_engine.py</code><code>protocol.yaml</code></div>
+    </div></div>
+
+    <div class="step"><div class="badge">5</div><div>
+      <h3>The local AI model reviews each candidate</h3>
+      <p>The prompt tells the model to review only the given candidates, never invent new ones, answer only in JSON, keep each reason under 25 words and avoid direct treatment orders. Candidates with the same evidence are grouped so the model reads that text once. If the answer is not valid JSON, the writer retries with a repair note.</p>
+      <p>The model is chosen in <code>.env</code> and loaded once into GPU memory. Two prompt styles exist:</p>
+      <ul>
+        <li><b>Standard:</b> "confirm or reject each candidate".</li>
+        <li><b>Fine-tune:</b> ask the model, in the format it was trained on, which rules apply, then map its answer back to the candidates. For CC and Hx it also asks plain YES/NO questions.</li>
+      </ul>
+      <div class="files"><code>audit_writer.py</code><code>provider.py</code><code>finetune_prompt.py</code></div>
+    </div></div>
+
+    <div class="step"><div class="badge">6</div><div>
+      <h3>Clean-up of the model's answer</h3>
+      <p>This protects the doctor from noise. The pipeline drops answers that:</p>
+      <ul>
+        <li>only repeat the candidate's own wording, or are too short to be a real reason;</li>
+        <li>say in their own text that nothing is wrong ("no issue", "plausible");</li>
+        <li>are duplicates, or known double-fires of the same fact (for example <code>CC.context.demo</code> and <code>CC.context.conflict</code>), where only the most severe is kept.</li>
+      </ul>
+      <p>Wording is also softened into review language. The report builder then drops any finding with a missing field or no evidence, and records a warning for each drop.</p>
+      <div class="files"><code>audit_writer.py</code><code>final_report.py</code></div>
+    </div></div>
+
+    <div class="step"><div class="badge">7</div><div>
+      <h3>The badge on the section</h3>
+      <p>Findings are sorted by severity and at most 5 are shown, to avoid alert fatigue. The badge is one of:</p>
+      <ul>
+        <li><b>Clear:</b> nothing found.</li>
+        <li><b>Moderate:</b> concerns that need review.</li>
+        <li><b>Critical:</b> at least one major or critical finding.</li>
+        <li><b>Error:</b> the model could not complete the check; the doctor can retry from the badge.</li>
+      </ul>
+      <p>Patient-context notes, such as pregnancy evidence on a male patient, appear as "possible errors" on the Chief Complaint badge. Results are also saved to the Excel Prescription Log.</p>
+      <div class="files"><code>incremental_audit.py</code><code>SectionAuditBadge</code></div>
+    </div></div>
+
+    <div class="step"><div class="badge">8</div><div>
+      <h3>The final audit</h3>
+      <p>"Run audit" calls <code>/audit</code> and runs all 14 stages over the whole prescription, including the optional search planner. It then compares the live findings with the final ones and lists any difference instead of hiding it. The full report is saved as <code>aiAudit.json</code> in the visit folder.</p>
+      <div class="files"><code>app_server.py</code><code>compare_live_with_final</code></div>
+    </div></div>
+
+    <div class="step"><div class="badge">9</div><div>
+      <h3>The benchmark (a separate tool)</h3>
+      <p><code>benchmark/run_benchmark.py</code> replays synthetic prescriptions section by section, exactly as the app does, with 16 local models plus a "rules-only" baseline that uses no AI. Each model runs in its own process. It scores:</p>
+      <ul>
+        <li><b>Precision:</b> how many warnings were real.</li>
+        <li><b>Recall:</b> how many planted errors were caught.</li>
+        <li><b>Speed and memory:</b> seconds per case, tokens per second, GPU memory.</li>
+      </ul>
+      <p>The top 5 models were then set up for a second test on doctor-annotated real prescriptions (branch <code>real-prescription-eval</code>); only sample data has been run so far.</p>
+      <div class="files"><code>run_benchmark.py</code><code>models.json</code><code>export_doctor_review.py</code></div>
+    </div></div>
+
+  </div>
+</section>
+
+<!-- ============ LIVE VS FINAL ============ -->
+
+<section id="kb">
+  <h2>The knowledge base in detail</h2>
+  <p class="kicker">Everything below was counted directly from the files in <code>audit_pipeline/data</code> and <code>configs</code>. Counts are exact unless a line says otherwise.</p>
+
+  <div class="big">
+    <div><b>63,623</b><span>guideline facts (44 fields each)</span></div>
+    <div><b>43,066</b><span>drug facts for 1,713 generics</span></div>
+    <div><b>28,582</b><span>brand medicine rows</span></div>
+    <div><b>35,664</b><span>ICD-11 diagnosis codes</span></div>
+    <div><b>8,370</b><span>distinct conditions in guideline facts</span></div>
+    <div><b>18</b><span>source documents</span></div>
+  </div>
+
+  <h3 class="sub3">1. Every data file and who uses it</h3>
+  <div class="tbl"><table>
+    <tr><th>File</th><th>What is inside</th><th class="num">Size</th><th>Used by</th></tr>
+    <tr><td><code>data/rag/guideline_facts_merged.jsonl</code></td><td>One JSON fact per line. Drug monograph facts, national (Bangladesh) guidelines, WHO antibiotic book, two medical textbooks.</td><td class="num">63,623 rows<br>97 MB</td><td>GuidelineRAG (stage 8)</td></tr>
+    <tr><td><code>data/rag/drug_extracted_facts_merged.jsonl</code></td><td>Drug facts pulled out of monograph text by an LLM, one fact per line: side effects, dosage, precautions, interactions and more.</td><td class="num">43,066 rows</td><td>MedicineFactStore (stage 7)</td></tr>
+    <tr><td><code>data/generic.csv</code></td><td>1,711 drug monographs with 22 columns. Long text columns are stored as HTML.</td><td class="num">1,711 rows</td><td>MedicineMapper, MedicineFactStore</td></tr>
+    <tr><td><code>data/medicine.csv</code></td><td>Bangladeshi brand list: brand_name, dosage form, generic, strength. Example: A-Cold, Syrup, Bromhexine Hydrochloride, 4 mg/5 ml.</td><td class="num">28,582 rows</td><td>MedicineMapper (stage 5)</td></tr>
+    <tr><td><code>data/icd11_mms_2026_01.sqlite3</code></td><td>WHO ICD-11 MMS release 2026-01, English. Table <code>diagnoses</code> (code, title, normalized title, parent, chapter, depth) plus a small <code>metadata</code> table. Coded categories only.</td><td class="num">35,664 rows<br>9.8 MB</td><td>ICD11Terminology: the diagnosis search box</td></tr>
+    <tr><td><code>data/bd_investigation_catalog.csv</code></td><td>Bangladeshi test names grouped by category, with a canonical name. Example: Biochemistry, "BILIRUBIN D/I".</td><td class="num">266 rows</td><td>InvestigationCatalog</td></tr>
+    <tr><td><code>data/ibnsina_investigation_catalog.csv</code></td><td>Test names from the Ibn Sina Trust website, with category and source URL. Used for test identity and local availability only.</td><td class="num">1,497 rows</td><td>InvestigationCatalog</td></tr>
+    <tr><td><code>configs/protocol.yaml</code></td><td>The rulebook (version V.21): auditor role, 53 rule IDs, which fields each section may see, test validity days, monitoring exceptions, section order.</td><td class="num">29.7 KB</td><td>Rule engine (stage 11)</td></tr>
+    <tr><td><code>configs/medicine_aliases.yaml</code></td><td>Supportive items such as ORS, oxygen, tetanus vaccine and amoxiclav, each with a type, whether meal timing is required, and dosage form.</td><td class="num">small</td><td>MedicineMapper</td></tr>
+    <tr><td><code>configs/frequency_cache.json</code></td><td>Small cache that maps Bangla, Persian and Urdu digit schedules such as "۰ + ۰ + ۱" to English. A hint layer only.</td><td class="num">9 entries seen</td><td>frequency_parser.py</td></tr>
+    <tr><td><code>configs/finetune_taxonomy.json</code></td><td>For the fine-tuned model: the allowed error types per section.</td><td class="num">7 sections</td><td>finetune_prompt.py</td></tr>
+  </table></div>
+
+  <h3 class="sub3">2. The 63,623 guideline facts: where they come from</h3>
+  <p>Each fact is tagged with its source. The tag decides how much it counts in the score (see the Retrieval section): local Bangladesh guidance beats WHO, which beats textbooks.</p>
+  <div class="tbl"><table>
+<tr><th>Group</th><th>Source (id)</th><th class="num">Facts</th></tr>
+<tr><td>Drug monographs · priority 1 (MedicineKB)</td><td>medicine_kb_annotated: 1,713 drugs</td><td class='num'>43,065</td></tr>
+<tr><td>Textbook · priority 3, fallback only</td><td>davidson_25e: Davidson's Principles and Practice of Medicine, 25th ed.</td><td class='num'>11,578</td></tr>
+<tr><td>Textbook · priority 3, fallback only</td><td>symptom_to_diagnosis_4e: Symptom to Diagnosis, An Evidence-Based Guide, 4th ed.</td><td class='num'>2,450</td></tr>
+<tr><td>WHO · priority 2</td><td>who_aware_antibiotic_book: WHO AWaRe Antibiotic Book</td><td class='num'>1,916</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_infections_prescribing_stg: STG on infections and infectious disease prescribing</td><td class='num'>816</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_emonc_protocol: EmONC standard clinical management protocols</td><td class='num'>628</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_imci_handbook: IMCI student's handbook</td><td class='num'>499</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_diabetes_guideline</td><td class='num'>485</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_hypertension_guideline</td><td class='num'>400</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_tb_national_guideline_2021</td><td class='num'>384</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_art_guideline: ART guidelines, Bangladesh, 2011</td><td class='num'>301</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_dengue_guideline</td><td class='num'>277</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_sam_guideline: facility-based management of severe acute malnutrition in children</td><td class='num'>255</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_child_tb_national_guideline</td><td class='num'>215</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_iycf_guideline: infant and young child feeding</td><td class='num'>128</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_malaria_treatment_regimen_2017</td><td class='num'>85</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_animal_bite_guideline</td><td class='num'>73</td></tr>
+<tr><td>Bangladesh national · priority 1, local primary</td><td>bd_chikungunya_guideline</td><td class='num'>68</td></tr>
+</table></div>
+  <p style="color:var(--mut);font-size:14px">Totals by type: medicine_monograph 43,065 · textbook 14,028 · national_guideline 4,614 · who_guideline 1,916. These sum to 63,623. The separate drug-facts file has 43,066 rows, one more than the 43,065 monograph facts here; I did not find out why.</p>
+
+  <h3 class="sub3">3. What one guideline fact looks like (44 fields)</h3>
+  <div class="tbl"><table>
+    <tr><th>Field group</th><th>Fields</th></tr>
+    <tr><td>Where it came from</td><td><code>source_id</code> <code>source_title</code> <code>source_page</code> <code>source_file</code> <code>source_section</code> <code>source_figure_or_table</code> <code>jurisdiction</code> <code>source_priority</code> <code>local_applicability</code> <code>guideline_type</code> <code>fact_id</code></td></tr>
+    <tr><td>What it is about</td><td><code>condition</code> <code>condition_aliases</code> <code>medicine_name</code> <code>generic_id</code> <code>generic_name</code> <code>profile</code> <code>patient_group</code> <code>rule_focus</code> <code>fact_type</code> <code>section</code> <code>audit_uses</code></td></tr>
+    <tr><td>The clinical content</td><td><code>trigger_evidence</code> <code>recommended_tests</code> <code>tests_not_needed</code> <code>recommended_medicines</code> <code>alternative_medicines</code> <code>avoid_medicines</code> <code>dose_or_duration</code> <code>route_or_site</code> <code>frequency</code> <code>duration</code> <code>max_daily_dose</code> <code>recommended_advice</code> <code>referral_criteria</code> <code>admission_criteria</code> <code>followup_monitoring</code> <code>contraindications_or_cautions</code> <code>warning_signs</code> <code>fact_text</code></td></tr>
+    <tr><td>How reliable it is</td><td><code>candidate_strength</code> <code>recommendation_scope</code> <code>extraction_confidence</code> <code>validation_status</code></td></tr>
+  </table></div>
+  <p>The average <code>fact_text</code> is about 150 characters; the longest is 2,361. There are 139 different <code>fact_type</code> values and 405 different <code>rule_focus</code> values.</p>
+
+  <div class="two">
+    <div class="tbl"><table>
+      <tr><th>candidate_strength</th><th class="num">Facts</th></tr>
+      <tr><td>conditional</td><td class="num">45,768</td></tr>
+      <tr><td>strong</td><td class="num">12,865</td></tr>
+      <tr><td>context_only</td><td class="num">4,990</td></tr>
+    </table></div>
+    <div class="tbl"><table>
+      <tr><th>Section it can be used for (audit_uses)</th><th class="num">Facts</th></tr>
+      <tr><td>Rx (medicines)</td><td class="num">43,806</td></tr>
+      <tr><td>Dx (diagnosis)</td><td class="num">19,850</td></tr>
+      <tr><td>Adv (advice)</td><td class="num">9,661</td></tr>
+      <tr><td>Inv (investigations)</td><td class="num">3,322</td></tr>
+      <tr><td>Demo</td><td class="num">306</td></tr>
+      <tr><td>CC (complaint)</td><td class="num">58</td></tr>
+    </table></div>
+  </div>
+  <p style="color:var(--mut);font-size:14px">One fact can be useful for more than one section, so these counts add up to more than 63,623. There are no facts built for Past History (Hx).</p>
+
+  <h3 class="sub3">4. Most common fact types</h3>
+  <div class="tbl"><table>
+    <tr><th>fact_type</th><th class="num">Facts</th><th>fact_type</th><th class="num">Facts</th></tr>
+    <tr><td>adverse_effect</td><td class="num">7,542</td><td>interaction</td><td class="num">3,556</td></tr>
+    <tr><td>dose_or_duration</td><td class="num">6,966</td><td>contraindication</td><td class="num">3,455</td></tr>
+    <tr><td>precaution</td><td class="num">5,428</td><td>pregnancy_lactation</td><td class="num">2,604</td></tr>
+    <tr><td>pharmacology</td><td class="num">4,625</td><td>differential_diagnosis</td><td class="num">2,595</td></tr>
+    <tr><td>indication</td><td class="num">4,410</td><td>recommended_medicine</td><td class="num">2,398</td></tr>
+    <tr><td>treatment_algorithm</td><td class="num">1,752</td><td>drug_class</td><td class="num">1,646</td></tr>
+  </table></div>
+
+  <h3 class="sub3">5. The 43,066 extracted drug facts</h3>
+  <p>These are the facts that <code>MedicineFactStore</code> prefers. They cover 1,713 generic drugs. Every row was made by <code>llm_structured_extraction</code> in six batch runs (<code>azure_*</code> folders), and none is flagged <code>needs_review</code>.</p>
+  <div class="tbl"><table>
+    <tr><th>Fact type</th><th class="num">Facts</th><th>Fact type</th><th class="num">Facts</th></tr>
+    <tr><td>side_effects</td><td class="num">7,534</td><td>pregnancy_lactation</td><td class="num">2,618</td></tr>
+    <tr><td>dosage</td><td class="num">5,751</td><td>drug_class</td><td class="num">1,646</td></tr>
+    <tr><td>precaution</td><td class="num">5,428</td><td>storage</td><td class="num">1,587</td></tr>
+    <tr><td>pharmacology</td><td class="num">4,625</td><td>overdose</td><td class="num">977</td></tr>
+    <tr><td>indication</td><td class="num">4,386</td><td>administration</td><td class="num">800</td></tr>
+    <tr><td>interaction</td><td class="num">3,504</td><td>pediatric_usage</td><td class="num">696</td></tr>
+    <tr><td>contraindication</td><td class="num">3,386</td><td>reconstitution</td><td class="num">128</td></tr>
+  </table></div>
+  <p>Confidence is high for 42,624 facts, medium for 427 and low for 15.</p>
+
+  <h3 class="sub3">6. generic.csv: how complete is it?</h3>
+  <p>The 22 columns are generic id, name, slug, monograph link, drug class, indication, indication description, therapeutic class, pharmacology, dosage, administration, interaction, contraindications, side effects, pregnancy and lactation, precautions, pediatric usage, overdose, duration of treatment, reconstitution, storage, and a description count. Rows filled out of 1,711:</p>
+  <div class="tbl"><table>
+    <tr><th>Column</th><th class="num">Filled</th><th>Column</th><th class="num">Filled</th></tr>
+    <tr><td>dosage</td><td class="num">1,695</td><td>precautions</td><td class="num">1,525</td></tr>
+    <tr><td>drug class</td><td class="num">1,650</td><td>pharmacology</td><td class="num">1,614</td></tr>
+    <tr><td>side effects</td><td class="num">1,631</td><td>storage</td><td class="num">1,546</td></tr>
+    <tr><td>indication</td><td class="num">1,627</td><td>pregnancy / lactation</td><td class="num">1,545</td></tr>
+    <tr><td>contraindications</td><td class="num">1,570</td><td>interaction</td><td class="num">1,301</td></tr>
+    <tr><td>overdose</td><td class="num">775</td><td>pediatric usage</td><td class="num">569</td></tr>
+    <tr><td>administration</td><td class="num">295</td><td>reconstitution</td><td class="num">84</td></tr>
+    <tr><td>duration of treatment</td><td class="num">5</td><td></td><td></td></tr>
+  </table></div>
+  <p>Administration text (295 rows) and pediatric text (569 rows) are thin. This matters because the Advice checks depend on administration facts and the paediatric dose checks depend on pediatric facts.</p>
+
+  <h3 class="sub3">7. Trust and quality of the knowledge base</h3>
+  <div class="tbl"><table>
+    <tr><th>Part</th><th>Validation status in the file</th><th>What this means</th></tr>
+    <tr><td>Drug monograph facts</td><td><code>source_validated_not_row_reviewed</code></td><td>The source monograph is trusted, but no person checked each extracted row.</td></tr>
+    <tr><td>Textbook, national and WHO facts</td><td><code>vision_llm_extracted_not_reviewed</code></td><td>A vision model read the PDF pages. No one has reviewed these rows by hand.</td></tr>
+    <tr><td>Extraction confidence</td><td>textbook: high 13,640 · medium 388<br>national: high 4,554 · medium 48 · low 12<br>WHO: high 1,877 · medium 39</td><td>The confidence is the extraction model's own rating, not a clinical review.</td></tr>
+  </table></div>
+  <div class="warn"><b>Honest note for the supervisor:</b> the knowledge base is large, but it has not been checked by a doctor row by row. Any claim about clinical accuracy should say "extracted from named sources", not "clinically verified". The file column <code>source_quality</code> says <code>clinically_validated_source</code> for the drug facts; that describes the source, not the extraction.</div>
+</section>
+
+
+<section id="retrieval">
+  <h2>Retrieval: how facts are found</h2>
+  <div class="verdict">
+    <h3>Is FAISS used? No. Are embeddings used? No.</h3>
+    <p style="margin:0">I searched every file in <code>audit_pipeline/</code> and <code>benchmark/</code> for faiss, sentence-transformers, embedding, bm25, tfidf, chroma, vector, cosine, numpy and sklearn. The only hit was the word "embedding" inside a comment in <code>text_translation.py</code>. The Python environment has no faiss, sentence-transformers, rank_bm25, scikit-learn or peft package installed. numpy is present only because torch needs it.</p>
+  </div>
+  <p>The name "RAG" is used in the code (<code>guideline_rag.py</code>), but the lookup is a <b>dictionary lookup with hand-written scoring</b>. Nothing is converted into numbers and nothing is compared by similarity.</p>
+
+  <h3 class="sub3">How GuidelineRAG works, step by step</h3>
+  <div class="steps">
+    <div class="step"><div class="badge">a</div><div><h3>Load everything into memory at start</h3>
+      <p>The whole 97 MB file is read with <code>read_text().splitlines()</code> and every line is parsed. No database and no index file on disk. This happens once, the first time an audit needs it.</p></div></div>
+    <div class="step"><div class="badge">b</div><div><h3>Build a name dictionary</h3>
+      <p>For each fact, these words become dictionary keys pointing to that fact: <code>condition</code>, <code>condition_aliases</code>, <code>medicine_name</code>, <code>generic_name</code>, the recommended, alternative and avoid medicines, and <code>drug_class</code>. Text is normalized first, and two stop lists (<code>ALIAS_STOPWORDS</code>, <code>NON_CONDITION_ALIASES</code>) remove words too general to be useful.</p></div></div>
+    <div class="step"><div class="badge">c</div><div><h3>Find names inside the patient text</h3>
+      <p>Diagnosis, chief complaint, clinical text and the medicine list are normalized. Each key is searched inside that text as a whole phrase (<code>phrase_in_text</code>). A fact matches only if its key appears as an exact phrase. For Diagnosis and Investigation, a match on a medicine name alone is ignored.</p></div></div>
+    <div class="step"><div class="badge">d</div><div><h3>Score every matched fact</h3>
+      <p>A whole-number score is added up from the table below. Facts with a category mismatch score 0, and <code>context_only</code> facts score 0 unless asked for. Storage facts are excluded.</p></div></div>
+    <div class="step"><div class="badge">e</div><div><h3>Sort and cut</h3>
+      <p>Sort by highest score, then source priority, then source id, then fact type. Keep only the first few (limit 3 to 4 per question). Duplicates (same <code>fact_id</code>) are removed per section.</p></div></div>
+  </div>
+
+  <h3 class="sub3">The scoring table</h3>
+  <div class="tbl"><table>
+    <tr><th>Signal</th><th class="num">Points</th></tr>
+    <tr><td>Source priority (1 best)</td><td class="num">max(0, 30 − priority × 5)</td></tr>
+    <tr><td>Condition found in the clinical text</td><td class="num">+80</td></tr>
+    <tr><td>Medicine found in the medicine text</td><td class="num">+55 (Rx and Advice: +45 more)</td></tr>
+    <tr><td>Condition and medicine both match exactly</td><td class="num">+70</td></tr>
+    <tr><td>Medicine matched but no condition (Rx and Advice)</td><td class="num">−20</td></tr>
+    <tr><td>Fact type fits the section and the fact says it can be used there</td><td class="num">+45</td></tr>
+    <tr><td>Fact type fits the section only</td><td class="num">+20</td></tr>
+    <tr><td>Fact says it can be used there only</td><td class="num">+5</td></tr>
+    <tr><td>Neither</td><td class="num">−35</td></tr>
+    <tr><td>Jurisdiction: Bangladesh / WHO / International</td><td class="num">+25 / +10 / −5</td></tr>
+    <tr><td>Candidate strength: strong / conditional</td><td class="num">+15 / +8</td></tr>
+    <tr><td>Marked fallback_only</td><td class="num">−20</td></tr>
+  </table></div>
+  <p style="color:var(--mut);font-size:14px">These weights are chosen by hand. I did not find any experiment that tunes them, so treat them as design choices rather than measured values. There is also a small bonus or penalty from <code>_source_condition_match_score</code> that I did not break out.</p>
+
+  <h3 class="sub3">The textbook fallback (Diagnosis and Investigation only)</h3>
+  <p>If no exact condition is found, <code>_add_textbook_symptom_candidates</code> compares the patient's symptom words with textbook facts. It needs at least 2 shared symptom words. Score: 35 + min(overlap, 5) × 8, plus 20 if the fact is meant for this section, minus 15 if it is not. This is still word overlap, not meaning similarity.</p>
+
+  <h3 class="sub3">The questions the router asks</h3>
+  <p><code>guideline_rag_router.py</code> turns one prescription into several small lookups ("seeds"). Each returns at most 3 or 4 facts.</p>
+  <div class="tbl"><table>
+    <tr><th>Seed (rule name)</th><th>Section</th><th class="num">Limit</th><th>Built when</th></tr>
+    <tr><td>guideline_diagnosis_review_candidate</td><td>Dx</td><td class="num">4</td><td>diagnosis, chief complaint or clinical text exists</td></tr>
+    <tr><td>guideline_investigation_missing_candidate</td><td>Inv</td><td class="num">4</td><td>same</td></tr>
+    <tr><td>guideline_advice_missing_candidate</td><td>Adv</td><td class="num">4</td><td>same</td></tr>
+    <tr><td>guideline_treatment_review_candidate</td><td>Rx</td><td class="num">4</td><td>once per mapped medicine</td></tr>
+    <tr><td>guideline_avoid_medicine_candidate</td><td>Rx</td><td class="num">3</td><td>once per mapped medicine</td></tr>
+  </table></div>
+  <p>If no medicine could be mapped, the raw medicine text is used instead. In live mode the Diagnosis check skips guideline seeds completely. The optional LLM "search planner" (stage 6) can rewrite the seed text; it is off in live mode and on in the final audit.</p>
+
+  <h3 class="sub3">Good and weak sides of this design</h3>
+  <div class="two">
+    <div class="panel"><b>Strengths</b><ul>
+      <li>Same input always gives the same facts. Easy to test and to explain.</li>
+      <li>No GPU, no embedding model, no index to keep up to date.</li>
+      <li>Every fact has a source id and page, so a warning can be traced back.</li>
+      <li>Local Bangladesh guidance outranks textbooks by design.</li>
+    </ul></div>
+    <div class="panel"><b>Weaknesses</b><ul>
+      <li>A synonym, abbreviation or misspelling that is not in the alias list is missed. There is no fuzzy or meaning-based match.</li>
+      <li>The 97 MB file is parsed at every server start. I did not measure how long this takes.</li>
+      <li>The default path is relative (<code>audit_pipeline/data/rag/...</code>), so it only works when the server starts in the project root. Otherwise the facts are silently empty, with only a warning "guideline RAG file not found or empty".</li>
+      <li>Score weights are untuned.</li>
+    </ul></div>
+  </div>
+  <div class="callout"><b>If asked "why not FAISS?":</b> exact matching was a safe first choice because medicine and condition names are mostly fixed terms. A later improvement could add FAISS with an embedding model as a second layer that only adds recall when the exact match finds nothing. That is a suggestion; it is not built and I have not tested it.</div>
+
+  <h3 class="sub3">Medicine mapping: how a written name becomes a drug</h3>
+  <p><code>MedicineMapper.map_one</code> tries these tiers in order and stops at the first that works. Every tier is an exact, normalized-name comparison.</p>
+  <div class="tbl"><table>
+    <tr><th>Tier</th><th>What it checks</th><th>Result label</th></tr>
+    <tr><td>1. Alias</td><td>Is it a listed supportive item (ORS, oxygen, vaccine, amoxiclav...)?</td><td>from <code>medicine_aliases.yaml</code></td></tr>
+    <tr><td>2. Inferred combination</td><td>Does the name safely split into known generics?</td><td>combination result</td></tr>
+    <tr><td>3. Exact generic</td><td>Is the head of the text a generic name?</td><td><code>match_confidence = exact</code>, reason "exact generic match"</td></tr>
+    <tr><td>4. Exact brand</td><td>Is it a brand in medicine.csv? Chooses the best strength/form variant.</td><td>brand row. A solid-tablet prescription is not compared to a liquid-only brand row if a solid generic variant exists</td></tr>
+    <tr><td>5. Inferred generic</td><td>Safe inference from the written text</td><td>inferred</td></tr>
+    <tr><td>6. Unmatched</td><td>Nothing safe found</td><td><code>matched = false</code>, "no exact or safe inferred match"</td></tr>
+  </table></div>
+  <p>Text such as <code>Napa 500 mg (1 + 0 + 1) - (5 day(s))</code> is first split into medicines (commas, semicolons and new lines outside brackets). The dose in brackets is read by <code>frequency_parser.py</code>, which understands Bangla, Arabic and Persian digits and fractions. It then calculates the daily dose conservatively. A medicine with no match gets no drug facts, which produces the warning "missing generic_id; no medicine facts retrieved".</p>
+</section>
+
+
+<section id="rules">
+  <h2>The rulebook and the rule engine</h2>
+  <p class="kicker"><code>protocol.yaml</code> (V.21) holds 53 rule IDs (the table lists 53 including the starred ones). The code adds about 40 more specific IDs (my approximate count from searching the code) for dose, risk and follow-up checks.</p>
+
+  <h3 class="sub3">Rules in the protocol file</h3>
+  <p>Plain-language meanings come from <code>rule_text.py</code> where an entry exists (44 entries). Rows marked * have no entry there; their meaning is read from the ID name and may be slightly off.</p>
+  <div class="tbl"><table>
+<tr><th>Section</th><th>Rule ID</th><th>Meaning</th></tr>
+<tr><td>Demographics</td><td><code>Demo.1</code></td><td>Age or gender is invalid or inconsistent.</td></tr>
+<tr><td>Demographics</td><td><code>Demo.2</code></td><td>Weight is missing where dosing depends on it.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.1</code></td><td>Complaint is unrecognizable or empty.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.2</code></td><td>Severity or characterization missing.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.3</code></td><td>Duration missing.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.4</code></td><td>Site or source missing.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.demo</code></td><td>Complaint does not fit the patient's age or gender.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.hs</code></td><td>A recorded clinical finding does not match the complaint.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.term.unclear</code></td><td>Wording unclear or not recognizable.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.context.conflict</code></td><td>Complaints or obstetric notes contradict each other.</td></tr>
+<tr><td>Chief complaint</td><td><code>CC.time</code></td><td>Stated duration impossible for this patient or complaint.</td></tr>
+<tr><td>Past history</td><td><code>Hx.term.unclear</code></td><td>Entry unclear or not a recognizable condition.</td></tr>
+<tr><td>Past history</td><td><code>Hx.context.demo</code></td><td>Does not fit the patient's age or sex.</td></tr>
+<tr><td>Past history</td><td><code>Hx.detail</code></td><td>Allergen or operation performed not recorded.</td></tr>
+<tr><td>Past history</td><td><code>Hx.time.plausibility</code></td><td>Duration of a past condition is impossible for this patient.</td></tr>
+<tr><td>Past history</td><td><code>Hx.context.conflict</code></td><td>Conflicts with current clinical findings.</td></tr>
+<tr><td>Past history</td><td><code>Hx.duplicate</code></td><td>Same condition recorded twice under different names.</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.cc.1</code></td><td>Diagnosis does not explain the chief complaint.</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.cc.2</code></td><td>Diagnosis is contradicted by the complaint.</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.hs.1</code></td><td>Diagnosis contradicts the recorded clinical findings.</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.hs.2</code></td><td>A significant finding is not reflected in the diagnosis.</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.demo</code></td><td>Does not fit the patient's age or gender.</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.code</code></td><td>Diagnosis code appears wrong.</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.inv.1</code></td><td>Misreads an investigation result (follow-up only).</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.term.unclear *</code></td><td>Wording unclear.</td></tr>
+<tr><td>Diagnosis</td><td><code>Dx.followup *</code></td><td>Conflict with an earlier visit's diagnosis.</td></tr>
+<tr><td>Investigation</td><td><code>Inv.cc</code></td><td>Tests do not match the diagnostic workup.</td></tr>
+<tr><td>Investigation</td><td><code>Inv.dx</code></td><td>A confirmatory test is missing or unnecessary.</td></tr>
+<tr><td>Investigation</td><td><code>Inv.hs</code></td><td>Tests do not match the recorded findings.</td></tr>
+<tr><td>Investigation</td><td><code>Inv.demo.1</code></td><td>An age or gender specific test may be missing.</td></tr>
+<tr><td>Investigation</td><td><code>Inv.demo.2</code></td><td>A region specific test may be missing.</td></tr>
+<tr><td>Investigation</td><td><code>Inv.term.unrecognized *</code></td><td>Test name not recognized.</td></tr>
+<tr><td>Investigation</td><td><code>Inv.followup.redundant *</code></td><td>Same test repeated inside its validity window.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.cc.mis</code></td><td>Medicine does not fit the diagnosis or complaint.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.cc.sym</code></td><td>A medicine needed for a documented complaint is missing.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.ddi</code></td><td>A drug interaction may be unaddressed.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.demo</code></td><td>Dose, duration or form may not suit age or weight.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.dup</code></td><td>Duplicate or same-class medicines.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.hs</code></td><td>Treatment missing for a significant finding.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.instr</code></td><td>Route or instructions incomplete.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.multi</code></td><td>One of several diagnoses has no treatment.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.over</code></td><td>Medicine prescribed without a matching condition.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.region</code></td><td>May not follow the Bangladesh guideline.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.timing</code></td><td>Timing (before or after meals) missing.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.term.unclear *</code></td><td>Medicine wording unclear.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.followup.dup *</code></td><td>Duplicate of a medicine from an earlier visit.</td></tr>
+<tr><td>Rx (medicines)</td><td><code>Rx.followup.ddi *</code></td><td>Interaction with a medicine from an earlier visit.</td></tr>
+<tr><td>Advice</td><td><code>Adv.cc</code></td><td>Diagnosis specific counselling missing.</td></tr>
+<tr><td>Advice</td><td><code>Adv.hs</code></td><td>Follow-up advice for a significant finding missing.</td></tr>
+<tr><td>Advice</td><td><code>Adv.precau</code></td><td>High-risk precaution missing.</td></tr>
+<tr><td>Advice</td><td><code>Adv.refer</code></td><td>Referral for a serious condition not documented.</td></tr>
+<tr><td>Advice</td><td><code>Adv.content.unrecognized *</code></td><td>Advice text not recognized.</td></tr>
+<tr><td>Advice</td><td><code>Adv.context *</code></td><td>Advice does not suit the context.</td></tr>
+<tr><td>Advice</td><td><code>Adv.followup *</code></td><td>Follow-up visit missing.</td></tr>
+<tr><td>Advice</td><td><code>Adv.followup.interval *</code></td><td>Follow-up interval unsuitable.</td></tr>
+</table></div>
+
+  <h3 class="sub3">Rules raised by code, not listed in protocol.yaml (examples)</h3>
+  <div class="tbl"><table>
+    <tr><th>Family</th><th>IDs found in the code</th></tr>
+    <tr><td>Dose</td><td><code>Rx.dose.weight</code> <code>Rx.dose.review</code> <code>Rx.dose.per_admin</code> <code>Rx.dose.max</code> <code>Rx.dose.high</code> <code>Rx.strength.mismatch</code> <code>Rx.route.mismatch</code> <code>Rx.form.mismatch</code></td></tr>
+    <tr><td>Patient risk</td><td><code>Rx.risk.pregnancy</code> <code>Rx.risk.lactation</code> <code>Rx.risk.pediatric</code> <code>Rx.risk.elderly</code> <code>Rx.risk.renal</code> <code>Rx.risk.renal.nsaid</code> <code>Rx.risk.hepatic</code> <code>Rx.risk.allergy</code> <code>Rx.lab.hyperkalemia</code> <code>Dx.vital.extreme</code></td></tr>
+    <tr><td>Course and timing</td><td><code>Rx.freq.pattern</code> <code>Rx.freq.missing</code> <code>Rx.freq.low</code> <code>Rx.duration.missing</code> <code>Rx.duration.mismatch</code> <code>Rx.duration.long</code> <code>Rx.food</code> <code>Rx.dup.class</code> <code>Rx.ddi.bleeding</code> <code>Rx.indication.missing</code> <code>Rx.omission</code></td></tr>
+    <tr><td>From guidelines</td><td><code>Rx.rag.treatment</code> <code>Rx.rag.avoid</code> <code>Dx.rag.review</code> <code>Inv.rag.missing</code> <code>Adv.rag.missing</code> <code>Adv.missing</code> <code>Adv.preg.danger</code> <code>Inv.relevance</code> <code>Inv.monitor.renal</code></td></tr>
+    <tr><td>From earlier visits</td><td><code>Rx.followup.class</code> <code>Rx.followup.abx</code> <code>Inv.followup.result</code></td></tr>
+  </table></div>
+
+  <h3 class="sub3">Test validity windows (days)</h3>
+  <p>A repeated test is not "redundant" if the old result is older than its window. Default is 0 days for unlisted tests.</p>
+  <div class="tbl"><table>
+    <tr><th>Window</th><th>Tests</th></tr>
+    <tr><td>1 to 7</td><td>platelet count 1 · dengue NS1 3 · random blood sugar 7 · FBS 7 · anti-dengue IgG/IgM 7</td></tr>
+    <tr><td>14</td><td>CBC · urine R/M/E · urine culture</td></tr>
+    <tr><td>30 to 90</td><td>pregnancy test 30 · TSH 42 · FT4 42 · S.creatinine 90 · X-ray 90</td></tr>
+    <tr><td>180 to 3650</td><td>lipid profile 180 · HBsAg screening 365 · VDRL 365 · blood grouping 3650</td></tr>
+  </table></div>
+  <p>Monitoring exceptions (repeat allowed): platelet count or CBC in dengue, CBC in pregnancy (gravida), random blood sugar or FBS in diabetes. Earlier visits are searched within a 30-day window.</p>
+
+  <h3 class="sub3">Same fact, two rule IDs</h3>
+  <p>Different rules sometimes check the same fact. After confirmation, <code>_consolidate_overlapping_findings</code> keeps only the most severe from each pair, per section. This is a fixed table, not text similarity:</p>
+  <div class="tbl"><table>
+    <tr><th>Pair</th><th>Status</th></tr>
+    <tr><td>CC.context.demo and CC.context.conflict</td><td>seen live</td></tr>
+    <tr><td>Inv.demo.1 and Inv.relevance</td><td>seen live (pregnancy ultrasound for a male patient)</td></tr>
+    <tr><td>Dx.cc.1 and Dx.cc.2</td><td>added from reading the protocol, not yet seen live</td></tr>
+    <tr><td>Dx.hs.1 and Dx.hs.2</td><td>added from reading the protocol, not yet seen live</td></tr>
+  </table></div>
+
+  <h3 class="sub3">Known gaps in the rule engine</h3>
+  <p>From the benchmark notes: these cases raise no candidate at all, so the AI model never sees them: clarithromycin with simvastatin, tramadol with an SSRI, nitrate with a PDE5 inhibitor, PPI duplication, daily methotrexate, amiodarone in breastfeeding, weight-based paracetamol overdose in infants, NSAID in chronic kidney disease, benzodiazepines in the elderly, and antibiotics for viral illness.</p>
+</section>
+
+
+<section id="ai">
+  <h2>The AI reviewer: prompts, providers and clean-up</h2>
+
+  <h3 class="sub3">What the model is asked to do</h3>
+  <p><code>audit_writer.build_audit_prompt</code> builds one prompt per section. It contains the instructions, the compact task (<code>TASK_JSON</code>), and the exact answer shape (<code>REQUIRED_JSON_SKELETON</code>). The chief-complaint section has its own wording, and Past History, Rx, Advice and the pregnancy-danger check have extra blocks. The model must answer in JSON and may only refer to candidates already in the task.</p>
+  <p><b>Prompt size control.</b> Several narrow candidates from one complaint line often share the same evidence text. <code>_group_candidates_for_prompt</code> groups them into one entry <code>{"evidence": ..., "checks": [...]}</code> so the evidence is written once. This changes only how the prompt looks. Matching back to candidates always uses the original ungrouped list, so every check keeps its own <code>candidate_id</code> and <code>rule_id</code>.</p>
+  <p><b>Answer size.</b> <code>max_tokens = min(max(base, 140 × number_of_candidates + 120), 3000)</code>, where base is 650 live and 1000 final. If the JSON is invalid the call is retried with a REPAIR instruction (1 retry live, 2 final).</p>
+
+  <h3 class="sub3">Clean-up after the model answers</h3>
+  <div class="tbl"><table>
+    <tr><th>Filter</th><th>What it removes or fixes</th></tr>
+    <tr><td>Candidate match (<code>_select_candidate</code>)</td><td>Any finding that does not point to a real candidate</td></tr>
+    <tr><td>Echo filter (<code>_is_echo</code>)</td><td>Findings that only repeat the doctor's text</td></tr>
+    <tr><td>Short "why"</td><td>Explanations under 5 words</td></tr>
+    <tr><td><code>_provider_rejected_candidate</code></td><td>"Confirmed" findings whose own text says nothing is wrong ("no further change needed", "is physiologically plausible", "nothing to flag", "no concerns noted", "not clinically significant", "non-issue"). Negations such as "No site is documented" are kept because they describe a real gap.</td></tr>
+    <tr><td>Wording fixes</td><td><code>_sanitize_correction</code>, <code>_sanitize_why</code>; fixed wording for CC.1 and Adv.missing</td></tr>
+    <tr><td>De-duplication and overlap table</td><td>Exact repeats, then the rule-pair table above</td></tr>
+    <tr><td><code>final_report._validate_findings</code></td><td>Required fields, section match, evidence dedupe, merge by safety similarity key, grouped chief-complaint findings</td></tr>
+    <tr><td>Rejected high-evidence candidates</td><td>Not thrown away. In the live view they come back as "needs_review" (moderate) so a strong rule hit is not lost because the model said no.</td></tr>
+  </table></div>
+  <p>The live view shows the top <b>5</b> findings (<code>LIVE_AUDIT_MAX_FINDINGS</code>), sorted by concern level, then confidence. Statuses are clear, moderate, critical, or error (a partly failed run counts as error). "Possible errors" from patient-context warnings appear only on the chief-complaint section.</p>
+
+  <h3 class="sub3">Providers</h3>
+  <div class="tbl"><table>
+    <tr><th>Provider (<code>AUDIT_PROVIDER</code>)</th><th>What it is</th><th>Settings read</th></tr>
+    <tr><td>local</td><td>Hugging Face model loaded inside the Python process (transformers, bitsandbytes 4-bit, 8-bit or none, <code>device_map="auto"</code>, greedy decoding). Can also call any OpenAI-compatible server.</td><td><code>HF_MODEL</code> <code>HF_QUANT</code> <code>HF_ADAPTER</code> <code>HF_TOKEN</code> <code>LLM_BASE_URL</code> <code>LLM_MODEL</code> <code>LLM_API_KEY</code> <code>LLM_TIMEOUT</code> (300 s)</td></tr>
+    <tr><td>azure</td><td>Azure OpenAI</td><td><code>AZURE_OPENAI_API_KEY</code> <code>AZURE_OPENAI_ENDPOINT</code> <code>AZURE_API_VERSION</code> <code>AZURE_DEPLOYMENT</code></td></tr>
+    <tr><td>groq</td><td>Groq cloud (OpenAI-compatible)</td><td><code>GROQ_API_KEY</code> <code>GROQ_MODEL</code></td></tr>
+    <tr><td>gemma</td><td>Older classifier client, kept mainly for its <code>UnsupportedPrompt</code> handling</td><td><code>GEMMA_SERVER_URL</code> <code>GEMMA_TIMEOUT</code> <code>GEMMA_UNSUPPORTED</code></td></tr>
+  </table></div>
+  <div class="warn"><b>Privacy:</b> patient text leaves the computer only if the provider is azure or groq. With <code>AUDIT_PROVIDER=local</code> everything stays on the machine. The current <code>.env</code> uses local, with a merged model at <code>LLM_Trainer/outputs/unsloth__gemma-4-12B-it-qat-q4_0-unquantized__knowledge_v1/merged</code> loaded in 4-bit. A Groq key is also present in the file; I did not print it.</div>
+  <p><b>Auto-detection helpers:</b> <code>HF_QUANT=auto</code> reads the model's <code>config.json</code> and picks no extra quantization for a repo that is already quantized, 4-bit otherwise. <code>AUDIT_PROMPT_MODE=auto</code> picks the fine-tune prompt if the model folder has a <code>training_config.json</code> containing "### Instruction". Startup logs say whether the model came from the local cache or a download. The model reply is first tried as plain text, then again with a JSON-opening prefix. Models without a chat template always get the prefix.</p>
+
+  <h3 class="sub3">Fine-tune mode</h3>
+  <p>A fine-tuned model was trained on a fixed prompt format, so <code>finetune_prompt.py</code> rebuilds that format from <code>configs/finetune_taxonomy.json</code>. The model lists <code>detected_errors</code>, and the code maps each one back to a rule candidate. For some rules it instead asks a short <b>YES/NO question</b> (for example "Is this entry an unrecognizable, misspelled or non-existent medical term?"), by default for <code>CC.2, CC.4, CC.term.unclear, CC.context.conflict, Hx.term.unclear, Hx.context.conflict</code> (<code>FINETUNE_QUESTION_RULES</code>). An error type the model produces that has no candidate is handled by <code>FINETUNE_UNSUPPORTED</code>: confirm_high (default), omit, or confirm.</p>
+  <div class="tbl"><table>
+    <tr><th>Section</th><th class="num">Allowed error types</th><th>IDs</th></tr>
+    <tr><td>CC</td><td class="num">7</td><td>CC.1 CC.2 CC.3 CC.4 CC.demo CC.hs CC.time</td></tr>
+    <tr><td>Dx</td><td class="num">8*</td><td>Dx.cc.1 (listed twice) Dx.cc.2 Dx.code Dx.demo Dx.hs.1 Dx.hs.2 Dx.inv.1</td></tr>
+    <tr><td>Inv</td><td class="num">5</td><td>Inv.cc Inv.demo.1 Inv.demo.2 Inv.dx Inv.hs</td></tr>
+    <tr><td>Rx</td><td class="num">11</td><td>Rx.cc.mis Rx.cc.sym Rx.ddi Rx.demo Rx.dup Rx.hs Rx.instr Rx.multi Rx.over Rx.region Rx.timing</td></tr>
+    <tr><td>Adv</td><td class="num">4</td><td>Adv.cc Adv.hs Adv.precau Adv.refer</td></tr>
+    <tr><td>Hx</td><td class="num">4</td><td>Hx.context.demo Hx.time.plausibility Hx.duplicate Hx.detail</td></tr>
+    <tr><td>Demo</td><td class="num">2</td><td>Demo.1 Demo.2</td></tr>
+  </table></div>
+  <p style="color:var(--mut);font-size:14px">* Dx.cc.1 appears twice in the file; this looks like a duplicate entry (please check <code>finetune_taxonomy.json</code>).</p>
+  <p><b>Open question I could not verify:</b> whether the current merged model folder contains <code>training_config.json</code>. If it does not, the prompt mode will be "standard", not fine-tune. The older log from 3 November showed the model <code>prescription13864/gemma-4-12b-prescription-audit-4bit</code> running in fine-tune mode.</p>
+</section>
+
+
+<section id="storage">
+  <h2>Data storage, API and dependencies</h2>
+  <div class="two">
+    <div class="panel"><b>Where patient data is saved</b><ul>
+      <li>JSON per step: <code>backend/data/patient_&lt;serial&gt;_&lt;name&gt;/visit_NN/NN_&lt;step&gt;.json</code>.</li>
+      <li>Excel workbook <code>PrescribeX_Database.xlsx</code> (written with exceljs, one queued write at a time): sheets <b>Patient Info</b>, <b>Prescription Data</b>, <b>Prescription Log</b>.</li>
+      <li>Live-audit results go only to the Excel log, not to the JSON files.</li>
+      <li>For follow-up checks the Python side builds a temporary SQLite table <code>visits</code> (14 columns, index on patient and date) from the saved visits.</li>
+    </ul></div>
+    <div class="panel"><b>The bridge server (port 8765)</b><ul>
+      <li>GET <code>/health</code>, <code>/icd11/search</code>, <code>/investigations/search</code></li>
+      <li>POST <code>/audit</code> and <code>/audit/section</code></li>
+      <li>Threaded server, at most 2 audits at the same time, one lock around the lazy start of the engine.</li>
+      <li>CORS allowed only for localhost origins. The Vite proxy <code>/audit-api</code> waits up to 300,000 ms.</li>
+      <li>Settings: <code>AUDIT_PORT</code>, <code>PRESCRIPTION_DATA_DIR</code>.</li>
+    </ul></div>
+  </div>
+  <h3 class="sub3">Software stack</h3>
+  <div class="tbl"><table>
+    <tr><th>Layer</th><th>Packages (installed versions)</th></tr>
+    <tr><td>Front end</td><td>React 19, Vite 8, Tailwind. <code>src/App.jsx</code> is 3,420 lines.</td></tr>
+    <tr><td>Back end plug-in</td><td>Node (<code>backendPlugin.js</code>, <code>database.js</code> with exceljs)</td></tr>
+    <tr><td>Python</td><td>Python 3.11.9 in <code>.venv</code>; PyYAML 6.0.3, python-dotenv 1.2.4, openai 3.35.1, openpyxl 3.1.5</td></tr>
+    <tr><td>Local model</td><td>torch 2.11.0+cu128, transformers 5.21.0, bitsandbytes 0.50.2, accelerate 1.15.0, huggingface_hub 2.3.0</td></tr>
+    <tr><td>Hardware</td><td>NVIDIA RTX 5090, 32 GB, Windows 11</td></tr>
+  </table></div>
+  <div class="warn"><b>Small problems found:</b> <code>audit_pipeline/requirements.txt</code> lists only PyYAML, python-dotenv and openai, so a fresh install would miss torch, transformers and bitsandbytes. The bridge's docstring still mentions only azure and groq, and a warning points to a file <code>README_BRIDGE.md</code> that does not exist.</div>
+</section>
+
+
+<section id="bench">
+  <h2>Benchmark: how models were compared</h2>
+  <p class="kicker"><code>benchmark/run_benchmark.py</code> runs one process per model so GPU memory is freed between models. It plays each test prescription section by section like a doctor would (live), then runs the final audit.</p>
+  <div class="big">
+    <div><b>10</b><span>hand-made test cases, 11 planted errors (8 critical, 3 major)</span></div>
+    <div><b>35</b><span>larger synthetic set: 29 with errors, 6 clean</span></div>
+    <div><b>16 + 1</b><span>models in <code>models.json</code>, plus the rules-only baseline</span></div>
+  </div>
+  <p><b>How a finding is scored:</b> it counts as correct if it matches a planted error by rule ID prefix and keywords (<code>matches()</code>). Precision = correct findings ÷ all findings. Recall = planted errors found ÷ planted errors. F1 combines both. Critical recall looks only at the critical errors. Live recall looks only at the live (per-section) pass. Also recorded: seconds per case, tokens per second, LLM error rate, peak GPU memory and load time.</p>
+  <p><b>Results of the 30 October run</b> (10-case set), best F1 first. "Seconds" is the average per case, live plus final.</p>
+  <div class="tbl"><table>
+    <tr><th>Model</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1</th><th class="num">Critical recall</th><th class="num">Seconds</th></tr>
+<tr><td>Qwen3-32B (4-bit)</td><td class='num'>0.40</td><td class='num'>0.91</td><td class='num'>0.56</td><td class='num'>0.88</td><td class='num'>558</td></tr>
+<tr><td>Gemma-4-12B QAT</td><td class='num'>0.36</td><td class='num'>1.00</td><td class='num'>0.53</td><td class='num'>1.00</td><td class='num'>163</td></tr>
+<tr><td>Phi-4 (4-bit)</td><td class='num'>0.37</td><td class='num'>0.82</td><td class='num'>0.51</td><td class='num'>0.75</td><td class='num'>278</td></tr>
+<tr><td>Gemma-3-27B (4-bit)</td><td class='num'>0.33</td><td class='num'>0.91</td><td class='num'>0.48</td><td class='num'>1.00</td><td class='num'>205</td></tr>
+<tr><td>Gemma-3-12B (4-bit)</td><td class='num'>0.31</td><td class='num'>0.91</td><td class='num'>0.47</td><td class='num'>0.88</td><td class='num'>321</td></tr>
+<tr><td>MedGemma-27B text (4-bit)</td><td class='num'>0.26</td><td class='num'>0.91</td><td class='num'>0.40</td><td class='num'>0.88</td><td class='num'>314</td></tr>
+<tr><td>II-Medical-8B</td><td class='num'>0.27</td><td class='num'>0.64</td><td class='num'>0.38</td><td class='num'>0.75</td><td class='num'>612</td></tr>
+<tr><td>Qwen3-14B (4-bit)</td><td class='num'>0.18</td><td class='num'>0.91</td><td class='num'>0.30</td><td class='num'>0.88</td><td class='num'>165</td></tr>
+<tr><td>Qwen3-8B (4-bit)</td><td class='num'>0.19</td><td class='num'>0.64</td><td class='num'>0.29</td><td class='num'>0.63</td><td class='num'>83</td></tr>
+<tr><td>Mistral-7B v0.3 (4-bit)</td><td class='num'>0.15</td><td class='num'>0.64</td><td class='num'>0.24</td><td class='num'>0.63</td><td class='num'>316</td></tr>
+<tr><td>Qwen2.5-14B (4-bit)</td><td class='num'>0.14</td><td class='num'>0.91</td><td class='num'>0.24</td><td class='num'>0.88</td><td class='num'>252</td></tr>
+<tr><td>Rules only (no AI)</td><td class='num'>0.11</td><td class='num'>1.00</td><td class='num'>0.19</td><td class='num'>1.00</td><td class='num'>1.6</td></tr>
+<tr><td>Mistral-Small-24B (4-bit)</td><td class='num'>0.10</td><td class='num'>0.82</td><td class='num'>0.18</td><td class='num'>0.75</td><td class='num'>322</td></tr>
+<tr><td>Gemma-4-E4B</td><td class='num'>0.12</td><td class='num'>0.27</td><td class='num'>0.17</td><td class='num'>0.38</td><td class='num'>109</td></tr>
+<tr><td>Llama-3.1-8B (4-bit)</td><td class='num'>0.06</td><td class='num'>0.64</td><td class='num'>0.11</td><td class='num'>0.75</td><td class='num'>224</td></tr>
+<tr><td>Qwen2.5-7B (4-bit)</td><td class='num'>0.06</td><td class='num'>0.36</td><td class='num'>0.11</td><td class='num'>0.50</td><td class='num'>84</td></tr>
+<tr><td>OpenBioLLM-8B</td><td class='num'>0.00</td><td class='num'>0.00</td><td class='num'>–</td><td class='num'>0.00</td><td class='num'>105</td></tr>
+  </table></div>
+  <div class="warn"><b>Read these numbers carefully.</b>
+    <ul style="margin:6px 0 0;padding-left:20px">
+      <li>There are only 11 planted errors, so one miss moves recall by about 9 points. Differences of a few points between models are not reliable.</li>
+      <li>Precision counts every finding that does not match a planted error as wrong, even if it is a real problem that was not planted. That is why every model, including the rules-only baseline, has low precision.</li>
+      <li>These results were produced <b>before</b> the later fixes (prompt grouping, alert filter, overlap table, quantization auto-detect) and before the current Gemma merged model. The project notes say not to treat them as current. A re-run is still to be done.</li>
+      <li>The fine-tuned model <code>prescription13864/gemma-4-12b-prescription-audit</code> is not in this table. In one manual test it missed a male/pregnancy mismatch that the base Gemma-4-12B and a Groq Qwen model caught. Precision and recall for it are unmeasured.</li>
+    </ul></div>
+  <p>A second branch (<code>real-prescription-eval</code>, the current branch) adds <code>real_prescriptions.py</code> for doctor-annotated real prescriptions and <code>models_top5.json</code> (the top 5 by F1 plus the rules-only baseline) for that evaluation.</p>
+</section>
+
+<section id="modes">
+  <h2>Live audit versus final audit</h2>
+  <p class="kicker">Same engine, two settings. Live is tuned for speed; final is tuned for completeness.</p>
+  <div class="panel" style="padding:8px 8px 4px">
+  <table>
+    <tr><th></th><th>Live (after each section)</th><th>Final ("Run audit")</th></tr>
+    <tr><td>Scope</td><td>One section's rules only</td><td>All sections</td></tr>
+    <tr><td>Search planner (stage 6)</td><td>Off</td><td>On</td></tr>
+    <tr><td>Retries on bad JSON</td><td>1</td><td>2</td></tr>
+    <tr><td>Answer size</td><td>Base 650 tokens</td><td>Base 1000 tokens</td></tr>
+    <tr><td>Earlier visits</td><td>Only for Investigation, Rx, Advice</td><td>Yes</td></tr>
+    <tr><td>Shown to the doctor</td><td>Top 5 findings</td><td>Full list, plus live-versus-final comparison</td></tr>
+  </table>
+  </div>
+</section>
+
+
+<section id="risks">
+  <h2>Limits, risks and open items</h2>
+  <div class="tbl"><table>
+    <tr><th>Item</th><th>Why it matters</th><th>Suggested action</th></tr>
+    <tr><td>Knowledge base not reviewed row by row</td><td>Facts were extracted by LLMs from PDFs and monographs.</td><td>Have a doctor sample-check, for example 200 facts, and report the error rate.</td></tr>
+    <tr><td>Exact-match retrieval only</td><td>Spelling variants and synonyms outside the alias list are missed.</td><td>Add alias coverage tests; optionally a semantic second layer (not built).</td></tr>
+    <tr><td>Relative path for the guideline file</td><td>Starting the server from another folder leaves facts empty without a loud error.</td><td>Resolve the path from the file's own location.</td></tr>
+    <tr><td>Rule engine gaps</td><td>The AI cannot flag what no rule raises (list in the Rules section).</td><td>Add rules for those combinations.</td></tr>
+    <tr><td>Stale benchmark</td><td>Numbers predate the fixes and the new model.</td><td>Re-run on the 10 and 35-case sets, add the fine-tuned model.</td></tr>
+    <tr><td>Fine-tune quality gap</td><td>Fine-tune missed a case the base model caught; quantization was ruled out.</td><td>Review the training data and compare on the full sets.</td></tr>
+    <tr><td>Speed</td><td>GPU use is about 50%. One sequence at a time, no sharing of already-read prompt text between the 6 section calls.</td><td>A serving engine with batching and prefix caching (vLLM or TGI). A large change, not started.</td></tr>
+    <tr><td><code>protocol.yaml</code> section order</td><td><code>section_order</code> is Demo, CC, Dx, Inv, Rx, Adv. It leaves out Hx although Hx rules exist. I did not confirm how Hx tasks are built.</td><td>Check that Hx is audited as intended.</td></tr>
+    <tr><td>Temporary debug print</td><td>A <code># DIAGNOSTIC (temporary)</code> print in <code>incremental_audit.py</code> writes warnings to the log.</td><td>Remove when not needed.</td></tr>
+    <tr><td>Incomplete requirements.txt</td><td>New machine setup would fail.</td><td>List torch, transformers, bitsandbytes, accelerate, huggingface_hub, openpyxl.</td></tr>
+    <tr><td>Groq model id</td><td><code>qwen/qwen3.8-27b</code> looks unusual and I did not check it against Groq's list. It worked in testing.</td><td>Re-check if Groq returns model-not-found.</td></tr>
+  </table></div>
+  <p style="color:var(--mut);font-size:14px">The Git state at the time of reading: branch <code>real-prescription-eval</code>, last commit <code>645084d</code>, six modified files and an untracked <code>CLAUDE.md</code>. Some large diff counts may only be line-ending changes; I did not verify that.</p>
+</section>
+
+<footer>Built from the code and data in the <code>Local_pip</code> project folder, 8 November 2026. All counts were read from the files; items marked as unverified were not checked. Reviewed branch: <code>real-prescription-eval</code>.</footer>
+</main>
+<script>
+const S={
+1:{t:"1 · Standardize",f:"orchestrator.py",w:"Renames incoming fields to one standard set, for example \"chief complaint\" becomes Chief_Complaint. Unknown fields are kept untouched.",x:"This makes every later stage independent of how the app or a CSV happened to name things.",ai:"no",l:"Runs as normal."},
+2:{t:"2 · Clinical findings",f:"clinical_finding_interpreter.py",w:"Splits complaints, history and examination text into structured evidence such as symptom, temperature, pulse and BMI.",x:"It only records evidence and never decides if something is an error. Investigation orders are excluded because they are requests, not findings; investigation results are included.",ai:"no",l:"Runs as normal."},
+3:{t:"3 · Language hints",f:"prescription_language.py · text_translation.py",w:"Adds English hints for Bangla and Banglish text, so later rules do not need Bangla phrases written into them.",x:"The original text is always kept next to the hint.",ai:"no",l:"Runs as normal."},
+4:{t:"4 · Patient context",f:"patient_context.py",w:"Builds the patient profile: age, sex, pregnancy, breastfeeding, kidney or liver problems, allergies and key results such as potassium. Each item records where it came from.",x:"Simple negation is understood, so \"not pregnant\" does not count as pregnant.",ai:"no",l:"Runs as normal."},
+5:{t:"5 · Medicine mapping",f:"medicine_mapper.py · frequency_parser.py",w:"Splits the medicine text, matches each brand name to its generic drug using medicine.csv and generic.csv, and reads dose schedules such as 1+0+1.",x:"Matching is exact, never fuzzy guessing. A daily dose is calculated only when the schedule is safe to interpret.",ai:"no",l:"Runs as normal."},
+6:{t:"6 · Search planner",f:"rag_query_planner.py",w:"An optional AI helper that rewrites the guideline search text so the lookup in stage 8 is tighter.",x:"If it fails or returns something unsafe, the fixed search text is used instead.",ai:"opt",l:"Switched off to keep the check fast."},
+7:{t:"7 · Drug facts",f:"medicine_facts.py",w:"Fetches the facts for each mapped medicine, by exact generic ID, for the Rx, Advice and Diagnosis sections.",x:"It only selects and cleans source facts. It does not decide whether anything is an error.",ai:"no",l:"Runs, in parallel with stage 8."},
+8:{t:"8 · Guideline search",f:"guideline_rag.py · guideline_rag_router.py",w:"Looks up guideline text with small targeted questions: diagnosis review, missing investigations, treatment review, medicines to avoid, and advice or follow-up.",x:"\"RAG\" simply means search a library first, then hand the found text to the checker.",ai:"no",l:"Only the section being checked is searched; skipped entirely for the Diagnosis check."},
+9:{t:"9 · Safety candidates",f:"safety_candidate_engine.py",w:"Raises provisional safety candidates: dose above the limit, allergy, pregnancy, organ impairment, duplicate therapy and strength mismatch.",x:"Candidates always need later confirmation. This stage never produces a final finding.",ai:"no",l:"Runs, in parallel with stage 10."},
+10:{t:"10 · Follow-up context",f:"followup_context_engine.py",w:"Looks at the patient's earlier visits within the last 30 days: medicines still active, tests ordered but not done, and past results. It raises candidates such as repeated medicines or interactions with an earlier prescription.",x:"Comparison is by date window only; nothing is guessed.",ai:"no",l:"Only used for Investigation, Rx and Advice."},
+11:{t:"11 · Rule engine",f:"rule_candidate_engine.py",w:"Applies the rulebook (protocol.yaml) to each section and merges candidates from stages 8, 9 and 10 into one list. Weak, low-evidence candidates are pruned.",x:"In a live audit, candidates from other sections are discarded.",ai:"no",l:"Keeps only the saved section's rules."},
+12:{t:"12 · Audit tasks",f:"audit_task_builder.py",w:"Packs each section into one compact task: its candidates, the relevant patient findings, medicine facts, follow-up slice, instructions and the required answer format.",x:"Sections with no candidates are skipped, so the model is not called for them.",ai:"no",l:"One task for the saved section."},
+13:{t:"13 · Model reviews candidates",f:"audit_writer.py · provider.py",w:"Builds the prompt, calls the local model, reads its JSON answer and keeps only findings that match a real candidate. Invalid answers are retried with a repair note.",x:"The model confirms or rejects. It cannot add a finding that no rule raised.",ai:"yes",l:"1 retry, base answer size 650 tokens."},
+14:{t:"14 · Final report",f:"final_report.py",w:"Checks every finding has its required fields and evidence, removes duplicates, groups repeated chief-complaint findings, and builds the summary and status.",x:"Anything dropped is recorded as a warning, so nothing disappears silently.",ai:"no",l:"Same report; the badge then shows the top 5 findings."}
+};
+const AI={no:["No","p-no"],yes:["Yes","p-yes"],opt:["Optional","p-opt"]};
+const btns=[...document.querySelectorAll('.st')];
+function show(n){
+  const d=S[n];
+  document.getElementById('d-title').textContent=d.t;
+  document.getElementById('d-what').textContent=d.w;
+  document.getElementById('d-extra').textContent=d.x;
+  document.getElementById('d-file').textContent=d.f;
+  const a=document.getElementById('d-ai');a.textContent=AI[d.ai][0];a.className='pill '+AI[d.ai][1];
+  document.getElementById('d-live').textContent=d.l;
+  btns.forEach(b=>b.classList.toggle('on',b.dataset.s==n));
+}
+btns.forEach(b=>b.addEventListener('click',()=>show(b.dataset.s)));
+show(1);
+</script>
+</body></html>

@@ -11,7 +11,9 @@ import os
 import re
 from typing import Any, Mapping
 
-from .patient_context import CLINICAL_WARNING_MESSAGES
+from .patient_context import CLINICAL_WARNING_MESSAGES, MALE_PREGNANCY_WARNING
+
+_DEMOGRAPHIC_RULES = {"CC.context.demo", "CC.demo"}
 
 
 SECTION_PROFILES: dict[str, tuple[str, ...]] = {
@@ -189,19 +191,28 @@ def summarize_live_report(
     # prescription itself: show them as "possible errors" and count them as concerns. They concern the
     # demographics, so only the chief-complaint check shows them, not every section.
     # The rest are pipeline/technical notes.
+    # Model only (default since 2026-11-14, the user's decision): alerts come from the model's own decisions. The
+    # hand-written patient-context notes are not shown as errors, and candidates the model rejected are not put
+    # back. AUDIT_MODEL_ONLY=0 restores both.
+    model_only = (os.getenv("AUDIT_MODEL_ONLY") or "1").strip().casefold() not in {"0", "false", "no", "off"}
     possible_errors = (
         list(dict.fromkeys(
             CLINICAL_WARNING_MESSAGES[item] for item in all_warnings if item in CLINICAL_WARNING_MESSAGES
         ))
-        if "CC" in domains
+        if "CC" in domains and not model_only
         else []
     )
+    # The male-pregnancy note restates a complaint-vs-sex finding the audit already shows on the exact line:
+    # showing both put the same problem on screen twice.
+    if any(str(item.get("rule_id", "")) in _DEMOGRAPHIC_RULES for item in findings):
+        possible_errors = [text for text in possible_errors if text != CLINICAL_WARNING_MESSAGES.get(MALE_PREGNANCY_WARNING)]
     warnings = [item for item in all_warnings if item not in CLINICAL_WARNING_MESSAGES]
     rejected = [
         dict(item)
         for item in (metadata.get("rejected_high_evidence_candidates", []) or [])
         if (
-            isinstance(item, Mapping)
+            not model_only
+            and isinstance(item, Mapping)
             and str(item.get("section", "")) in domains
             and (
                 str(item.get("section", "")).strip().casefold(),

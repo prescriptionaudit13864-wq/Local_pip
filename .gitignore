@@ -15,3 +15,10 @@ prescribex-app/backend/PrescribeX_Database.xlsx
 benchmark/real_prescriptions/data/
 benchmark/results_real/
 PROJECT_CONTEXT.md
+
+# Backups of .env (contain API keys)
+.env.*
+!.env.example
+
+# Results built from the physician-reviewed real prescriptions
+benchmark/results/candidate_coverage*.json

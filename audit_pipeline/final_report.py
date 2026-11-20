@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
@@ -478,7 +479,10 @@ def assemble_final_report(
     ]
     if writer_warnings:
         status = "partial_failed"
-    elif explicit_review or rejected_high_evidence:
+    # Model only (AUDIT_MODEL_ONLY, default on): candidates the model rejected stay in metadata for inspection but
+    # do not mark the prescription as needing review.
+    elif explicit_review or (rejected_high_evidence and (os.getenv("AUDIT_MODEL_ONLY") or "1").strip().casefold()
+                                                          in {"0", "false", "no", "off"}):
         status = "needs_review"
     else:
         status = "completed"

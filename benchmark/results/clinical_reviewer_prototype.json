@@ -1,0 +1,1446 @@
+[
+ {
+  "n": 1,
+  "group": "doctor",
+  "case": "CC: loss of weight for 1 day",
+  "section": "chiefComplaints",
+  "secs": 3.2,
+  "proposed": [
+   {
+    "entry": "Loss of weight for 1 day",
+    "problem": "Significant weight loss is physiologically impossible within a 24-hour period.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Loss of weight for 1 day\", \"problem\": \"Significant weight loss is physiologically impossible within a 24-hour period.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 2,
+  "group": "doctor",
+  "case": "CC: increased weight for 1 day",
+  "section": "chiefComplaints",
+  "secs": 4.0,
+  "proposed": [
+   {
+    "entry": "Increased weight for 1 day",
+    "problem": "Weight gain of significant clinical importance cannot occur within a 24-hour period unless it is due to fluid retention (edema/ascites).",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Increased weight for 1 day\", \"problem\": \"Weight gain of significant clinical importance cannot occur within a 24-hour period unless it is due to fluid retention (edema/ascites).\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 3,
+  "group": "doctor",
+  "case": "CC: weight gain 6 kg in 1 day",
+  "section": "chiefComplaints",
+  "secs": 4.3,
+  "proposed": [
+   {
+    "entry": "Weight gain 6 kg in 1 day",
+    "problem": "A weight gain of 6 kg in 24 hours is physiologically impossible for a human and likely represents a recording error or a misunderstanding of the timeline.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Weight gain 6 kg in 1 day",
+    "problem": "A weight gain of 6 kg in 24 hours is physiologically impossible for a human and likely represents a recording error or a misunderstanding of the timeline.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Weight gain 6 kg in 1 day\", \"problem\": \"A weight gain of 6 kg in 24 hours is physiologically impossible for a human and likely represents a recording error or a misunderstanding of the timeline.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 4,
+  "group": "doctor",
+  "case": "CC: elbow pain (no side, no duration)",
+  "section": "chiefComplaints",
+  "secs": 3.0,
+  "proposed": [
+   {
+    "entry": "Elbow pain",
+    "problem": "The lateralization (left or right side) is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Elbow pain",
+    "problem": "The lateralization (left or right side) is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Elbow pain\", \"problem\": \"The lateralization (left or right side) is not specified.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 5,
+  "group": "doctor",
+  "case": "CC: ear pain (no side)",
+  "section": "chiefComplaints",
+  "secs": 3.2,
+  "proposed": [
+   {
+    "entry": "Ear pain for 3 days",
+    "problem": "The side of the ear (left or right) is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Ear pain for 3 days",
+    "problem": "The side of the ear (left or right) is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Ear pain for 3 days\", \"problem\": \"The side of the ear (left or right) is not specified.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 6,
+  "group": "doctor",
+  "case": "CC/Inv/Dx: elbow, sides disagree",
+  "section": "chiefComplaints",
+  "secs": 3.4,
+  "proposed": [
+   {
+    "entry": "Elbow pain for 3 days",
+    "problem": "The lateralization (left or right side) of the elbow pain is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Elbow pain for 3 days",
+    "problem": "The lateralization (left or right side) of the elbow pain is not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Elbow pain for 3 days\", \"problem\": \"The lateralization (left or right side) of the elbow pain is not specified.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 6,
+  "group": "doctor",
+  "case": "CC/Inv/Dx: elbow, sides disagree",
+  "section": "investigations",
+  "secs": 1.2,
+  "proposed": [],
+  "problems": [],
+  "raw": "1. X-ray of right elbow\n```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 6,
+  "group": "doctor",
+  "case": "CC/Inv/Dx: elbow, sides disagree",
+  "section": "diagnosis",
+  "secs": 3.2,
+  "proposed": [
+   {
+    "entry": "Left elbow joint pain",
+    "problem": "The diagnosis specifies the left elbow, but the chief complaint is for right elbow pain.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Left elbow joint pain",
+    "problem": "The diagnosis specifies the left elbow, but the chief complaint is for right elbow pain.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Left elbow joint pain\", \"problem\": \"The diagnosis specifies the left elbow, but the chief complaint is for right elbow pain.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 7,
+  "group": "doctor",
+  "case": "CC: pregnancy in a man + headache with no duration",
+  "section": "chiefComplaints",
+  "secs": 3.3,
+  "proposed": [
+   {
+    "entry": "Pregnancy for 2 months",
+    "problem": "The patient's sex is recorded as Male, which makes a pregnancy impossible.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Pregnancy for 2 months",
+    "problem": "The patient's sex is recorded as Male, which makes a pregnancy impossible.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Pregnancy for 2 months\", \"problem\": \"The patient's sex is recorded as Male, which makes a pregnancy impossible.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 8,
+  "group": "doctor",
+  "case": "CC: severe chest pain without severity details",
+  "section": "chiefComplaints",
+  "secs": 3.8,
+  "proposed": [
+   {
+    "entry": "Chest pain for 2 hours",
+    "problem": "The location, character, and severity of the chest pain are not specified, which is critical for triaging potential cardiac events.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Chest pain for 2 hours",
+    "problem": "The location, character, and severity of the chest pain are not specified, which is critical for triaging potential cardiac events.",
+    "severity": "documentation"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Chest pain for 2 hours\", \"problem\": \"The location, character, and severity of the chest pain are not specified, which is critical for triaging potential cardiac events.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 9,
+  "group": "doctor",
+  "case": "Inv: PSA for a woman",
+  "section": "chiefComplaints",
+  "secs": 3.4,
+  "proposed": [
+   {
+    "entry": "Lower abdominal pain for 1 week",
+    "problem": "The location of the pain is too non-specific to determine urgency or differential diagnosis.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Lower abdominal pain for 1 week\", \"problem\": \"The location of the pain is too non-specific to determine urgency or differential diagnosis.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 9,
+  "group": "doctor",
+  "case": "Inv: PSA for a woman",
+  "section": "investigations",
+  "secs": 3.1,
+  "proposed": [
+   {
+    "entry": "PSA (Prostate Specific Antigen)",
+    "problem": "The test is clinically inappropriate as the patient is female.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "PSA (Prostate Specific Antigen)",
+    "problem": "The test is clinically inappropriate as the patient is female.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"PSA (Prostate Specific Antigen)\", \"problem\": \"The test is clinically inappropriate as the patient is female.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 10,
+  "group": "doctor",
+  "case": "Inv: Pap smear for a man",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 10,
+  "group": "doctor",
+  "case": "Inv: Pap smear for a man",
+  "section": "investigations",
+  "secs": 2.9,
+  "proposed": [
+   {
+    "entry": "Pap smear",
+    "problem": "A Pap smear is an inappropriate investigation for a male patient.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Pap smear",
+    "problem": "A Pap smear is an inappropriate investigation for a male patient.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Pap smear\", \"problem\": \"A Pap smear is an inappropriate investigation for a male patient.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 11,
+  "group": "doctor",
+  "case": "Dx: male, GDM first",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 11,
+  "group": "doctor",
+  "case": "Dx: male, GDM first",
+  "section": "diagnosis",
+  "secs": 5.1,
+  "proposed": [
+   {
+    "entry": "Gestational diabetes mellitus",
+    "problem": "The diagnosis is implausible as the patient is recorded as male.",
+    "severity": "critical"
+   },
+   {
+    "entry": "Pregnancy in 3rd trimester",
+    "problem": "The diagnosis is implausible as the patient is recorded as male.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Gestational diabetes mellitus",
+    "problem": "The diagnosis is implausible as the patient is recorded as male.",
+    "severity": "critical"
+   },
+   {
+    "entry": "Pregnancy in 3rd trimester",
+    "problem": "The diagnosis is implausible as the patient is recorded as male.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Gestational diabetes mellitus\", \"problem\": \"The diagnosis is implausible as the patient is recorded as male.\", \"severity\": \"critical\"}, {\"entry\": \"Pregnancy in 3rd trimester\", \"problem\": \"The diagnosis is implausible as the patient is recorded as male.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 12,
+  "group": "doctor",
+  "case": "Dx: male, pregnancy first",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 12,
+  "group": "doctor",
+  "case": "Dx: male, pregnancy first",
+  "section": "diagnosis",
+  "secs": 3.3,
+  "proposed": [
+   {
+    "entry": "Pregnancy in 3rd trimester",
+    "problem": "The diagnosis of pregnancy is not plausible for a patient identified as male.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Pregnancy in 3rd trimester",
+    "problem": "The diagnosis of pregnancy is not plausible for a patient identified as male.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Pregnancy in 3rd trimester\", \"problem\": \"The diagnosis of pregnancy is not plausible for a patient identified as male.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 13,
+  "group": "doctor",
+  "case": "Rx: antibiotic with no infection",
+  "section": "chiefComplaints",
+  "secs": 3.7,
+  "proposed": [
+   {
+    "entry": "Headache for 2 days",
+    "problem": "The location, severity, and associated symptoms (e.g., fever, neck stiffness, visual changes) are not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Headache for 2 days\", \"problem\": \"The location, severity, and associated symptoms (e.g., fever, neck stiffness, visual changes) are not specified.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 13,
+  "group": "doctor",
+  "case": "Rx: antibiotic with no infection",
+  "section": "diagnosis",
+  "secs": 21.4,
+  "proposed": [],
+  "problems": [],
+  "raw": "1. Tension headache\n    - Patient: 35M, Headache 2 days.\n    - Diagnosis: Tension headache.\n    - Context: No history, no investigations.\n\n    - Is it plausible? Yes.\n    - Can it be acted on without more info? Tension headache is a clinical diagnosis. However, for a 2-day headache, a \"red flag\" screen is standard. But the prompt asks to check the *diagnosis section* specifically.\n    - Does it contradict? No.\n    - Does it leave a complaint unexplained? No.\n    - Is it suitable? Yes.\n    - Is anything missing? The prompt says \"treatment, advice, follow-up or referral that this condition clearly needs is missing (only once that section is written)\". Since the medicine/advice section isn't written yet, I can't report that.\n\n    - The diagnosis \"Tension headache\" is a common clinical diagnosis for a 2-day headache in a 35-year-old male.\n    - There are no \"red flags\" mentioned in the complaint (like fever, neck stiffness, or neurological deficits) that would make this diagnosis impossible or dangerous based on the provided text.\n\n    - No problems found in the diagnosis section based on the provided constraints.\n\n    - Wait, let me re-read: \"a diagnosis leaves a complaint or an abnormal result unexplained, or does not fit the patient\".\n    - Complaint: Headache for 2 days. Diagnosis: Tension headache. This fits.\n\n    - Let me re-read: \"an entry cannot be acted on without information that changes management (for example which side of a paired organ, where a pain is, how severe a pain or symptom is which decides urgency)\".\n    - For a headache, \"where\" (unilateral vs bilateral) and \"severity\" are important for differentiating migraine/cluster from tension, but \"Tension"
+ },
+ {
+  "n": 13,
+  "group": "doctor",
+  "case": "Rx: antibiotic with no infection",
+  "section": "rx",
+  "secs": 4.5,
+  "proposed": [
+   {
+    "entry": "Azithrocin 500 mg (1 + 0 + 0) - (3 day(s))",
+    "problem": "The antibiotic Azithromycin is not indicated for the diagnosis of tension headache.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Azithrocin 500 mg (1 + 0 + 0) - (3 day(s))",
+    "problem": "The antibiotic Azithromycin is not indicated for the diagnosis of tension headache.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Azithrocin 500 mg (1 + 0 + 0) - (3 day(s))\", \"problem\": \"The antibiotic Azithromycin is not indicated for the diagnosis of tension headache.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 14,
+  "group": "doctor",
+  "case": "Rx: antibiotic for 30 days",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 14,
+  "group": "doctor",
+  "case": "Rx: antibiotic for 30 days",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 14,
+  "group": "doctor",
+  "case": "Rx: antibiotic for 30 days",
+  "section": "rx",
+  "secs": 4.5,
+  "proposed": [
+   {
+    "entry": "Ciprocin 500 mg (1 + 0 + 1) - (30 day(s))",
+    "problem": "The duration of 30 days is excessively long for a simple urinary tract infection.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Ciprocin 500 mg (1 + 0 + 1) - (30 day(s))",
+    "problem": "The duration of 30 days is excessively long for a simple urinary tract infection.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Ciprocin 500 mg (1 + 0 + 1) - (30 day(s))\", \"problem\": \"The duration of 30 days is excessively long for a simple urinary tract infection.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 15,
+  "group": "doctor",
+  "case": "Rx: antibiotic twice daily, gastric medicine once",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 15,
+  "group": "doctor",
+  "case": "Rx: antibiotic twice daily, gastric medicine once",
+  "section": "diagnosis",
+  "secs": 3.6,
+  "proposed": [
+   {
+    "entry": "Urinary tract infection",
+    "problem": "The diagnosis is non-specific and does not differentiate between cystitis, urethritis, or a possible upper tract infection.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Urinary tract infection\", \"problem\": \"The diagnosis is non-specific and does not differentiate between cystitis, urethritis, or a possible upper tract infection.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 15,
+  "group": "doctor",
+  "case": "Rx: antibiotic twice daily, gastric medicine once",
+  "section": "rx",
+  "secs": 5.7,
+  "proposed": [
+   {
+    "entry": "Ciprocin 500 mg (1 + 0 + 1)",
+    "problem": "The prescribed dose of 1000 mg/day for a simple urinary tract infection is higher than the standard 500 mg twice daily for typhoid, and the drug facts suggest a lower daily amount for general UTI management.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Ciprocin 500 mg (1 + 0 + 1)\", \"problem\": \"The prescribed dose of 1000 mg/day for a simple urinary tract infection is higher than the standard 500 mg twice daily for typhoid, and the drug facts suggest a lower daily amount for general UTI management.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 16,
+  "group": "suite",
+  "case": "Doctor's visit: male, wrong complaints, vague history",
+  "section": "chiefComplaints",
+  "secs": 2.9,
+  "proposed": [
+   {
+    "entry": "pregnancy for two days",
+    "problem": "The patient is a male, making a pregnancy impossible.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "pregnancy for two days",
+    "problem": "The patient is a male, making a pregnancy impossible.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"pregnancy for two days\", \"problem\": \"The patient is a male, making a pregnancy impossible.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 16,
+  "group": "suite",
+  "case": "Doctor's visit: male, wrong complaints, vague history",
+  "section": "pastHistory",
+  "secs": 3.5,
+  "proposed": [
+   {
+    "entry": "pregnancy for two days",
+    "problem": "The patient is a 49-year-old male, making a pregnancy diagnosis anatomically impossible.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "pregnancy for two days",
+    "problem": "The patient is a 49-year-old male, making a pregnancy diagnosis anatomically impossible.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"pregnancy for two days\", \"problem\": \"The patient is a 49-year-old male, making a pregnancy diagnosis anatomically impossible.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 17,
+  "group": "suite",
+  "case": "Female-only history in a man",
+  "section": "chiefComplaints",
+  "secs": 3.8,
+  "proposed": [
+   {
+    "entry": "Cough for 5 days",
+    "problem": "The nature of the cough (productive vs. non-productive) and any associated symptoms like fever or shortness of breath are missing.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Cough for 5 days\", \"problem\": \"The nature of the cough (productive vs. non-productive) and any associated symptoms like fever or shortness of breath are missing.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 17,
+  "group": "suite",
+  "case": "Female-only history in a man",
+  "section": "pastHistory",
+  "secs": 3.5,
+  "proposed": [
+   {
+    "entry": "Hysterectomy",
+    "problem": "The patient is listed as male, making a hysterectomy (removal of the uterus) anatomically impossible.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Hysterectomy",
+    "problem": "The patient is listed as male, making a hysterectomy (removal of the uterus) anatomically impossible.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Hysterectomy\", \"problem\": \"The patient is listed as male, making a hysterectomy (removal of the uterus) anatomically impossible.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 18,
+  "group": "suite",
+  "case": "Clean history",
+  "section": "chiefComplaints",
+  "secs": 3.8,
+  "proposed": [
+   {
+    "entry": "Headache for 3 days",
+    "problem": "The location, severity, and associated symptoms (e.g., fever, visual changes, or neurological deficits) are not specified.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Headache for 3 days\", \"problem\": \"The location, severity, and associated symptoms (e.g., fever, visual changes, or neurological deficits) are not specified.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 18,
+  "group": "suite",
+  "case": "Clean history",
+  "section": "pastHistory",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 19,
+  "group": "suite",
+  "case": "History longer than life",
+  "section": "chiefComplaints",
+  "secs": 3.8,
+  "proposed": [
+   {
+    "entry": "Thirst for 1 week",
+    "problem": "The duration and nature of thirst require further clarification on associated symptoms like polyuria or weight loss to differentiate between metabolic and other causes.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Thirst for 1 week\", \"problem\": \"The duration and nature of thirst require further clarification on associated symptoms like polyuria or weight loss to differentiate between metabolic and other causes.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 19,
+  "group": "suite",
+  "case": "History longer than life",
+  "section": "pastHistory",
+  "secs": 3.6,
+  "proposed": [
+   {
+    "entry": "Diabetes for 30 years",
+    "problem": "The duration of 30 years is not plausible for a 25-year-old patient.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Diabetes for 30 years",
+    "problem": "The duration of 30 years is not plausible for a 25-year-old patient.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Diabetes for 30 years\", \"problem\": \"The duration of 30 years is not plausible for a 25-year-old patient.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 20,
+  "group": "suite",
+  "case": "Diagnosis does not explain complaint",
+  "section": "chiefComplaints",
+  "secs": 3.6,
+  "proposed": [
+   {
+    "entry": "Itching all over body for 7 days",
+    "problem": "The duration and distribution of itching are insufficient to differentiate between systemic, allergic, or parasitic causes.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Itching all over body for 7 days\", \"problem\": \"The duration and distribution of itching are insufficient to differentiate between systemic, allergic, or parasitic causes.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 20,
+  "group": "suite",
+  "case": "Diagnosis does not explain complaint",
+  "section": "diagnosis",
+  "secs": 3.2,
+  "proposed": [
+   {
+    "entry": "Acute bronchitis",
+    "problem": "The diagnosis does not explain the patient's chief complaint of itching all over the body.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Acute bronchitis",
+    "problem": "The diagnosis does not explain the patient's chief complaint of itching all over the body.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Acute bronchitis\", \"problem\": \"The diagnosis does not explain the patient's chief complaint of itching all over the body.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 21,
+  "group": "suite",
+  "case": "Clean diagnosis",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 21,
+  "group": "suite",
+  "case": "Clean diagnosis",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 22,
+  "group": "suite",
+  "case": "Suspected dengue without NS1",
+  "section": "chiefComplaints",
+  "secs": 3.7,
+  "proposed": [
+   {
+    "entry": "Fever for 3 days",
+    "problem": "The severity and associated symptoms (e.g., chills, rigors, rash) are not specified to determine urgency.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Fever for 3 days\", \"problem\": \"The severity and associated symptoms (e.g., chills, rigors, rash) are not specified to determine urgency.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 22,
+  "group": "suite",
+  "case": "Suspected dengue without NS1",
+  "section": "investigations",
+  "secs": 3.3,
+  "proposed": [
+   {
+    "entry": "Chest X-ray",
+    "problem": "The investigation is not clearly justified by the chief complaints of fever and headache without further respiratory symptoms.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Chest X-ray\", \"problem\": \"The investigation is not clearly justified by the chief complaints of fever and headache without further respiratory symptoms.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 22,
+  "group": "suite",
+  "case": "Suspected dengue without NS1",
+  "section": "diagnosis",
+  "secs": 3.2,
+  "proposed": [
+   {
+    "entry": "Suspected dengue fever",
+    "problem": "The diagnosis does not explain the clinical significance of the ordered Chest X-ray.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Suspected dengue fever\", \"problem\": \"The diagnosis does not explain the clinical significance of the ordered Chest X-ray.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 23,
+  "group": "suite",
+  "case": "Clean diabetes tests",
+  "section": "chiefComplaints",
+  "secs": 4.2,
+  "proposed": [
+   {
+    "entry": "Frequent urination for 2 months",
+    "problem": "The entry lacks specific details such as nocturia frequency or associated symptoms (e.g., dysuria, urgency) to differentiate between common causes like BPH or DM.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Frequent urination for 2 months\", \"problem\": \"The entry lacks specific details such as nocturia frequency or associated symptoms (e.g., dysuria, urgency) to differentiate between common causes like BPH or DM.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 23,
+  "group": "suite",
+  "case": "Clean diabetes tests",
+  "section": "investigations",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 23,
+  "group": "suite",
+  "case": "Clean diabetes tests",
+  "section": "diagnosis",
+  "secs": 3.8,
+  "proposed": [
+   {
+    "entry": "Type 2 diabetes mellitus",
+    "problem": "The diagnosis is premature as the results of the ordered HbA1c and Fasting blood sugar tests are not yet available.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Type 2 diabetes mellitus",
+    "problem": "The diagnosis is premature as the results of the ordered HbA1c and Fasting blood sugar tests are not yet available.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Type 2 diabetes mellitus\", \"problem\": \"The diagnosis is premature as the results of the ordered HbA1c and Fasting blood sugar tests are not yet available.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 24,
+  "group": "suite",
+  "case": "Adult paracetamol dose for a 4-year-old",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 24,
+  "group": "suite",
+  "case": "Adult paracetamol dose for a 4-year-old",
+  "section": "diagnosis",
+  "secs": 3.7,
+  "proposed": [
+   {
+    "entry": "Fever",
+    "problem": "The diagnosis is too non-specific and does not account for the potential severity or underlying cause in a 4-year-old child.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Fever\", \"problem\": \"The diagnosis is too non-specific and does not account for the potential severity or underlying cause in a 4-year-old child.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 24,
+  "group": "suite",
+  "case": "Adult paracetamol dose for a 4-year-old",
+  "section": "rx",
+  "secs": 4.7,
+  "proposed": [
+   {
+    "entry": "Napa 500 mg (1 + 1 + 1)",
+    "problem": "The prescribed dose of 500 mg per dose is too high for a 4-year-old child based on the provided drug facts.",
+    "severity": "critical"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Napa 500 mg (1 + 1 + 1)",
+    "problem": "The prescribed dose of 500 mg per dose is too high for a 4-year-old child based on the provided drug facts.",
+    "severity": "critical"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Napa 500 mg (1 + 1 + 1)\", \"problem\": \"The prescribed dose of 500 mg per dose is too high for a 4-year-old child based on the provided drug facts.\", \"severity\": \"critical\"}]}\n```"
+ },
+ {
+  "n": 24,
+  "group": "suite",
+  "case": "Adult paracetamol dose for a 4-year-old",
+  "section": "advice",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 25,
+  "group": "suite",
+  "case": "Hyperlipidaemia without diet advice",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 25,
+  "group": "suite",
+  "case": "Hyperlipidaemia without diet advice",
+  "section": "diagnosis",
+  "secs": 3.4,
+  "proposed": [
+   {
+    "entry": "Hyperlipidaemia",
+    "problem": "The diagnosis is not supported by any clinical history, symptoms, or laboratory investigations in the current record.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Hyperlipidaemia",
+    "problem": "The diagnosis is not supported by any clinical history, symptoms, or laboratory investigations in the current record.",
+    "severity": "documentation"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Hyperlipidaemia\", \"problem\": \"The diagnosis is not supported by any clinical history, symptoms, or laboratory investigations in the current record.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 25,
+  "group": "suite",
+  "case": "Hyperlipidaemia without diet advice",
+  "section": "rx",
+  "secs": 4.4,
+  "proposed": [
+   {
+    "entry": "Atova 10 mg (0 + 0 + 1)",
+    "problem": "The prescription lacks a baseline lipid profile (LDL, HDL, Triglycerides) to justify the initiation of statin therapy.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Atova 10 mg (0 + 0 + 1)",
+    "problem": "The prescription lacks a baseline lipid profile (LDL, HDL, Triglycerides) to justify the initiation of statin therapy.",
+    "severity": "documentation"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Atova 10 mg (0 + 0 + 1)\", \"problem\": \"The prescription lacks a baseline lipid profile (LDL, HDL, Triglycerides) to justify the initiation of statin therapy.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 25,
+  "group": "suite",
+  "case": "Hyperlipidaemia without diet advice",
+  "section": "advice",
+  "secs": 4.3,
+  "proposed": [
+   {
+    "entry": "Come back with report",
+    "problem": "The prescription does not specify which tests are required to be reported.",
+    "severity": "documentation"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Come back with report",
+    "problem": "The prescription does not specify which tests are required to be reported.",
+    "severity": "documentation"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Come back with report\", \"problem\": \"The prescription does not specify which tests are required to be reported.\", \"severity\": \"documentation\"}]}\n```"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "investigations",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "diagnosis",
+  "secs": 4.0,
+  "proposed": [
+   {
+    "entry": "Acute cystitis",
+    "problem": "The diagnosis of acute cystitis in a 35-year-old male requires ruling out prostatic involvement or a urinary tract infection originating from the prostate.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Acute cystitis",
+    "problem": "The diagnosis of acute cystitis in a 35-year-old male requires ruling out prostatic involvement or a urinary tract infection originating from the prostate.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Acute cystitis\", \"problem\": \"The diagnosis of acute cystitis in a 35-year-old male requires ruling out prostatic involvement or a urinary tract infection originating from the prostate.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "rx",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 26,
+  "group": "suite",
+  "case": "Clean adult UTI",
+  "section": "advice",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 27,
+  "group": "suite",
+  "case": "Impossible duration",
+  "section": "chiefComplaints",
+  "secs": 3.3,
+  "proposed": [
+   {
+    "entry": "Weight loss for 1 day",
+    "problem": "Significant weight loss is clinically implausible within a 24-hour period.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Weight loss for 1 day",
+    "problem": "Significant weight loss is clinically implausible within a 24-hour period.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Weight loss for 1 day\", \"problem\": \"Significant weight loss is clinically implausible within a 24-hour period.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 28,
+  "group": "suite",
+  "case": "Infant cold, no danger-sign advice",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 28,
+  "group": "suite",
+  "case": "Infant cold, no danger-sign advice",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 28,
+  "group": "suite",
+  "case": "Infant cold, no danger-sign advice",
+  "section": "rx",
+  "secs": 5.8,
+  "proposed": [
+   {
+    "entry": "Antista 2 mg/5 ml (1/2 tsp twice)",
+    "problem": "The prescribed dose of 1 mg (based on 1/2 tsp of a 2 mg/5 ml solution) is correct, but the medication is a sedating antihistamine and should be used with caution in a 22-month-old.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Antista 2 mg/5 ml (1/2 tsp twice)\", \"problem\": \"The prescribed dose of 1 mg (based on 1/2 tsp of a 2 mg/5 ml solution) is correct, but the medication is a sedating antihistamine and should be used with caution in a 22-month-old.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 28,
+  "group": "suite",
+  "case": "Infant cold, no danger-sign advice",
+  "section": "advice",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 29,
+  "group": "clean",
+  "case": "Clean: adult cystitis",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 29,
+  "group": "clean",
+  "case": "Clean: adult cystitis",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 29,
+  "group": "clean",
+  "case": "Clean: adult cystitis",
+  "section": "rx",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 29,
+  "group": "clean",
+  "case": "Clean: adult cystitis",
+  "section": "advice",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 30,
+  "group": "clean",
+  "case": "Clean: child common cold",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 30,
+  "group": "clean",
+  "case": "Clean: child common cold",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 30,
+  "group": "clean",
+  "case": "Clean: child common cold",
+  "section": "rx",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 30,
+  "group": "clean",
+  "case": "Clean: child common cold",
+  "section": "advice",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 31,
+  "group": "clean",
+  "case": "Clean: gastritis",
+  "section": "chiefComplaints",
+  "secs": 1.9,
+  "proposed": [],
+  "problems": [],
+  "raw": "1. Epigastric pain for 1 month\n2. Heartburn for 1 month\n```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 31,
+  "group": "clean",
+  "case": "Clean: gastritis",
+  "section": "diagnosis",
+  "secs": 3.4,
+  "proposed": [
+   {
+    "entry": "Gastritis",
+    "problem": "The diagnosis is insufficient to rule out peptic ulcer disease or H. pylori infection given the duration of symptoms.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Gastritis",
+    "problem": "The diagnosis is insufficient to rule out peptic ulcer disease or H. pylori infection given the duration of symptoms.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Gastritis\", \"problem\": \"The diagnosis is insufficient to rule out peptic ulcer disease or H. pylori infection given the duration of symptoms.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 31,
+  "group": "clean",
+  "case": "Clean: gastritis",
+  "section": "rx",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 31,
+  "group": "clean",
+  "case": "Clean: gastritis",
+  "section": "advice",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "pastHistory",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "rx",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 32,
+  "group": "clean",
+  "case": "Clean: hypertension follow-up",
+  "section": "advice",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "investigations",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "diagnosis",
+  "secs": 3.7,
+  "proposed": [
+   {
+    "entry": "Type 2 diabetes mellitus",
+    "problem": "The diagnosis is premature as the results of the ordered Fasting Blood Sugar and HbA1c tests are not yet available.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Type 2 diabetes mellitus",
+    "problem": "The diagnosis is premature as the results of the ordered Fasting Blood Sugar and HbA1c tests are not yet available.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Type 2 diabetes mellitus\", \"problem\": \"The diagnosis is premature as the results of the ordered Fasting Blood Sugar and HbA1c tests are not yet available.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "rx",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 33,
+  "group": "clean",
+  "case": "Clean: new type 2 diabetes",
+  "section": "advice",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 34,
+  "group": "clean",
+  "case": "Clean: scabies",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 34,
+  "group": "clean",
+  "case": "Clean: scabies",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 34,
+  "group": "clean",
+  "case": "Clean: scabies",
+  "section": "rx",
+  "secs": 5.4,
+  "proposed": [
+   {
+    "entry": "Alatrol 10 mg (0 + 0 + 1)",
+    "problem": "The prescribed dose of 10 mg daily is lower than the standard 10 mg once daily dose for adults, as the drug facts indicate 1 tablet (usually 10mg) or 2 teaspoons daily.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Alatrol 10 mg (0 + 0 + 1)\", \"problem\": \"The prescribed dose of 10 mg daily is lower than the standard 10 mg once daily dose for adults, as the drug facts indicate 1 tablet (usually 10mg) or 2 teaspoons daily.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 34,
+  "group": "clean",
+  "case": "Clean: scabies",
+  "section": "advice",
+  "secs": 21.5,
+  "proposed": [],
+  "problems": [],
+  "raw": "1.  **Analyze the Request:**\n    *   Role: Experienced general physician in Bangladesh.\n    *   Task: Check a prescription for a 20-year-old female with itching (suspected Scabies).\n    *   Specific Section to Check: Advice.\n    *   Context: Diagnosis is Scabies. Medicines are Lorix 5% (Permethrin) and Alatrol (Cetirizine).\n    *   Advice provided:\n        1. Treat all family members at the same time.\n        2. Wash clothes and bedding in hot water.\n    *   Constraints: Report only real problems, medical facts only if sure, no invented problems.\n    *   Specific Problem Criteria for Advice:\n        *   Not possible/plausible.\n        *   Cannot be acted on without more info.\n        *   Contradicts other sections.\n        *   Diagnosis doesn't fit complaint/results.\n        *   Medicine/Advice has no reason or is unsuitable.\n        *   Dose/frequency/duration wrong (not applicable to advice section directly, but context matters).\n        *   Dangerous interaction/contraindication.\n        *   Missing treatment/advice/follow-up/referral clearly needed.\n    *   Output Format: JSON only.\n\n    *   Patient: 20F, itching all over (worse at night) for 2 weeks.\n    *   Diagnosis: Scabies.\n    *   Medication: Lorix 5% (Permethrin) - standard for scabies. Alatrol (Cetirizine) - standard for itching.\n    *   Advice 1: \"Treat all family members at the same time.\"\n        *   *Medical Fact:* Scabies is highly contagious. Treating the index case without treating household contacts leads to re-infestation. This is standard and correct advice.\n    *"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "investigations",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "rx",
+  "secs": 4.8,
+  "proposed": [
+   {
+    "entry": "Napa 500 mg (1 + 0 + 1) - (7 day(s))",
+    "problem": "The dose of 1000 mg daily is sub-therapeutic for chronic osteoarthritis pain management in an adult.",
+    "severity": "review"
+   }
+  ],
+  "problems": [
+   {
+    "entry": "Napa 500 mg (1 + 0 + 1) - (7 day(s))",
+    "problem": "The dose of 1000 mg daily is sub-therapeutic for chronic osteoarthritis pain management in an adult.",
+    "severity": "review"
+   }
+  ],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"Napa 500 mg (1 + 0 + 1) - (7 day(s))\", \"problem\": \"The dose of 1000 mg daily is sub-therapeutic for chronic osteoarthritis pain management in an adult.\", \"severity\": \"review\"}]}\n```"
+ },
+ {
+  "n": 35,
+  "group": "clean",
+  "case": "Clean: left knee osteoarthritis",
+  "section": "advice",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "chiefComplaints",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "investigations",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "diagnosis",
+  "secs": 0.7,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "rx",
+  "secs": 0.8,
+  "proposed": [],
+  "problems": [],
+  "raw": "```json\n{\"problems\": []}\n```"
+ },
+ {
+  "n": 36,
+  "group": "clean",
+  "case": "Clean: first antenatal visit",
+  "section": "advice",
+  "secs": 3.7,
+  "proposed": [
+   {
+    "entry": "severe headache or reduced fetal movement",
+    "problem": "Reduced fetal movement is not clinically applicable at 12 weeks of pregnancy as the fetus is too small to be felt.",
+    "severity": "review"
+   }
+  ],
+  "problems": [],
+  "raw": "```json\n{\"problems\": [{\"entry\": \"severe headache or reduced fetal movement\", \"problem\": \"Reduced fetal movement is not clinically applicable at 12 weeks of pregnancy as the fetus is too small to be felt.\", \"severity\": \"review\"}]}\n```"
+ }
+]
