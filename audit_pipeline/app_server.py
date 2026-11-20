@@ -1,12 +1,12 @@
-"""Local bridge: PrescribeX front end  ->  V3 LLM audit pipeline.
+"""Local HTTP bridge between the PrescribeX front end and the audit pipeline.
 
 Run from the folder that contains ``audit_pipeline/``::
 
     python -m audit_pipeline.app_server serve                      # HTTP API on http://127.0.0.1:8765
     python -m audit_pipeline.app_server audit path/to/file.json    # audit one saved JSON (file or visit folder)
 
-The LLM provider comes from the same ``.env`` the V3 CLI uses (``AUDIT_PROVIDER`` = ``azure`` or
-``groq`` plus that provider's keys). Nothing is sent anywhere except to that provider.
+The model provider is configured in ``.env`` (``AUDIT_PROVIDER=local`` runs the model in this process; see
+docs/PrescribeX_Technical_Documentation.md). With the local provider nothing leaves this machine.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 from contextlib import nullcontext
 import json
+import logging
 import os
 import sqlite3
 import sys
@@ -48,6 +49,8 @@ from .provider import create_provider
 DEFAULT_PORT = 8765
 _PACKAGE = Path(__file__).resolve().parent
 
+
+log = logging.getLogger(__name__)
 
 def load_env() -> None:
     for path in (_PACKAGE / ".env", _PACKAGE.parent / ".env"):
@@ -203,7 +206,7 @@ class AuditService:
                 target_sections=domains, live_section_audit=True, llm_rag_router=False, max_retries=0,
                 provider=recorder))
         except Exception as exc:  # noqa: BLE001 - hints are optional context
-            print(f"[review] rule-engine hints unavailable: {type(exc).__name__}: {exc}", file=sys.stderr)
+            log.warning("[review] rule-engine hints unavailable: %s: %s", type(exc).__name__, exc)
         candidates = [c for t in recorder.tasks for c in flatten_candidates(t.get("candidates"))
                       if str(c.get("section", "")) in domains]
         facts = _drug_facts(row) if section == "rx" and str(row.get("Medication", "")).strip() else ""
@@ -220,8 +223,8 @@ class AuditService:
                 keep = parse_keep(provider.review(build_verify_messages(row, section, candidates_shown, facts), 60,
                                                   prefix='{"keep": ['), len(candidates_shown))
                 problems = [p for i, p in enumerate(candidates_shown, 1) if i in keep]
-        print(f"[review] section={section} proposed={len(proposed)} hidden_types={len(hidden)} shown={len(problems)} "
-              f"took={perf_counter() - started:.1f}s", flush=True)
+        log.info("[review] section=%s proposed=%d hidden_types=%d shown=%d took=%.1fs",
+                 section, len(proposed), len(hidden), len(problems), perf_counter() - started)
         result = {"success": True, "section": section,
                   "review": {"status": "done", "problems": problems, "hidden": hidden, "revision": payload.get("revision"),
                              "duration_ms": round((perf_counter() - started) * 1000, 3)}}
@@ -382,11 +385,11 @@ def _make_handler(service: AuditService):
             except PayloadError as exc:
                 self._send(400, {"success": False, "error": str(exc)})
             except Exception as exc:  # noqa: BLE001 - never leak a traceback to the browser
-                print(f"[audit failed] {type(exc).__name__}: {exc}", file=sys.stderr)
+                log.exception("[audit failed] %s: %s", type(exc).__name__, exc)
                 self._send(500, {"success": False, "error": f"{type(exc).__name__}: {exc}"})
 
         def log_message(self, fmt: str, *args: Any) -> None:
-            print("[bridge]", fmt % args, file=sys.stderr)
+            log.debug("[bridge] " + fmt, *args)
 
     return Handler
 
@@ -399,7 +402,7 @@ def serve(service: AuditService, host: str, port: int) -> None:
         print(f"LLM provider ready: {status['provider']} ({status.get('model')})")
     else:
         print(f"WARNING - LLM provider NOT ready: {status['error']}\n"
-              "         Fix your .env (see README_BRIDGE.md); the server keeps running and retries on each request.")
+              "         Fix your .env (see README.md); the server keeps running and retries on each request.")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -407,6 +410,8 @@ def serve(service: AuditService, host: str, port: int) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    logging.basicConfig(level=os.getenv("AUDIT_LOG_LEVEL", "INFO").upper(), format="%(message)s",
+                        stream=sys.stdout, force=True)
     parser = argparse.ArgumentParser(prog="python -m audit_pipeline.app_server")
     parser.add_argument("--provider", help="azure, groq or gemma (default: AUDIT_PROVIDER from .env)")
     parser.add_argument("--data-dir", help="front end backend/data folder, to use earlier saved visits as follow-up history")

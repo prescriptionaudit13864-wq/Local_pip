@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import threading
@@ -24,6 +25,7 @@ from .finetune_prompt import (
     trained_rule_ids,
 )
 
+log = logging.getLogger(__name__)
 
 _KNOWLEDGE_SYSTEM = "You are a careful clinical documentation reviewer."
 DEFAULT_QUESTION_RULES = "CC.2,CC.4,CC.term.unclear,CC.context.conflict,Hx.term.unclear,Hx.context.conflict"
@@ -343,18 +345,18 @@ class LocalChatProvider:
             if item.strip() and item.strip().casefold() != "none"
         }
         self.fast_fallbacks = 0  # answers the fast path handed back to normal decoding
-        print(f"[local] {self.model}: prompt_mode={self.prompt_mode} ({mode_reason})", flush=True)
+        log.info("[local] %s: prompt_mode=%s (%s)", self.model, self.prompt_mode, mode_reason)
         if self.prompt_mode == "finetune" and self.engine_confirmed:
-            print(f"[local] confirmed from the rule engine without the model: {', '.join(sorted(self.engine_confirmed))}", flush=True)
+            log.info("[local] confirmed from the rule engine without the model: %s", ", ".join(sorted(self.engine_confirmed)))
         if self.prompt_mode == "finetune" and self.question_rules:
-            print(f"[local] YES/NO questions for checks: {', '.join(sorted(self.question_rules))}", flush=True)
+            log.info("[local] YES/NO questions for checks: %s", ", ".join(sorted(self.question_rules)))
         if not self.base_url:
             # No server configured: download HF_MODEL from Hugging Face (first run) and run it in this process.
             self._tokenizer, self._model = self._load_in_process()
             self.always_prefill = not getattr(self._tokenizer, "chat_template", None)
             if self.always_prefill and self.prompt_mode == "standard":
-                print(f"WARNING: {self.model} has no chat template (base model). Use the -Instruct version "
-                      "for reliable audits.", flush=True)
+                log.warning("%s has no chat template (base model). Use the -Instruct version for reliable audits.",
+                            self.model)
             return
 
         from openai import OpenAI
@@ -402,11 +404,9 @@ class LocalChatProvider:
                 if quant == "4bit" else BitsAndBytesConfig(load_in_8bit=True)
             )
         cached = Path(self.model).is_dir() or _is_cached_locally(self.model)
-        print(f"[local] {self.model}: quantization={quant} ({quant_reason})", flush=True)
-        print(
-            f"[local] {'found in local cache, loading from disk' if cached else 'not cached yet, downloading from Hugging Face'} ...",
-            flush=True,
-        )
+        log.info("[local] %s: quantization=%s (%s)", self.model, quant, quant_reason)
+        log.info("[local] %s ...", "found in local cache, loading from disk" if cached
+                 else "not cached yet, downloading from Hugging Face")
         tokenizer = AutoTokenizer.from_pretrained(self.model, token=token)
         model = AutoModelForCausalLM.from_pretrained(self.model, **kwargs)
         if adapter:
@@ -642,12 +642,12 @@ class LocalChatProvider:
             fb_started = time.perf_counter()
             written[i] = self._generate("", texts[i], budget, "", raw=True)
             self.fast_fallbacks += 1
-            print(f"[finetune] section={section} prompt {i}: fallback to normal decoding took "
-                  f"{time.perf_counter() - fb_started:.1f}s ({len(written[i])} chars)", flush=True)
+            log.info("[finetune] section=%s prompt %d: fallback to normal decoding took %.1fs (%d chars)",
+                     section, i, time.perf_counter() - fb_started, len(written[i]))
         # Timing line per check (audit_server.log), to trace slow checks: rounds of fast decoding, fallbacks.
-        print(f"[finetune] section={section} prompts={len(texts)} rounds={rounds} "
-              f"fallbacks={self.fast_fallbacks - fallbacks_before} took={time.perf_counter() - started:.1f}s "
-              f"answer_chars={[len(w) for w in written]}", flush=True)
+        log.info("[finetune] section=%s prompts=%d rounds=%d fallbacks=%d took=%.1fs answer_chars=%s",
+                 section, len(texts), rounds, self.fast_fallbacks - fallbacks_before,
+                 time.perf_counter() - started, [len(w) for w in written])
         return written
 
     @staticmethod
