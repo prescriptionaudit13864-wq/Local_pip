@@ -25,6 +25,20 @@ DEFAULT_DATABASE = _PACKAGE / "data" / "icd11_mms_2026_01.sqlite3"
 SOURCE_URL = "https://icdcdn.who.int/static/releasefiles/2026-01/SimpleTabulation-ICD-11-MMS-en.zip"
 _TABULATION_FILE = "SimpleTabulation-ICD-11-MMS-en.txt"
 
+# ICD-11 chapters that hold codes which are not diagnoses, kept out of the diagnosis search:
+#   X  extension codes (infectious agents such as "Dengue virus", vaccines, anatomy, medicaments)
+#   V  functioning assessment            23  external causes (how an injury happened)
+#   26 traditional medicine patterns
+NON_DIAGNOSIS_CHAPTERS = ("X", "V", "23", "26")
+_NON_DIAGNOSIS_TITLE_PREFIXES = (
+    "national emergency code",  # chapter 25 placeholders
+    "international emergency code",
+    "need for immunization",  # chapter 24 visit reasons, not diagnoses
+)
+# Symptoms (21), health-status factors such as "Pregnant state" (24) and special codes (25) stay searchable but
+# are listed after diseases.
+_SECONDARY_CHAPTERS = ("21", "24", "25")
+
 
 def _clean(value: Any) -> str:
     return str(value or "").strip().lstrip("\ufeff")
@@ -144,11 +158,15 @@ class ICD11Terminology:
         if not tokens:
             return []
         where = " AND ".join("title_norm LIKE ?" for _ in tokens)
+        chapters = ", ".join("?" for _ in NON_DIAGNOSIS_CHAPTERS)
+        prefixes = " AND ".join("title_norm NOT LIKE ?" for _ in _NON_DIAGNOSIS_TITLE_PREFIXES)
+        secondary = ", ".join("?" for _ in _SECONDARY_CHAPTERS)
         sql = f"""
             SELECT code, title, foundation_uri, linearization_uri, parent_uri,
                    chapter_no, is_residual, is_leaf
               FROM diagnoses
-             WHERE ({where}) OR upper(code) LIKE ?
+             WHERE (({where}) OR upper(code) LIKE ?)
+               AND chapter_no NOT IN ({chapters}) AND {prefixes}
              ORDER BY CASE
                         WHEN upper(code) = ? THEN 0
                         WHEN upper(code) LIKE ? THEN 1
@@ -156,13 +174,15 @@ class ICD11Terminology:
                         WHEN title_norm LIKE ? THEN 3
                         ELSE 4
                       END,
+                      CASE WHEN chapter_no IN ({secondary}) THEN 1 ELSE 0 END,
                       is_residual ASC, length(title) ASC, title ASC
              LIMIT ?
         """
         # The first code LIKE belongs to WHERE; duplicate code params support
         # exact/prefix ordering without relying on database-specific aliases.
         where_params = [f"%{token}%" for token in tokens] + [f"{q.upper()}%"]
-        order_params = [q.upper(), f"{q.upper()}%", q, f"{q}%", limit]
+        where_params += [*NON_DIAGNOSIS_CHAPTERS, *(f"{p}%" for p in _NON_DIAGNOSIS_TITLE_PREFIXES)]
+        order_params = [q.upper(), f"{q.upper()}%", q, f"{q}%", *_SECONDARY_CHAPTERS, limit]
         with closing(sqlite3.connect(self.database)) as con, con:
             con.row_factory = sqlite3.Row
             rows = con.execute(sql, [*where_params, *order_params]).fetchall()
