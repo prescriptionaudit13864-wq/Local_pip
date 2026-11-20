@@ -35,9 +35,25 @@ _NON_DIAGNOSIS_TITLE_PREFIXES = (
     "international emergency code",
     "need for immunization",  # chapter 24 visit reasons, not diagnoses
 )
-# Symptoms (21), health-status factors such as "Pregnant state" (24) and special codes (25) stay searchable but
-# are listed after diseases.
+# Newborn (perinatal, 19) codes are listed after general diseases; symptoms (21), health-status factors such as
+# "Pregnant state" (24) and special codes (25) after those.
+_SPECIAL_GROUP_CHAPTERS = ("19",)
 _SECONDARY_CHAPTERS = ("21", "24", "25")
+# Abbreviations doctors type in the diagnosis box, searched as the full term.
+_ABBREVIATIONS = {
+    "uti": "urinary tract infection",
+    "htn": "hypertension",
+    "dm": "diabetes mellitus",
+    "t1dm": "type 1 diabetes mellitus",
+    "t2dm": "type 2 diabetes mellitus",
+    "tb": "tuberculosis",
+    "copd": "chronic obstructive pulmonary disease",
+    "gerd": "gastro-oesophageal reflux disease",
+    "gord": "gastro-oesophageal reflux disease",
+    "ckd": "chronic kidney disease",
+    "ihd": "ischaemic heart disease",
+    "ida": "iron deficiency anaemia",
+}
 
 
 def _clean(value: Any) -> str:
@@ -154,12 +170,17 @@ class ICD11Terminology:
         if not q:
             return []
         limit = max(1, min(int(limit), 25))
+        code_q = q.upper()  # codes are matched on what was typed, before abbreviations are expanded
+        q = _ABBREVIATIONS.get(q, q)
         tokens = [token for token in re.findall(r"[a-z0-9]+", q) if token]
         if not tokens:
             return []
-        where = " AND ".join("title_norm LIKE ?" for _ in tokens)
+        # Every typed word must match the start of a word in the title ("uti" must not match "mutism").
+        words = "(' ' || replace(replace(replace(replace(title_norm, '-', ' '), ',', ' '), '(', ' '), '/', ' '))"
+        where = " AND ".join(f"{words} LIKE ?" for _ in tokens)
         chapters = ", ".join("?" for _ in NON_DIAGNOSIS_CHAPTERS)
         prefixes = " AND ".join("title_norm NOT LIKE ?" for _ in _NON_DIAGNOSIS_TITLE_PREFIXES)
+        special = ", ".join("?" for _ in _SPECIAL_GROUP_CHAPTERS)
         secondary = ", ".join("?" for _ in _SECONDARY_CHAPTERS)
         sql = f"""
             SELECT code, title, foundation_uri, linearization_uri, parent_uri,
@@ -171,18 +192,19 @@ class ICD11Terminology:
                         WHEN upper(code) = ? THEN 0
                         WHEN upper(code) LIKE ? THEN 1
                         WHEN title_norm = ? THEN 2
-                        WHEN title_norm LIKE ? THEN 3
+                        WHEN {words} LIKE ? THEN 3
                         ELSE 4
                       END,
-                      CASE WHEN chapter_no IN ({secondary}) THEN 1 ELSE 0 END,
-                      is_residual ASC, length(title) ASC, title ASC
+                      CASE WHEN chapter_no IN ({special}) THEN 1 WHEN chapter_no IN ({secondary}) THEN 2 ELSE 0 END,
+                      is_residual ASC, depth_in_kind ASC, length(title) ASC, title ASC
              LIMIT ?
         """
-        # The first code LIKE belongs to WHERE; duplicate code params support
-        # exact/prefix ordering without relying on database-specific aliases.
-        where_params = [f"%{token}%" for token in tokens] + [f"{q.upper()}%"]
+        # Ranking: code match, exact title, the whole query at the start of a word ("Type 2 diabetes mellitus" ranks
+        # with "Diabetes mellitus in pregnancy"); then general diseases, pregnancy/newborn codes, symptoms and
+        # health-status codes; specific before "unspecified"/"other"; broad categories before sub-types; shorter first.
+        where_params = [f"% {token}%" for token in tokens] + [f"{code_q}%"]
         where_params += [*NON_DIAGNOSIS_CHAPTERS, *(f"{p}%" for p in _NON_DIAGNOSIS_TITLE_PREFIXES)]
-        order_params = [q.upper(), f"{q.upper()}%", q, f"{q}%", *_SECONDARY_CHAPTERS, limit]
+        order_params = [code_q, f"{code_q}%", q, f"% {q}%", *_SPECIAL_GROUP_CHAPTERS, *_SECONDARY_CHAPTERS, limit]
         with closing(sqlite3.connect(self.database)) as con, con:
             con.row_factory = sqlite3.Row
             rows = con.execute(sql, [*where_params, *order_params]).fetchall()
