@@ -45,9 +45,10 @@ raised 92% (84-96%)."
 - **Pregnancy at age 70:** flagged, but under the wrong error type (duration instead of age).
 - **Medicine timing:** 40 of 46 caught (87%, 74-94%).
 - **Error types the model does not yet catch on real prescriptions:** investigation not matching the diagnosis
-  (0 of 5), medicine for a symptom the patient does not have (0 of 7), drug interactions (0 of 3), wrong diagnosis
-  for the health screening (0 of 2), investigation not matching the screening (1 of 6), overdose (11 of 21, 52%),
-  referral advice (6 of 12). These need more physician-labelled examples (plan tasks A03.2, A04.1).
+  (0 of 5), required medicine missing (0 of 7), drug interactions (0 of 3), diagnosis contradicting the findings
+  (0 of 2), investigation not matching the findings (1 of 6), medicine without a matching condition (11 of 21, 52%),
+  referral advice (6 of 12). For several of these the rule text the model reads disagrees with the physician
+  labels; see `docs/weak_error_types_data_request.md` (plan tasks A03.2, A04.1).
 - **Rare error types:** some have only 4-8 test examples, so their intervals are very wide (e.g. 4 of 4 = 51-100%).
   We do not claim numbers for them until there are at least 20 examples each.
 
