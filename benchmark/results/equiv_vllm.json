@@ -1,0 +1,1302 @@
+{
+ "server": {
+  "ok": true,
+  "provider": "VLLMProvider",
+  "model": "unsloth/gemma-4-12B-it-qat-q4_0-unquantized",
+  "history_dir": "C:\\Users\\HEAT\\AppData\\Local\\Temp\\claude\\498e5486c024ca5d\\a1a7d2f7-4e68-4da6-8e4a-d4a42c8d3b8b\\scratchpad\\emptydata"
+ },
+ "checks": [
+  {
+   "key": "1:chiefComplaints",
+   "case": "CC: loss of weight for 1 day",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [
+    [
+     "implausible",
+     "Loss of weight for 1 day",
+     "Weight loss over a single day is clinically implausible as a significant weight change."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.68,
+   "review_s": 1.62
+  },
+  {
+   "key": "2:chiefComplaints",
+   "case": "CC: increased weight for 1 day",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [
+    [
+     "implausible",
+     "Increased weight for 1 day",
+     "Weight gain over a 24-hour period is physiologically implausible for a clinical complaint."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.59,
+   "review_s": 1.63
+  },
+  {
+   "key": "3:chiefComplaints",
+   "case": "CC: weight gain 6 kg in 1 day",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [
+    [
+     "CC.time.plausibility",
+     "Complaint: Weight gain 6 kg in 1 day",
+     "'Weight gain 6 kg in 1 day': this is not plausible in that time; check the entry."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 1.82,
+   "review_s": 0.26
+  },
+  {
+   "key": "4:chiefComplaints",
+   "case": "CC: elbow pain (no side, no duration)",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [
+    [
+     "CC.3",
+     "Complaint: Elbow pain",
+     "Duration is not mentioned for 'Elbow pain'."
+    ]
+   ],
+   "review": [
+    [
+     "side_missing",
+     "Elbow pain",
+     "The side (left or right) is not specified."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 1.53,
+   "review_s": 1.26
+  },
+  {
+   "key": "5:chiefComplaints",
+   "case": "CC: ear pain (no side)",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [
+    [
+     "side_missing",
+     "Ear pain for 3 days",
+     "The side of the ear (left or right) is not specified."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 1.39
+  },
+  {
+   "key": "6:chiefComplaints",
+   "case": "CC/Inv/Dx: elbow, sides disagree",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [
+    [
+     "side_missing",
+     "Elbow pain for 3 days",
+     "The side of the elbow (left or right) is not specified."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.58,
+   "review_s": 1.58
+  },
+  {
+   "key": "6:investigations",
+   "case": "CC/Inv/Dx: elbow, sides disagree",
+   "group": "doctor",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.8,
+   "review_s": 0.8
+  },
+  {
+   "key": "6:diagnosis",
+   "case": "CC/Inv/Dx: elbow, sides disagree",
+   "group": "doctor",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [
+    [
+     "contradiction",
+     "Left elbow joint pain",
+     "The diagnosis of left elbow pain contradicts the chief complaint of right elbow pain."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.59,
+   "review_s": 1.95
+  },
+  {
+   "key": "7:chiefComplaints",
+   "case": "CC: pregnancy in a man + headache with no duration",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [
+    [
+     "CC.context.demo",
+     "Complaint: Pregnancy for 2 months",
+     "'Pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+    ],
+    [
+     "CC.3",
+     "Complaint: Headache",
+     "Duration is not mentioned for 'Headache'."
+    ]
+   ],
+   "review": [
+    [
+     "sex_age_anatomy",
+     "Pregnancy for 2 months",
+     "Pregnancy is not possible for a male patient."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 3.04,
+   "review_s": 1.89
+  },
+  {
+   "key": "8:chiefComplaints",
+   "case": "CC: severe chest pain without severity details",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [
+    [
+     "severity_missing",
+     "Chest pain for 2 hours",
+     "Severity of chest pain is not stated, which is required to determine emergency care."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 1.59
+  },
+  {
+   "key": "9:chiefComplaints",
+   "case": "Inv: PSA for a woman",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [
+    [
+     "severity_missing",
+     "Lower abdominal pain for 1 week",
+     "Severity is not stated for abdominal pain, which can decide emergency care."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 1.56
+  },
+  {
+   "key": "9:investigations",
+   "case": "Inv: PSA for a woman",
+   "group": "doctor",
+   "section": "investigations",
+   "layer1": [
+    [
+     "Inv.relevance",
+     "Ordered investigation: PSA (Prostate Specific Antigen)",
+     "PSA is a prostate-specific test and does not fit a female patient's complaint."
+    ],
+    [
+     "Inv.cc",
+     "Diagnosis: none | Investigation: PSA (Prostate Specific Antigen) | Investigation_Results: none | Chief_Complaint: Lower abdominal pain for 1 week | Health_Screening: none | On_Examination: none | Systemic_Examination: none | Age: 46 | Gender: F",
+     "PSA is a prostate-specific test and does not fit a female patient's complaint."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 2.03,
+   "review_s": 0.44
+  },
+  {
+   "key": "10:chiefComplaints",
+   "case": "Inv: Pap smear for a man",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.58,
+   "review_s": 0.69
+  },
+  {
+   "key": "10:investigations",
+   "case": "Inv: Pap smear for a man",
+   "group": "doctor",
+   "section": "investigations",
+   "layer1": [
+    [
+     "Inv.relevance",
+     "Ordered investigation: Pap smear | Standard catalogue identity: PAP`S SMEAR | Test category: HISTOPATHOLOGY",
+     "Burning micturition is a complaint, but a pap smear does not address it."
+    ],
+    [
+     "Inv.cc",
+     "Diagnosis: none | Investigation: Pap smear | Investigation_Results: none | Chief_Complaint: Burning micturition for 3 days | Health_Screening: none | On_Examination: none | Systemic_Examination: none | Age: 46 | Gender: M",
+     "Burning micturition is a complaint, but a pap smear does not address it."
+    ]
+   ],
+   "review": [
+    [
+     "sex_age_anatomy",
+     "Pap smear",
+     "A Pap smear is not a suitable test for a male patient."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 1.99,
+   "review_s": 1.47
+  },
+  {
+   "key": "11:chiefComplaints",
+   "case": "Dx: male, GDM first",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.63
+  },
+  {
+   "key": "11:diagnosis",
+   "case": "Dx: male, GDM first",
+   "group": "doctor",
+   "section": "diagnosis",
+   "layer1": [
+    [
+     "Dx.cc.1",
+     "Diagnosis: Gestational diabetes mellitus, Pregnancy in 3rd trimester | Chief complaint: Increased thirst for 1 month",
+     "Increased thirst is a symptom of diabetes, but the diagnosis records pregnancy, which does not fit a male patient: check the complaint and the recorded sex."
+    ]
+   ],
+   "review": [
+    [
+     "sex_age_anatomy",
+     "Gestational diabetes mellitus",
+     "Diagnosis is not possible for a male patient."
+    ],
+    [
+     "sex_age_anatomy",
+     "Pregnancy in 3rd trimester",
+     "Diagnosis is not possible for a male patient."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 2.13,
+   "review_s": 2.62
+  },
+  {
+   "key": "12:chiefComplaints",
+   "case": "Dx: male, pregnancy first",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.49
+  },
+  {
+   "key": "12:diagnosis",
+   "case": "Dx: male, pregnancy first",
+   "group": "doctor",
+   "section": "diagnosis",
+   "layer1": [
+    [
+     "Dx.cc.1",
+     "Diagnosis: Pregnancy in 3rd trimester, Gestational diabetes mellitus | Chief complaint: Increased thirst for 1 month",
+     "Pregnancy in 3rd trimester, Gestational diabetes mellitus are not possible at age 31 in a male patient."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 1.95,
+   "review_s": 0.3
+  },
+  {
+   "key": "13:chiefComplaints",
+   "case": "Rx: antibiotic with no infection",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.64
+  },
+  {
+   "key": "13:diagnosis",
+   "case": "Rx: antibiotic with no infection",
+   "group": "doctor",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 1.3
+  },
+  {
+   "key": "13:rx",
+   "case": "Rx: antibiotic with no infection",
+   "group": "doctor",
+   "section": "rx",
+   "layer1": [
+    [
+     "Rx.over",
+     "Diagnosis: Tension headache | Medication: Napa 500 mg (1 + 0 + 1) - (3 day(s)) [After meal], Azithrocin 500 mg (1 + 0 + 0) - (3 day(s)) [After meal] | Chief_Complaint: Headache for 2 days | Health_Screening: none | Age: 36 | Gender: M",
+     "Azithrocin is prescribed, but no condition that calls for it is recorded in the complaints, diagnosis or past history."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 2.72,
+   "review_s": 2.31
+  },
+  {
+   "key": "14:chiefComplaints",
+   "case": "Rx: antibiotic for 30 days",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.55,
+   "review_s": 0.27
+  },
+  {
+   "key": "14:diagnosis",
+   "case": "Rx: antibiotic for 30 days",
+   "group": "doctor",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.48,
+   "review_s": 0.58
+  },
+  {
+   "key": "14:rx",
+   "case": "Rx: antibiotic for 30 days",
+   "group": "doctor",
+   "section": "rx",
+   "layer1": [],
+   "review": [
+    [
+     "antibiotic_duration",
+     "Ciprocin 500 mg (1 + 0 + 1) - (30 day(s)) [After meal]",
+     "Antibiotic course longer than 14 days without a stated reason."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.79,
+   "review_s": 2.59
+  },
+  {
+   "key": "15:chiefComplaints",
+   "case": "Rx: antibiotic twice daily, gastric medicine once",
+   "group": "doctor",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.27
+  },
+  {
+   "key": "15:diagnosis",
+   "case": "Rx: antibiotic twice daily, gastric medicine once",
+   "group": "doctor",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.49,
+   "review_s": 0.58
+  },
+  {
+   "key": "15:rx",
+   "case": "Rx: antibiotic twice daily, gastric medicine once",
+   "group": "doctor",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.88,
+   "review_s": 2.31
+  },
+  {
+   "key": "16:chiefComplaints",
+   "case": "Doctor's visit: male, wrong complaints, vague history",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [
+    [
+     "CC.context.demo",
+     "Complaint: pregnancy for two days",
+     "'pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+    ],
+    [
+     "CC.3",
+     "Complaint: vaginal cramp; Complaint: fever",
+     "Duration is not documented for multiple patient-reported complaints."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 4.45,
+   "review_s": 1.5
+  },
+  {
+   "key": "16:pastHistory",
+   "case": "Doctor's visit: male, wrong complaints, vague history",
+   "group": "suite",
+   "section": "pastHistory",
+   "layer1": [
+    [
+     "Hx.detail",
+     "Past history: Allergic",
+     "'Allergic' does not name the allergen or the reaction."
+    ],
+    [
+     "Hx.detail",
+     "Past history: Surgical History",
+     "'Surgical History' does not name the operation or roughly when it was done."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 2.97,
+   "review_s": 1.91
+  },
+  {
+   "key": "17:chiefComplaints",
+   "case": "Female-only history in a man",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.63
+  },
+  {
+   "key": "17:pastHistory",
+   "case": "Female-only history in a man",
+   "group": "suite",
+   "section": "pastHistory",
+   "layer1": [
+    [
+     "Hx.context.demo",
+     "Past history: Hysterectomy",
+     "'Hysterectomy' does not fit a male patient: check the complaint and the recorded sex."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 1.83,
+   "review_s": 0.27
+  },
+  {
+   "key": "18:chiefComplaints",
+   "case": "Clean history",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.56,
+   "review_s": 0.64
+  },
+  {
+   "key": "18:pastHistory",
+   "case": "Clean history",
+   "group": "suite",
+   "section": "pastHistory",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.54,
+   "review_s": 1.18
+  },
+  {
+   "key": "19:chiefComplaints",
+   "case": "History longer than life",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.56,
+   "review_s": 0.64
+  },
+  {
+   "key": "19:pastHistory",
+   "case": "History longer than life",
+   "group": "suite",
+   "section": "pastHistory",
+   "layer1": [
+    [
+     "Hx.time.plausibility",
+     "Past history: Diabetes for 30 years",
+     "'Diabetes for 30 years' is longer than the patient's age of 26 years."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 1.87,
+   "review_s": 0.26
+  },
+  {
+   "key": "20:chiefComplaints",
+   "case": "Diagnosis does not explain complaint",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.56,
+   "review_s": 0.27
+  },
+  {
+   "key": "20:diagnosis",
+   "case": "Diagnosis does not explain complaint",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [
+    [
+     "Dx.cc.1",
+     "Diagnosis: Acute bronchitis | Chief complaint: Itching all over body for 7 days",
+     "Itching all over body is the complaint, but bronchitis does not explain it."
+    ]
+   ],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 1.82,
+   "review_s": 1.22
+  },
+  {
+   "key": "21:chiefComplaints",
+   "case": "Clean diagnosis",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.27
+  },
+  {
+   "key": "21:diagnosis",
+   "case": "Clean diagnosis",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 0.26
+  },
+  {
+   "key": "22:chiefComplaints",
+   "case": "Suspected dengue without NS1",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.64,
+   "review_s": 1.2
+  },
+  {
+   "key": "22:investigations",
+   "case": "Suspected dengue without NS1",
+   "group": "suite",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.76,
+   "review_s": 1.41
+  },
+  {
+   "key": "22:diagnosis",
+   "case": "Suspected dengue without NS1",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.51,
+   "review_s": 0.26
+  },
+  {
+   "key": "23:chiefComplaints",
+   "case": "Clean diabetes tests",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.63
+  },
+  {
+   "key": "23:investigations",
+   "case": "Clean diabetes tests",
+   "group": "suite",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.71,
+   "review_s": 1.29
+  },
+  {
+   "key": "23:diagnosis",
+   "case": "Clean diabetes tests",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 0.27
+  },
+  {
+   "key": "24:chiefComplaints",
+   "case": "Adult paracetamol dose for a 4-year-old",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.56,
+   "review_s": 0.64
+  },
+  {
+   "key": "24:diagnosis",
+   "case": "Adult paracetamol dose for a 4-year-old",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 1.24
+  },
+  {
+   "key": "24:rx",
+   "case": "Adult paracetamol dose for a 4-year-old",
+   "group": "suite",
+   "section": "rx",
+   "layer1": [
+    [
+     "Rx.dose.weight",
+     "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+     "Napa 500 mg three times a day is an adult dose; a 5-year-old (about 20 kg) needs about 15 mg/kg, so 300 mg per dose is enough."
+    ],
+    [
+     "Rx.demo",
+     "Diagnosis: Fever | Medication: Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal] | Chief_Complaint: Fever for 2 days | Health_Screening: none | Age: 5 | Gender: M",
+     "Napa 500 mg three times a day is an adult dose; a 5-year-old (about 20 kg) needs about 15 mg/kg, so 300 mg per dose is enough."
+    ]
+   ],
+   "review": [
+    [
+     "unsafe_for_patient",
+     "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+     "An adult dose of 500 mg is prescribed for a 5-year-old child."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 2.84,
+   "review_s": 2.37
+  },
+  {
+   "key": "24:advice",
+   "case": "Adult paracetamol dose for a 4-year-old",
+   "group": "suite",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.62,
+   "review_s": 0.32
+  },
+  {
+   "key": "25:chiefComplaints",
+   "case": "Hyperlipidaemia without diet advice",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.58,
+   "review_s": 0.25
+  },
+  {
+   "key": "25:diagnosis",
+   "case": "Hyperlipidaemia without diet advice",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.51,
+   "review_s": 0.6
+  },
+  {
+   "key": "25:rx",
+   "case": "Hyperlipidaemia without diet advice",
+   "group": "suite",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.71,
+   "review_s": 0.43
+  },
+  {
+   "key": "25:advice",
+   "case": "Hyperlipidaemia without diet advice",
+   "group": "suite",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.31
+  },
+  {
+   "key": "26:chiefComplaints",
+   "case": "Clean adult UTI",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.71
+  },
+  {
+   "key": "26:investigations",
+   "case": "Clean adult UTI",
+   "group": "suite",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.73,
+   "review_s": 0.41
+  },
+  {
+   "key": "26:diagnosis",
+   "case": "Clean adult UTI",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.49,
+   "review_s": 1.32
+  },
+  {
+   "key": "26:rx",
+   "case": "Clean adult UTI",
+   "group": "suite",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.72,
+   "review_s": 0.43
+  },
+  {
+   "key": "26:advice",
+   "case": "Clean adult UTI",
+   "group": "suite",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.58,
+   "review_s": 0.38
+  },
+  {
+   "key": "27:chiefComplaints",
+   "case": "Impossible duration",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [
+    [
+     "implausible",
+     "Weight loss for 1 day",
+     "Weight loss over a 24-hour period is clinically implausible as a significant weight loss event."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 1.62
+  },
+  {
+   "key": "28:chiefComplaints",
+   "case": "Infant cold, no danger-sign advice",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.67
+  },
+  {
+   "key": "28:diagnosis",
+   "case": "Infant cold, no danger-sign advice",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 0.55
+  },
+  {
+   "key": "28:rx",
+   "case": "Infant cold, no danger-sign advice",
+   "group": "suite",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.68,
+   "review_s": 0.39
+  },
+  {
+   "key": "28:advice",
+   "case": "Infant cold, no danger-sign advice",
+   "group": "suite",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.56,
+   "review_s": 0.3
+  },
+  {
+   "key": "29:chiefComplaints",
+   "case": "Clean: adult cystitis",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.64,
+   "review_s": 1.38
+  },
+  {
+   "key": "29:diagnosis",
+   "case": "Clean: adult cystitis",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 0.26
+  },
+  {
+   "key": "29:rx",
+   "case": "Clean: adult cystitis",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.94,
+   "review_s": 2.43
+  },
+  {
+   "key": "29:advice",
+   "case": "Clean: adult cystitis",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.6,
+   "review_s": 1.76
+  },
+  {
+   "key": "30:chiefComplaints",
+   "case": "Clean: child common cold",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.63,
+   "review_s": 1.23
+  },
+  {
+   "key": "30:diagnosis",
+   "case": "Clean: child common cold",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 0.55
+  },
+  {
+   "key": "30:rx",
+   "case": "Clean: child common cold",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.71,
+   "review_s": 0.45
+  },
+  {
+   "key": "30:advice",
+   "case": "Clean: child common cold",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.6,
+   "review_s": 1.92
+  },
+  {
+   "key": "31:chiefComplaints",
+   "case": "Clean: gastritis",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.65,
+   "review_s": 1.29
+  },
+  {
+   "key": "31:diagnosis",
+   "case": "Clean: gastritis",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.51,
+   "review_s": 0.26
+  },
+  {
+   "key": "31:rx",
+   "case": "Clean: gastritis",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.74,
+   "review_s": 0.44
+  },
+  {
+   "key": "31:advice",
+   "case": "Clean: gastritis",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.59,
+   "review_s": 0.38
+  },
+  {
+   "key": "32:chiefComplaints",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.56,
+   "review_s": 0.61
+  },
+  {
+   "key": "32:pastHistory",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "pastHistory",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.58,
+   "review_s": 0.27
+  },
+  {
+   "key": "32:diagnosis",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.51,
+   "review_s": 0.55
+  },
+  {
+   "key": "32:rx",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.77,
+   "review_s": 0.5
+  },
+  {
+   "key": "32:advice",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.61,
+   "review_s": 1.68
+  },
+  {
+   "key": "33:chiefComplaints",
+   "case": "Clean: new type 2 diabetes",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.65,
+   "review_s": 1.23
+  },
+  {
+   "key": "33:investigations",
+   "case": "Clean: new type 2 diabetes",
+   "group": "clean",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.79,
+   "review_s": 1.31
+  },
+  {
+   "key": "33:diagnosis",
+   "case": "Clean: new type 2 diabetes",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.52,
+   "review_s": 0.26
+  },
+  {
+   "key": "33:rx",
+   "case": "Clean: new type 2 diabetes",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.78,
+   "review_s": 0.5
+  },
+  {
+   "key": "33:advice",
+   "case": "Clean: new type 2 diabetes",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.61,
+   "review_s": 1.71
+  },
+  {
+   "key": "34:chiefComplaints",
+   "case": "Clean: scabies",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.56,
+   "review_s": 0.27
+  },
+  {
+   "key": "34:diagnosis",
+   "case": "Clean: scabies",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.49,
+   "review_s": 0.26
+  },
+  {
+   "key": "34:rx",
+   "case": "Clean: scabies",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.86,
+   "review_s": 3.13
+  },
+  {
+   "key": "34:advice",
+   "case": "Clean: scabies",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.6,
+   "review_s": 1.33
+  },
+  {
+   "key": "35:chiefComplaints",
+   "case": "Clean: left knee osteoarthritis",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.55,
+   "review_s": 0.27
+  },
+  {
+   "key": "35:investigations",
+   "case": "Clean: left knee osteoarthritis",
+   "group": "clean",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.76,
+   "review_s": 0.45
+  },
+  {
+   "key": "35:diagnosis",
+   "case": "Clean: left knee osteoarthritis",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.49,
+   "review_s": 0.26
+  },
+  {
+   "key": "35:rx",
+   "case": "Clean: left knee osteoarthritis",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.7,
+   "review_s": 0.44
+  },
+  {
+   "key": "35:advice",
+   "case": "Clean: left knee osteoarthritis",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.58,
+   "review_s": 1.54
+  },
+  {
+   "key": "36:chiefComplaints",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.62,
+   "review_s": 0.26
+  },
+  {
+   "key": "36:investigations",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.75,
+   "review_s": 2.86
+  },
+  {
+   "key": "36:diagnosis",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.49,
+   "review_s": 0.26
+  },
+  {
+   "key": "36:rx",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.7,
+   "review_s": 0.44
+  },
+  {
+   "key": "36:advice",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.61,
+   "review_s": 2.35
+  }
+ ]
+}
