@@ -1,6 +1,6 @@
 {
  "totals": {
-  "caught": 9,
+  "caught": 11,
   "missed": 3,
   "wrong": 0
  },
@@ -35,6 +35,27 @@
      "rule_id": "Hx.detail",
      "evidence": "Past history: Surgical History",
      "why": "'Surgical History' does not name the operation or roughly when it was done."
+    }
+   ]
+  },
+  {
+   "case": "Male, pregnancy plus a complaint with no duration among others",
+   "known_gap": false,
+   "caught": 2,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "chiefComplaints",
+     "rule_id": "CC.context.demo",
+     "evidence": "Complaint: Pregnancy for 3 days",
+     "why": "'Pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+    },
+    {
+     "section": "chiefComplaints",
+     "rule_id": "CC.3",
+     "evidence": "Complaint: Fever",
+     "why": "Duration is not mentioned for 'Fever'."
     }
    ]
   },
@@ -126,13 +147,13 @@
      "section": "rx",
      "rule_id": "Rx.dose.weight",
      "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
-     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old (about 18 kg) needs about 15 mg/kg, so about 270 mg per dose."
+     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old needs about 125 mg per dose."
     },
     {
      "section": "rx",
      "rule_id": "Rx.demo",
      "evidence": "Diagnosis: Fever | Medication: Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal] | Chief_Complaint: Fever for 2 days | Health_Screening: none | Age: 4 | Gender: M",
-     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old (about 18 kg) needs about 15 mg/kg, so about 270 mg per dose."
+     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old needs about 125 mg per dose."
     }
    ]
   },
@@ -172,147 +193,151 @@
  "timings": [
   [
    "chiefComplaints",
-   20.100579000019934
+   18.652470000088215
   ],
   [
    "pastHistory",
-   13.60206659999676
+   11.528444499941543
   ],
   [
    "chiefComplaints",
-   2.4189779000007547
+   15.4675455999095
+  ],
+  [
+   "chiefComplaints",
+   2.6979202000657097
   ],
   [
    "pastHistory",
-   8.35517679998884
+   9.425183000043035
   ],
   [
    "chiefComplaints",
-   2.4124709999887273
+   2.6963978999992833
   ],
   [
    "pastHistory",
-   2.4677723000058904
+   2.7750488000456244
   ],
   [
    "chiefComplaints",
-   2.598263699968811
+   2.7164347999496385
   ],
   [
    "pastHistory",
-   8.620465399988461
+   9.817790500004776
   ],
   [
    "chiefComplaints",
-   2.610410899971612
+   2.728412800002843
   ],
   [
    "diagnosis",
-   8.670791899960022
+   9.634128400008194
   ],
   [
    "chiefComplaints",
-   2.4164055999717675
+   2.7155036999611184
   ],
   [
    "diagnosis",
-   2.404655299964361
+   2.7119471000041813
   ],
   [
    "chiefComplaints",
-   2.6499148999573663
+   2.9478032999904826
   ],
   [
    "investigations",
-   2.6239466999541037
+   3.1989995000185445
   ],
   [
    "diagnosis",
-   2.380128799995873
+   2.725986700039357
   ],
   [
    "chiefComplaints",
-   2.420878699980676
+   2.699130199966021
   ],
   [
    "investigations",
-   2.616416299948469
+   2.9723022000398487
   ],
   [
    "diagnosis",
-   2.4051956000039354
+   2.874661899986677
   ],
   [
    "chiefComplaints",
-   2.396072199975606
+   2.908281199983321
   ],
   [
    "diagnosis",
-   2.39343589998316
+   2.695890299975872
   ],
   [
    "rx",
-   12.390595400007442
+   13.173837900045328
   ],
   [
    "advice",
-   2.6006307000061497
+   2.752994199981913
   ],
   [
    "chiefComplaints",
-   2.4274892999674194
+   2.7229119000257924
   ],
   [
    "diagnosis",
-   44.8049571000156
+   4.1997411999618635
   ],
   [
    "rx",
-   2.6656383000081405
+   3.164286100072786
   ],
   [
    "advice",
-   2.430982599966228
+   2.7490801999811083
   ],
   [
    "chiefComplaints",
-   2.4188285999698564
+   2.732678100001067
   ],
   [
    "investigations",
-   2.6173060999717563
+   2.9718232000013813
   ],
   [
    "diagnosis",
-   2.369635400013067
+   2.720285400049761
   ],
   [
    "rx",
-   2.67654150002636
+   2.972741000005044
   ],
   [
    "advice",
-   2.446551900007762
+   2.765763400006108
   ],
   [
    "chiefComplaints",
-   2.5807378999888897
+   2.706906000035815
   ],
   [
    "chiefComplaints",
-   2.413618399994448
+   2.7173794000409544
   ],
   [
    "diagnosis",
-   2.3960310999536887
+   2.7062141000060365
   ],
   [
    "rx",
-   2.637188199965749
+   2.988447400042787
   ],
   [
    "advice",
-   2.4250201000249945
+   2.7503803999861702
   ]
  ]
 }

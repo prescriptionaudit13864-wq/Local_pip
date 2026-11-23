@@ -352,6 +352,17 @@ class LocalChatProvider:
             "no",
             "off",
         }
+        # Line answers count on their own: a rule the model flags when asked about one complaint or history line
+        # alone is reported even if its answer for the whole section left that rule out. With several lines the
+        # section answer can stop at the first problem ("Pregnancy for 3 days" in a man) and miss another
+        # ("Fever" with no duration), while the line's own answer flags it (Nov 2026, both engines).
+        # FINETUNE_LINE_ANSWERS_ADD=0 restores "a line answer only confirms what the section answer flagged".
+        self.line_answers_add = (os.getenv("FINETUNE_LINE_ANSWERS_ADD") or "1").strip().casefold() not in {
+            "0",
+            "false",
+            "no",
+            "off",
+        }
         # Rules the model may not raise on its own because the live test showed it cannot judge them yet. Rx.timing:
         # the training medicines never show meal timing (it is not in the exported data), so the model flags
         # timing even on "[After meal]" medicines (3 false alarms in benchmark/live_suite, Nov 2026). Remove a
@@ -551,7 +562,12 @@ class LocalChatProvider:
             self.last_output_character_count = len(content)
             self.last_response_text_preview = content[:1000]
             flagged = self._detected(content)
-        excluded = self._unflagged_lines(section, fields, candidates, flagged, budget, line_answers)
+            if self.line_answers_add and line_answers:
+                flagged = dict(flagged)
+                for rules in line_answers.values():
+                    for rule, entry in rules.items():
+                        flagged.setdefault(rule, entry)
+        excluded =self._unflagged_lines(section, fields, candidates, flagged, budget, line_answers)
         findings = findings_from_detected(
             [c for c in candidates if str(c.get("candidate_id", "")) not in excluded],
             flagged,

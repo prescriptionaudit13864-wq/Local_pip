@@ -76,6 +76,19 @@ CASES = [
         False,
     ),
     (
+        # Reported from the vLLM test (Nov 2026): with three lines the section answer stopped at the pregnancy and
+        # "Fever" lost its duration alert on both engines; the line's own answer flags it.
+        "Male, pregnancy plus a complaint with no duration among others",
+        "Male",
+        49,
+        {"chiefComplaints": ["Pregnancy for 3 days", "Fever", "knee joint pain for 3 weeks"]},
+        [
+            ("chiefComplaints", "CC.demo", "Pregnancy for 3 days"),
+            ("chiefComplaints", "CC.3", "Fever"),
+        ],
+        False,
+    ),
+    (
         "Female-only history in a man",
         "Male",
         45,
