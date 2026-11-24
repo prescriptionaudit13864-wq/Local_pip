@@ -82,7 +82,9 @@ function saveStep(payload) {
   if (!patient?.id || !visitId || !step) throw new Error('patient.id, visitId and step are required');
 
   // Folder is named by the patient's serial number (the Sl. No. shown in the app); falls back to the internal id.
-  const patientDir = path.join(DATA_DIR, `patient_${safe(patient.serial || patient.id)}_${safe(patient.name)}`);
+  // Pilot: each signed-in doctor gets their own folder, so two doctors' patient serials never mix.
+  const root = payload.doctor ? path.join(DATA_DIR, `doctor_${safe(payload.doctor.id)}`) : DATA_DIR;
+  const patientDir = path.join(root, `patient_${safe(patient.serial || patient.id)}_${safe(patient.name)}`);
   const visit = visitFolderFor(patientDir, visitId);
   // Live-audit results only go to the Excel log (Prescription Log sheet), not to a JSON file.
   if (String(step).startsWith('liveAudit_')) return { file: null, visit, data };
@@ -99,6 +101,7 @@ function saveStep(payload) {
     savedAt: new Date().toISOString(),
     visitId,
     visitNumber: visit.number,
+    ...(payload.doctor ? { doctor: payload.doctor.name } : {}),
     patient: { id: patient.id, name: patient.name, serial: patient.serial, dob: patient.dob, gender: patient.gender },
     data: body,
   };
@@ -133,6 +136,9 @@ function handler(req, res, next) {
     let saved;
     try {
       const payload = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      // Set by pilotAuth from the session, never from the request body.
+      delete payload.doctor;
+      if (req.pilotDoctor) payload.doctor = req.pilotDoctor;
       const { file, visit, data } = saveStep(payload);
       saved = { file, payload, visit, data };
     } catch (err) {
@@ -141,7 +147,10 @@ function handler(req, res, next) {
     // The Excel database is updated after the JSON file; a locked workbook must not fail the save.
     let db = 'ok';
     try {
-      await recordStep({ patient: saved.payload.patient, visitId: saved.payload.visitId, visitNumber: saved.visit.number, step: saved.payload.step, data: saved.data });
+      const pt = saved.payload.patient;
+      // Pilot: prefix the serial with the doctor, so two doctors' "patient 1" are two rows in the Excel log.
+      const patient = saved.payload.doctor ? { ...pt, serial: `${saved.payload.doctor.id}-${pt.serial || pt.id}` } : pt;
+      await recordStep({ patient, visitId: saved.payload.visitId, visitNumber: saved.visit.number, step: saved.payload.step, data: saved.data });
     } catch (err) {
       db = err.message;
       console.warn('[database]', err.message);
