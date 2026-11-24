@@ -196,6 +196,23 @@ CASES = [
         False,
     ),
     (
+        # Reported from the app (Nov 2026): a medicine with nothing after its strength was shown as clear. The
+        # fine-tune has no rule for an oral medicine's missing schedule; the base model answers it per line.
+        "Medicine with no dose, frequency or duration",
+        "Female",
+        30,
+        {
+            "chiefComplaints": ["Fever for 3 days"],
+            "diagnosis": ["Viral fever"],
+            "rxList": [
+                med("Ace", "Paracetamol", "500 mg", "", "", instruction=""),
+                med("Seclo", "Omeprazole", "20 mg", "1+0+1", "14 days", instruction="Before meal", form="Cap."),
+            ],
+        },
+        [("rx", "Rx.freq.missing", "Ace 500 mg"), ("rx", "Rx.duration.missing", "Ace 500 mg")],
+        False,
+    ),
+    (
         "Impossible duration",
         "Male",
         42,

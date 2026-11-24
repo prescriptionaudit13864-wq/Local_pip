@@ -552,6 +552,7 @@ missed the adult dose for a child, the 30-day antibiotic and the antibiotic with
 | `AUDIT_PROMPT_MODE` | `finetune` | layer-1 prompt format |
 | `HF_QUANT` | `none` | 16-bit (`4bit` uses less memory, slower decoding) |
 | `FINETUNE_QUESTION_RULES` | `none` | extra yes/no questions (off: slow, caught nothing extra) |
+| `FINETUNE_RX_QUESTION_RULES` | `Rx.freq.missing,Rx.duration.missing` | per medicine line, the base model (adapter off) is asked whether the dose/frequency or the duration is missing, with the line split into its parts and the medicine's Drug_Facts; `none` turns it off |
 | `FINETUNE_MODEL_FIRST_EXCLUDE` | `none` | rules the model may not raise without a candidate |
 | `FINETUNE_UNSUPPORTED` | `omit` | rules outside the taxonomy are dropped (was `confirm_high`: engine decided) |
 | `AUDIT_MODEL_ONLY` | `1` | no hand-written warnings; rejected candidates not re-added |

@@ -63,6 +63,14 @@ RULE_TEXT = {
     "Rx.dup": ("Duplicate or same-class medicines are prescribed.", "Review the medicines for duplication."),
     "Rx.hs": ("Treatment is missing for a significant finding.", "Review whether the finding needs treatment."),
     "Rx.instr": ("A medicine's route or instructions are incomplete.", "Document the route and complete instructions."),
+    "Rx.freq.missing": (
+        "The medicine line does not say how much to take or how often.",
+        "Write the dose and how often to take it (for example 1+0+1).",
+    ),
+    "Rx.duration.missing": (
+        "The medicine line does not say how long to take it.",
+        "Write how long the medicine should be taken (days, weeks, or continue).",
+    ),
     "Rx.multi": ("One of several diagnoses has no treatment.", "Review treatment for each diagnosis."),
     "Rx.over": (
         "Medicines are prescribed without a matching condition.",

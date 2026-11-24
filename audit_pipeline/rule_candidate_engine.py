@@ -2096,18 +2096,15 @@ def generate_rule_candidates(
                     },
                 )
             )
-        if (
-            raw
-            and medicine.get("strength_mg") is not None
-            and duration_days is not None
-            and frequency_type == "unknown"
-        ):
+        # A candidate only asks the model; the model decides. It used to need a written strength and duration, so a
+        # line with nothing after the name ("Ace 500 mg") was never checked for its missing dose frequency.
+        if raw and frequency_type == "unknown":
             grouped["Rx"].append(
                 _candidate(
                     "Rx",
                     "frequency_missing_or_ambiguous_candidate",
                     rule_ids,
-                    "Medicine has a documented strength and course duration, but no safely parseable dose frequency.",
+                    "Medicine has no safely parseable dose amount or frequency.",
                     raw,
                     extras={
                         "generic_id": _text(medicine.get("generic_id", "")),

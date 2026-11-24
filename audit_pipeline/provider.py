@@ -32,6 +32,7 @@ log = logging.getLogger(__name__)
 
 _KNOWLEDGE_SYSTEM = "You are a careful clinical documentation reviewer."
 DEFAULT_QUESTION_RULES = "CC.2,CC.4,CC.term.unclear,CC.context.conflict,Hx.term.unclear,Hx.context.conflict"
+DEFAULT_RX_QUESTION_RULES = "Rx.freq.missing,Rx.duration.missing"
 DEFAULT_ENGINE_CONFIRMED = (
     ""  # the model judges every rule; e.g. "CC.3,Rx.timing" lets the rule engine confirm those alone
 )
@@ -326,6 +327,13 @@ class LocalChatProvider:
             item.strip()
             for item in os.getenv("FINETUNE_QUESTION_RULES", DEFAULT_QUESTION_RULES).split(",")
             if item.strip()
+        }
+        # Medicine-line questions (dose/frequency or duration missing) are set apart so the complaint questions
+        # can stay off for speed. They run in one batch with the Rx check. FINETUNE_RX_QUESTION_RULES=none: off.
+        self.question_rules |= {
+            item.strip()
+            for item in os.getenv("FINETUNE_RX_QUESTION_RULES", DEFAULT_RX_QUESTION_RULES).split(",")
+            if item.strip() and item.strip().casefold() != "none"
         }
         # Rules whose rule-engine candidate is already the finding (a complaint line with no duration, a medicine
         # with no meal timing): confirmed without waiting for the model, which answers per section and can leave
@@ -818,22 +826,28 @@ class LocalChatProvider:
         task = parse_section_task(prompt)
         fields = task.get("fields_used") or {}
         findings, answers = [], []
+        asked = []
         for candidate in flatten_candidates(task.get("candidates")):
             if str(candidate.get("rule_id", "")).strip() not in self.question_rules:
                 continue
             question = build_knowledge_question(candidate, fields)
-            if question is None:
-                continue
-            if self.client is None:
-                answer = self._generate(_KNOWLEDGE_SYSTEM, question, 60, "")
-            else:
+            if question is not None:
+                asked.append((candidate, question))
+        if not asked:
+            return {"section": task.get("section", ""), "findings": []}
+        if self.client is None:
+            replies = self._answer_questions([question for _, question in asked])
+        else:
+            replies = []
+            for _, question in asked:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[{"role": "system", "content": _KNOWLEDGE_SYSTEM}, {"role": "user", "content": question}],
                     temperature=0,
                     max_tokens=60,
                 )
-                answer = response.choices[0].message.content or ""
+                replies.append(response.choices[0].message.content or "")
+        for (candidate, question), answer in zip(asked, replies, strict=False):
             answers.append(f"{candidate.get('rule_id')}: {answer.strip()}")
             finding = finding_from_answer(candidate, answer, question)
             if finding is not None:
@@ -842,6 +856,40 @@ class LocalChatProvider:
         self.last_output_character_count = len(text)
         self.last_response_text_preview = text[:1000]
         return {"section": task.get("section", ""), "findings": findings}
+
+    def _answer_questions(self, questions: list[str], max_tokens: int = 60) -> list[str]:
+        """Answer YES/NO questions on the in-process model in one batch.
+
+        The answers come from general medical knowledge, so the fine-tune adapter is switched off when the model
+        has one (the same base model the clinical reviewer uses): the fine-tune was trained to write its JSON
+        format, not to answer plain questions."""
+        import contextlib
+
+        tokenizer, model = self._tokenizer, self._model
+        assert tokenizer is not None and model is not None, "in-process model is not loaded"
+
+        def render(question: str) -> str:
+            messages = [{"role": "system", "content": _KNOWLEDGE_SYSTEM}, {"role": "user", "content": question}]
+            if not getattr(tokenizer, "chat_template", None):
+                return _KNOWLEDGE_SYSTEM + "\n\n" + question + "\n\n"
+            try:
+                return tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
+                )
+            except TypeError:
+                return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            except Exception as exc:
+                if "alternate" not in str(exc):
+                    raise
+                return tokenizer.apply_chat_template(
+                    [{"role": "user", "content": _KNOWLEDGE_SYSTEM + "\n\n" + question}],
+                    tokenize=False,
+                    add_generation_prompt=True,
+                )
+
+        base = model.disable_adapter() if hasattr(model, "disable_adapter") else contextlib.nullcontext()
+        with self._gpu_lock, base:
+            return self._generate_raw_batch([render(q) for q in questions], max_tokens)
 
     # One model call at a time on the GPU. The clinical reviewer switches the fine-tune adapter off for its call;
     # without this lock a layer-1 check running on another server thread could decode without its adapter.
@@ -889,9 +937,17 @@ class LocalChatProvider:
         if self.prompt_mode == "finetune":
             result = self._audit_finetune(prompt, max_tokens)
             if self.question_rules:
-                found = {item["candidate_id"] for item in result["findings"]}
+                # Rule-engine candidates often have no candidate_id, so the rule and line identify a finding too.
+                def key(item: Mapping[str, Any]) -> tuple[str, str, str]:
+                    return (
+                        str(item.get("candidate_id", "")),
+                        str(item.get("rule_id", "")),
+                        str(item.get("evidence", "")),
+                    )
+
+                found = {key(item) for item in result["findings"]}
                 asked = self._audit_by_questions(prompt)["findings"]
-                result["findings"] += [item for item in asked if item["candidate_id"] not in found]
+                result["findings"] += [item for item in asked if key(item) not in found]
             return result
         opening = f'{{"section":"{section.group(1)}","findings":[' if section else ""
 

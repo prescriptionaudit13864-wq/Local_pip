@@ -306,7 +306,69 @@ KNOWLEDGE_QUESTIONS: dict[str, tuple[str, str]] = {
         "allowing for intermittent symptoms and treatment?",
         "Reconcile the complaint with the recorded screening findings.",
     ),
+    # Medicine lines. The fine-tune's Rx.instr was trained only on route for topical, inhaled and nasal medicines, so
+    # it never flags an oral medicine written with no dose ("Ace 500 mg"). The question gives the model the line
+    # exactly as written plus the medicine's reference facts from the drug knowledge base to compare against.
+    "Rx.freq.missing": (
+        "Patient: {patient}. Diagnosis: {diagnosis}. Medicine line exactly as the doctor wrote it: '{entry}'.\n"
+        "{parts}"
+        "Reference facts for this medicine from the drug database:\n{facts}\n"
+        "Is the amount to take or how often to take it missing, or impossible to understand, so the patient would "
+        "not know how to take this medicine? Any understandable schedule counts as written: 1+0+1, ১+০+১, "
+        "1 tab twice daily, 1/2 tsp twice, 1 tab when needed, 2 puffs when needed, SOS, at night, once only. "
+        "A schedule does not need an interval in hours: 'twice' means twice a day, and 'when needed' or SOS is a "
+        "complete schedule. Answer YES only when the amount-and-how-often part is not written or is meaningless "
+        "text. Whether the amount is the right dose is a different check: do not judge it here.",
+        "Write the dose and how often to take it (for example 1+0+1), checked against the reference dose.",
+    ),
+    "Rx.duration.missing": (
+        "Patient: {patient}. Diagnosis: {diagnosis}. Medicine line exactly as the doctor wrote it: '{entry}'.\n"
+        "{parts}"
+        "Reference facts for this medicine from the drug database:\n{facts}\n"
+        "Is how long to take this medicine missing or impossible to understand? Any understandable duration "
+        "counts as written: 5 days, ৭ দিন, 1 month, continue, until review. A single one-time dose needs no "
+        "duration.",
+        "Write how long the medicine should be taken (days, weeks, or continue).",
+    ),
 }
+# The app writes a medicine line as `<name> <strength> (<amount and how often>) - (<duration>) [<instruction>]`
+# (app_adapter.medication_line), leaving out a part the doctor did not fill in.
+_RX_LINE = re.compile(
+    r"^(?P<name>[^(\[]+?)\s*"
+    r"(?:\((?P<freq>(?:[^()]|\([^()]*\))*)\))?\s*"  # one inner bracket is allowed: "5 day(s)"
+    r"(?:-\s*\((?P<dur>(?:[^()]|\([^()]*\))*)\))?\s*"
+    r"(?:\[(?P<note>[^\]]*)\])?\s*$"
+)
+_NOT_WRITTEN = "(nothing written)"
+
+
+def _medicine_line_parts(line: str) -> str:
+    """What the doctor wrote in each part of an app medicine line, or "" for a line in another format.
+
+    The model judged the bare line unreliably: it missed "Ace 500 mg" having no schedule and faulted "1/2 tsp
+    twice". Named parts let it judge what is written instead of first having to take the line apart."""
+    match = _RX_LINE.match(line.strip())
+    if not match:
+        return ""
+    part = lambda key: (match.group(key) or "").strip() or _NOT_WRITTEN  # noqa: E731
+    return (
+        "What the doctor wrote in each part of the line:\n"
+        f"- medicine and strength: {part('name')}\n"
+        f"- amount and how often: {part('freq')}\n"
+        f"- duration: {part('dur')}\n"
+        f"- instruction: {part('note')}\n"
+    )
+# Checks about one medicine line: their question carries that medicine's reference facts.
+_MEDICINE_QUESTION_RULES = {"Rx.freq.missing", "Rx.duration.missing"}
+
+
+def _medicine_facts_text(line: str, fields: Mapping[str, Any]) -> str:
+    """Reference facts from the drug knowledge base for the one medicine line, or a note when none are found."""
+    try:
+        facts = _drug_facts({**fields, "Medication": line}).strip()
+    except Exception:  # noqa: BLE001 - the question still works without reference facts
+        facts = ""
+    return facts or "(no reference entry found for this medicine)"
 _EVIDENCE_LABELS = ("Past history: ", "Entered chief complaint: ", "Complaint: ")
 _ANSWER_FORMAT = "Answer YES or NO first, then one short sentence explaining why."
 
@@ -332,7 +394,14 @@ def build_knowledge_question(candidate: Mapping[str, Any], fields: Mapping[str, 
     age, gender = str(fields.get("Age", "") or "").strip(), str(fields.get("Gender", "") or "").strip()
     sex = {"m": "male", "f": "female"}.get(gender[:1].casefold(), "patient")
     patient = " ".join(part for part in (f"{age}-year-old" if age else "", sex) if part)
-    return template[0].format(entry=entry, patient=patient) + " " + _ANSWER_FORMAT
+    extra = {}
+    if str(candidate.get("rule_id", "")).strip() in _MEDICINE_QUESTION_RULES:
+        extra = {
+            "parts": _medicine_line_parts(entry),
+            "facts": _medicine_facts_text(entry, fields),
+            "diagnosis": str(fields.get("Diagnosis", "") or "").strip() or "not written",
+        }
+    return template[0].format(entry=entry, patient=patient, **extra) + " " + _ANSWER_FORMAT
 
 
 def _echoes_question(why: str, question: str) -> bool:
