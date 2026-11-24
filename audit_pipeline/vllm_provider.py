@@ -30,7 +30,7 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-from .provider import LocalChatProvider
+from .provider import _KNOWLEDGE_SYSTEM, LocalChatProvider
 
 log = logging.getLogger(__name__)
 
@@ -141,6 +141,23 @@ class VLLMProvider(LocalChatProvider):
             text = system + "\n\n" + prompt + "\n\n"
         text += prefix
         return prefix + self._complete(self.lora, [self._ids(text)], max_tokens, None)[0]
+
+    def _answer_questions(self, questions: list[str], max_tokens: int = 60) -> list[str]:
+        """YES/NO knowledge questions (e.g. dose/frequency or duration missing on a medicine line): the base model,
+        adapter off, as the in-process _answer_questions, all in one request so vLLM batches them."""
+        texts = []
+        for question in questions:
+            messages = [{"role": "system", "content": _KNOWLEDGE_SYSTEM}, {"role": "user", "content": question}]
+            if not getattr(self._tokenizer, "chat_template", None):
+                texts.append(_KNOWLEDGE_SYSTEM + "\n\n" + question + "\n\n")
+                continue
+            try:
+                texts.append(self._chat_text(messages))
+            except Exception as exc:
+                if "alternate" not in str(exc):
+                    raise
+                texts.append(self._chat_text([{"role": "user", "content": _KNOWLEDGE_SYSTEM + "\n\n" + question}]))
+        return self._complete(self.model, [self._ids(t) for t in texts], max_tokens, None)
 
     def can_review(self) -> bool:
         return True
