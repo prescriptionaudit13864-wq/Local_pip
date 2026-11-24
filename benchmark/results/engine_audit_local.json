@@ -1,0 +1,388 @@
+{
+ "engine": "LocalChatProvider",
+ "model": "unsloth/gemma-4-12B-it-qat-q4_0-unquantized",
+ "wall_s": 201.9,
+ "gpu": {
+  "samples": 364,
+  "util_mean": 42.8,
+  "util_max": 98.0,
+  "mem_mib_max": 11524.0,
+  "power_w_mean": 117.6,
+  "power_w_max": 228.81
+ },
+ "cases": [
+  {
+   "id": "S01",
+   "title": "Male with a menstrual complaint",
+   "expected": [
+    [
+     "chiefComplaints",
+     "irregular menstruation"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [
+      {
+       "rule": "CC.context.demo",
+       "evidence": "Complaint: Irregular menstruation for 2 months",
+       "why": "'Irregular menstruation' does not fit a male patient: check the complaint and the recorded sex."
+      }
+     ],
+     "l2": [],
+     "l1_s": 10.74,
+     "l2_s": 1.85
+    }
+   ]
+  },
+  {
+   "id": "S02",
+   "title": "Complaint with no duration",
+   "expected": [
+    [
+     "chiefComplaints",
+     "dry cough"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [
+      {
+       "rule": "CC.3",
+       "evidence": "Complaint: Dry cough",
+       "why": "Duration is not mentioned for 'Dry cough'."
+      }
+     ],
+     "l2": [],
+     "l1_s": 8.01,
+     "l2_s": 6.5
+    }
+   ]
+  },
+  {
+   "id": "S03",
+   "title": "Illness longer than the patient's life",
+   "expected": [
+    [
+     "pastHistory",
+     "hypertension for 25 years"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.75,
+     "l2_s": 4.34
+    },
+    {
+     "section": "pastHistory",
+     "l1": [
+      {
+       "rule": "Hx.time.plausibility",
+       "evidence": "Past history: Hypertension for 25 years",
+       "why": "'Hypertension for 25 years' is longer than the patient's age of 20 years."
+      }
+     ],
+     "l2": [],
+     "l1_s": 9.93,
+     "l2_s": 1.66
+    }
+   ]
+  },
+  {
+   "id": "S04",
+   "title": "Prostate test for a woman",
+   "expected": [
+    [
+     "investigations",
+     "psa"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.44,
+     "l2_s": 1.25
+    },
+    {
+     "section": "investigations",
+     "l1": [],
+     "l2": [
+      {
+       "type": "sex_age_anatomy",
+       "evidence": "Serum PSA",
+       "why": "Serum PSA is not indicated for a female patient"
+      }
+     ],
+     "l1_s": 6.15,
+     "l2_s": 7.99
+    }
+   ]
+  },
+  {
+   "id": "S05",
+   "title": "Pregnancy diagnosis in a man",
+   "expected": [
+    [
+     "diagnosis",
+     "ectopic pregnancy"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [
+      {
+       "type": "severity_missing",
+       "evidence": "Abdominal pain for 2 days",
+       "why": "Abdominal pain is a symptom where severity decides emergency care but it is not stated."
+      }
+     ],
+     "l1_s": 2.01,
+     "l2_s": 6.69
+    },
+    {
+     "section": "diagnosis",
+     "l1": [
+      {
+       "rule": "Dx.cc.1",
+       "evidence": "Diagnosis: Ectopic pregnancy | Chief complaint: Abdominal pain for 2 days",
+       "why": "Abdominal pain is a complaint, but ectopic pregnancy is a female reproductive complaint, not a male reproductive complaint."
+      }
+     ],
+     "l2": [],
+     "l1_s": 7.71,
+     "l2_s": 1.25
+    }
+   ]
+  },
+  {
+   "id": "S06",
+   "title": "Adult tablet dose for a 3-year-old",
+   "expected": [
+    [
+     "rx",
+     "napa"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.02,
+     "l2_s": 2.97
+    },
+    {
+     "section": "diagnosis",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.07,
+     "l2_s": 1.27
+    },
+    {
+     "section": "rx",
+     "l1": [
+      {
+       "rule": "Rx.dose.weight",
+       "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+       "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old needs about 125 mg per dose."
+      },
+      {
+       "rule": "Rx.demo",
+       "evidence": "Diagnosis: Viral fever | Medication: Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal] | Chief_Complaint: Fever for 2 days | Health_Screening: none | Age: 4 | Gender: M",
+       "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old needs about 125 mg per dose."
+      }
+     ],
+     "l2": [
+      {
+       "type": "unsafe_for_patient",
+       "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+       "why": "Napa 500 mg is an adult dose and is unsafe for a 4-year-old child."
+      }
+     ],
+     "l1_s": 9.64,
+     "l2_s": 8.65
+    }
+   ]
+  },
+  {
+   "id": "S07",
+   "title": "Clean adult hypertension visit",
+   "expected": [],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.62,
+     "l2_s": 1.62
+    },
+    {
+     "section": "pastHistory",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.4,
+     "l2_s": 1.23
+    },
+    {
+     "section": "diagnosis",
+     "l1": [
+      {
+       "rule": "Dx.cc.1",
+       "evidence": "Diagnosis: Essential hypertension | Chief complaint: Headache for 5 days",
+       "why": "Headache is a complaint, but hypertension is not mentioned in the complaints."
+      }
+     ],
+     "l2": [],
+     "l1_s": 6.89,
+     "l2_s": 5.26
+    },
+    {
+     "section": "rx",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.23,
+     "l2_s": 1.46
+    },
+    {
+     "section": "advice",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.04,
+     "l2_s": 3.56
+    }
+   ]
+  },
+  {
+   "id": "S08",
+   "title": "Clean child diarrhoea visit",
+   "expected": [],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.03,
+     "l2_s": 2.95
+    },
+    {
+     "section": "diagnosis",
+     "l1": [],
+     "l2": [],
+     "l1_s": 1.98,
+     "l2_s": 1.22
+    },
+    {
+     "section": "rx",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.22,
+     "l2_s": 1.4
+    },
+    {
+     "section": "advice",
+     "l1": [
+      {
+       "rule": "Adv.cc",
+       "evidence": "Diagnosis: Acute watery diarrhoea | Medication: Orsaline-N (1 sachet after each loose stool) - (3 day(s)) [After meal] | Advice: Give plenty of fluids, Continue feeding | Chief_Complaint: Loose motion for 2 days | Health_Screening: none",
+       "why": "Advice regarding hygiene and food habit."
+      }
+     ],
+     "l2": [],
+     "l1_s": 5.89,
+     "l2_s": 2.96
+    }
+   ]
+  },
+  {
+   "id": "S09",
+   "title": "Clean adult cough visit",
+   "expected": [],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.26,
+     "l2_s": 4.73
+    },
+    {
+     "section": "investigations",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.2,
+     "l2_s": 1.43
+    },
+    {
+     "section": "diagnosis",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.12,
+     "l2_s": 1.35
+    },
+    {
+     "section": "rx",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.4,
+     "l2_s": 1.46
+    },
+    {
+     "section": "advice",
+     "l1": [],
+     "l2": [],
+     "l1_s": 2.06,
+     "l2_s": 1.31
+    }
+   ]
+  },
+  {
+   "id": "S10",
+   "title": "Two errors in one visit",
+   "expected": [
+    [
+     "chiefComplaints",
+     "vaginal discharge"
+    ],
+    [
+     "chiefComplaints",
+     "joint pain"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [
+      {
+       "rule": "CC.context.demo",
+       "evidence": "Complaint: Vaginal discharge for 5 days",
+       "why": "'Vaginal discharge' does not fit a male patient: check the complaint and the recorded sex."
+      },
+      {
+       "rule": "CC.3",
+       "evidence": "Complaint: Joint pain",
+       "why": "Duration is not mentioned for 'Joint pain'."
+      }
+     ],
+     "l2": [
+      {
+       "type": "sex_age_anatomy",
+       "evidence": "Vaginal discharge for 5 days",
+       "why": "Vaginal discharge is not possible for a male patient"
+      }
+     ],
+     "l1_s": 12.48,
+     "l2_s": 10.24
+    }
+   ]
+  }
+ ]
+}

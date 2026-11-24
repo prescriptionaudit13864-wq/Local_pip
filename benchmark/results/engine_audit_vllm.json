@@ -1,0 +1,411 @@
+{
+ "engine": "VLLMProvider",
+ "model": "unsloth/gemma-4-12B-it-qat-q4_0-unquantized",
+ "wall_s": 55.0,
+ "gpu": {
+  "samples": 100,
+  "util_mean": 94.4,
+  "util_max": 100.0,
+  "mem_mib_max": 29502.0,
+  "power_w_mean": 273.8,
+  "power_w_max": 303.7
+ },
+ "cases": [
+  {
+   "id": "S01",
+   "title": "Male with a menstrual complaint",
+   "expected": [
+    [
+     "chiefComplaints",
+     "irregular menstruation"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [
+      {
+       "rule": "CC.context.demo",
+       "evidence": "Complaint: Irregular menstruation for 2 months",
+       "why": "'Irregular menstruation' does not fit a male patient: check the complaint and the recorded sex."
+      }
+     ],
+     "l2": [
+      {
+       "type": "sex_age_anatomy",
+       "evidence": "Irregular menstruation for 2 months",
+       "why": "Irregular menstruation is not possible for a male patient."
+      }
+     ],
+     "l1_s": 2.22,
+     "l2_s": 3.54
+    }
+   ]
+  },
+  {
+   "id": "S02",
+   "title": "Complaint with no duration",
+   "expected": [
+    [
+     "chiefComplaints",
+     "dry cough"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [
+      {
+       "rule": "CC.3",
+       "evidence": "Complaint: Dry cough",
+       "why": "Duration is not mentioned for 'Dry cough'."
+      }
+     ],
+     "l2": [],
+     "l1_s": 1.71,
+     "l2_s": 1.19
+    }
+   ]
+  },
+  {
+   "id": "S03",
+   "title": "Illness longer than the patient's life",
+   "expected": [
+    [
+     "pastHistory",
+     "hypertension for 25 years"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.58,
+     "l2_s": 0.66
+    },
+    {
+     "section": "pastHistory",
+     "l1": [
+      {
+       "rule": "Hx.time.plausibility",
+       "evidence": "Past history: Hypertension for 25 years",
+       "why": "'Hypertension for 25 years' is longer than the patient's age of 20 years."
+      }
+     ],
+     "l2": [],
+     "l1_s": 1.98,
+     "l2_s": 0.25
+    }
+   ]
+  },
+  {
+   "id": "S04",
+   "title": "Prostate test for a woman",
+   "expected": [
+    [
+     "investigations",
+     "psa"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.59,
+     "l2_s": 0.65
+    },
+    {
+     "section": "investigations",
+     "l1": [
+      {
+       "rule": "Inv.relevance",
+       "evidence": "Ordered investigation: Urine R/M/E | Standard catalogue identity: URINE R/E M/E | Test category: CLINICAL PATHOLOGY",
+       "why": "Serum PSA is not relevant for a female patient."
+      },
+      {
+       "rule": "Inv.hs",
+       "evidence": "Diagnosis: none | Investigation: Urine R/M/E, Serum PSA | Investigation_Results: none | Chief_Complaint: Burning urination for 4 days | Health_Screening: none | On_Examination: none | Systemic_Examination: none | Age: 53 | Gender: F",
+       "why": "Serum PSA is not relevant for a female patient."
+      }
+     ],
+     "l2": [
+      {
+       "type": "sex_age_anatomy",
+       "evidence": "Serum PSA",
+       "why": "Serum PSA is not relevant for a female patient."
+      }
+     ],
+     "l1_s": 1.9,
+     "l2_s": 2.05
+    }
+   ]
+  },
+  {
+   "id": "S05",
+   "title": "Pregnancy diagnosis in a man",
+   "expected": [
+    [
+     "diagnosis",
+     "ectopic pregnancy"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [
+      {
+       "type": "severity_missing",
+       "evidence": "Abdominal pain for 2 days",
+       "why": "Severity not stated for abdominal pain which may decide emergency care"
+      }
+     ],
+     "l1_s": 0.58,
+     "l2_s": 1.55
+    },
+    {
+     "section": "diagnosis",
+     "l1": [
+      {
+       "rule": "Dx.cc.1",
+       "evidence": "Diagnosis: Ectopic pregnancy | Chief complaint: Abdominal pain for 2 days",
+       "why": "'Ectopic pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+      }
+     ],
+     "l2": [],
+     "l1_s": 1.98,
+     "l2_s": 0.27
+    }
+   ]
+  },
+  {
+   "id": "S06",
+   "title": "Adult tablet dose for a 3-year-old",
+   "expected": [
+    [
+     "rx",
+     "napa"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.58,
+     "l2_s": 0.66
+    },
+    {
+     "section": "diagnosis",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.52,
+     "l2_s": 0.58
+    },
+    {
+     "section": "rx",
+     "l1": [
+      {
+       "rule": "Rx.dose.weight",
+       "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+       "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old (about 18 kg) needs about 15 mg/kg, so about 270 mg per dose."
+      },
+      {
+       "rule": "Rx.demo",
+       "evidence": "Diagnosis: Viral fever | Medication: Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal] | Chief_Complaint: Fever for 2 days | Health_Screening: none | Age: 4 | Gender: M",
+       "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old (about 18 kg) needs about 15 mg/kg, so about 270 mg per dose."
+      }
+     ],
+     "l2": [
+      {
+       "type": "unsafe_for_patient",
+       "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+       "why": "An adult dose of 500 mg is being prescribed for a 4-year-old child."
+      }
+     ],
+     "l1_s": 2.83,
+     "l2_s": 2.37
+    }
+   ]
+  },
+  {
+   "id": "S07",
+   "title": "Clean adult hypertension visit",
+   "expected": [],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [
+      {
+       "type": "severity_missing",
+       "evidence": "Headache for 5 days",
+       "why": "Severity not stated for a symptom where it decides emergency care"
+      }
+     ],
+     "l1_s": 0.6,
+     "l2_s": 1.42
+    },
+    {
+     "section": "pastHistory",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.59,
+     "l2_s": 0.28
+    },
+    {
+     "section": "diagnosis",
+     "l1": [
+      {
+       "rule": "Dx.cc.1",
+       "evidence": "Diagnosis: Essential hypertension | Chief complaint: Headache for 5 days",
+       "why": "Headache is the complaint, but hypertension is not mentioned in CC."
+      }
+     ],
+     "l2": [],
+     "l1_s": 1.86,
+     "l2_s": 1.28
+    },
+    {
+     "section": "rx",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.84,
+     "l2_s": 0.48
+    },
+    {
+     "section": "advice",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.66,
+     "l2_s": 0.41
+    }
+   ]
+  },
+  {
+   "id": "S08",
+   "title": "Clean child diarrhoea visit",
+   "expected": [],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.63,
+     "l2_s": 0.66
+    },
+    {
+     "section": "diagnosis",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.53,
+     "l2_s": 0.27
+    },
+    {
+     "section": "rx",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.73,
+     "l2_s": 0.43
+    },
+    {
+     "section": "advice",
+     "l1": [
+      {
+       "rule": "Adv.cc",
+       "evidence": "Diagnosis: Acute watery diarrhoea | Medication: Orsaline-N (1 sachet after each loose stool) - (3 day(s)) [After meal] | Advice: Give plenty of fluids, Continue feeding | Chief_Complaint: Loose motion for 2 days | Health_Screening: none",
+       "why": "Advice regarding hygiene and food habit."
+      }
+     ],
+     "l2": [],
+     "l1_s": 1.63,
+     "l2_s": 0.39
+    }
+   ]
+  },
+  {
+   "id": "S09",
+   "title": "Clean adult cough visit",
+   "expected": [],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.73,
+     "l2_s": 1.26
+    },
+    {
+     "section": "investigations",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.75,
+     "l2_s": 0.73
+    },
+    {
+     "section": "diagnosis",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.59,
+     "l2_s": 0.57
+    },
+    {
+     "section": "rx",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.81,
+     "l2_s": 0.46
+    },
+    {
+     "section": "advice",
+     "l1": [],
+     "l2": [],
+     "l1_s": 0.62,
+     "l2_s": 0.33
+    }
+   ]
+  },
+  {
+   "id": "S10",
+   "title": "Two errors in one visit",
+   "expected": [
+    [
+     "chiefComplaints",
+     "vaginal discharge"
+    ],
+    [
+     "chiefComplaints",
+     "joint pain"
+    ]
+   ],
+   "checks": [
+    {
+     "section": "chiefComplaints",
+     "l1": [
+      {
+       "rule": "CC.context.demo",
+       "evidence": "Complaint: Vaginal discharge for 5 days",
+       "why": "'Vaginal discharge' does not fit a male patient: check the complaint and the recorded sex."
+      },
+      {
+       "rule": "CC.3",
+       "evidence": "Complaint: Joint pain",
+       "why": "Duration is not mentioned for 'Joint pain'."
+      }
+     ],
+     "l2": [
+      {
+       "type": "side_missing",
+       "evidence": "Joint pain",
+       "why": "The side of the joint pain is not specified."
+      }
+     ],
+     "l1_s": 3.34,
+     "l2_s": 1.86
+    }
+   ]
+  }
+ ]
+}
