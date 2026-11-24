@@ -1,5 +1,8 @@
 # Pilot rehearsal: 10 doctors, 50 prescriptions, vLLM through the Cloudflare link (24 Nov 2026)
 
+> **Correction (rehearsal 2, `docs/pilot_simulation_20_report.md`):** with strict scoring (an alert must also be the
+> right kind of alert), this test caught **39 of 44 (89%)**, not 40 of 44. Other conclusions are unchanged.
+
 **Question:** before 10 real doctors use PrescribeX from their own computers, does the pipeline hold up, how
 long do doctors wait, how many errors are caught, and how hard is the GPU working?
 

@@ -170,6 +170,136 @@ def _err_mi_no_referral(rng, v):        # weak type: referral missing for a seri
     return [("advice", "refer", "Adv.refer")]
 
 
+# --- Common critical errors (scenario "critical") ---------------------------------------------------------------
+ANTIBIOTICS = [("Azithrocin", "Azithromycin", "500 mg", "1+0+0", "3 days"), ("Ciprocin", "Ciprofloxacin", "500 mg", "1+0+1", "5 days"),
+               ("Cef-3", "Cefixime", "200 mg", "1+0+1", "7 days"), ("Moxacil", "Amoxicillin", "500 mg", "1+1+1", "7 days")]
+NO_INFECTION = {"Tension headache", "Essential hypertension", "Lumbar spondylosis", "Hypothyroidism", "Allergic rhinitis",
+                "Type 2 diabetes mellitus", "Iron deficiency anaemia", "Peptic ulcer disease"}
+SAME_CLASS = [(("Seclo", "Omeprazole", "20 mg", "1+0+1", "14 days", "Before meal", "Cap."),
+               ("Maxpro", "Esomeprazole", "20 mg", "1+0+1", "14 days", "Before meal", "Cap.")),
+              (("Naprosyn", "Naproxen", "500 mg", "1+0+1", "5 days"), ("Profen", "Ibuprofen", "400 mg", "1+1+1", "5 days")),
+              (("Fexo", "Fexofenadine", "120 mg", "0+0+1", "7 days"), ("Alatrol", "Cetirizine", "10 mg", "0+0+1", "7 days"))]
+
+
+def _err_no_schedule(rng, v):          # "Ace 500 mg" with nothing after the strength
+    rx = v["rxList"][0]
+    rx["dosage"], rx["duration"] = "", ""
+    return [("rx", rx["medicine"], "Rx.freq.missing")]
+
+
+def _err_no_duration(rng, v):
+    rx = v["rxList"][-1]
+    rx["duration"] = ""
+    return [("rx", rx["medicine"], "Rx.duration.missing")]
+
+
+def _err_antibiotic_no_reason(rng, v):
+    if v["diagnosis"][0] not in NO_INFECTION:
+        raise ValueError
+    rx = rng.choice(ANTIBIOTICS)
+    v["rxList"].append(med(*rx))
+    return [("rx", rx[0], "Rx.over")]
+
+
+def _err_duplicate(rng, v):
+    a, b = rng.choice(SAME_CLASS)
+    v["rxList"] += [med(*a), med(*b)]
+    return [("rx", b[0], "Rx.dup")]
+
+
+def _err_nsaid_ulcer(rng, v):           # NSAID for a patient with a peptic ulcer in the history
+    v["pastHistory"].append(f"Peptic ulcer for {rng.randint(1, 6)} years")
+    v["chiefComplaints"] = [f"Knee pain for {rng.randint(1, 4)} weeks"]
+    v["diagnosis"] = ["Osteoarthritis of knee"]
+    v["investigations"] = ["X-ray knee"]
+    v["rxList"] = [med("Naprosyn", "Naproxen", "500 mg", "1+0+1", "10 days")]
+    v["adviceList"] = ["Reduce weight"]
+    return [("rx", "naprosyn", "Rx.hs")]
+
+
+def _err_interaction(rng, v):          # weak type: depends on the drug database listing the pair
+    v["pastHistory"] = [f"Atrial fibrillation for {rng.randint(1, 5)} years"]
+    v["chiefComplaints"] = [f"Headache for {rng.randint(2, 6)} days"]
+    v["diagnosis"] = ["Tension headache"]
+    v["investigations"] = []
+    v["rxList"] = [med("Warin", "Warfarin", "5 mg", "0+0+1", "30 days"), med("Ecosprin", "Aspirin", "300 mg", "1+0+1", "5 days")]
+    v["adviceList"] = ["Sleep on time"]
+    return [("rx", "ecosprin", "Rx.ddi")]
+
+
+def _err_stroke_no_referral(rng, v):
+    v["pastHistory"] = [f"Hypertension for {rng.randint(3, 15)} years"]
+    v["chiefComplaints"] = [f"Sudden weakness of right side for {rng.randint(1, 5)} hours", "Slurred speech for 2 hours"]
+    v["diagnosis"] = ["Acute stroke"]
+    v["investigations"] = ["CT scan of brain"]
+    v["rxList"] = [med("Amdocal", "Amlodipine", "5 mg", "0+0+1", "30 days")]
+    v["adviceList"] = ["Take rest"]
+    return [("advice", "refer", "Adv.refer")]
+
+
+def _err_mi_clean(rng, v):              # heart attack without referral, nothing left over from the template
+    v["pastHistory"], v["investigations"] = [], ["ECG"]
+    return _err_mi_no_referral(rng, v)
+
+
+CRITICAL = [(_err_no_schedule, 5), (_err_no_duration, 5), (_err_cc_nodur, 4), (_err_antibiotic_no_reason, 6),
+            (_err_duplicate, 3), (_err_nsaid_ulcer, 1.5), (_err_stroke_no_referral, 1), (_err_mi_clean, 1),
+            (_err_interaction, 0.8), (_err_cc_sex, 1), (_err_inv_sex, 1)]
+
+
+def make_critical(n: int = 100, clean_share: float = 0.25, seed: int = 11) -> list[dict]:
+    """Prescriptions with the errors doctors commonly make, weighted by how often they occur."""
+    rng = random.Random(seed)
+    seen, out = set(), []
+    plan = ["clean"] * round(n * clean_share) + ["error"] * (n - round(n * clean_share))
+    rng.shuffle(plan)
+    funcs, weights = zip(*CRITICAL)
+    tries = 0
+    while len(out) < n and tries < 20000:
+        tries += 1
+        kind = plan[len(out)]
+        dx, cc, hx, inv, rx, adv, sex, (a0, a1) = rng.choice(CLEAN)
+        sex = sex or rng.choice(["Male", "Female"])
+        age = rng.randint(a0, a1)
+        if kind == "error" and age < 16:
+            age = rng.randint(18, 70)        # child doses are not in this scenario's mix
+            if dx in {"Viral fever", "Acute otitis media"}:
+                continue
+        v = {"sex": sex, "age": age, "chiefComplaints": list(cc), "pastHistory": list(hx), "investigations": list(inv),
+             "diagnosis": [dx], "rxList": [med(*r) for r in rx], "adviceList": list(adv)}
+        expected = []
+        if kind == "error":
+            k = 2 if rng.random() < 0.25 else 1
+            picks = []
+            while len(picks) < k:
+                f = rng.choices(funcs, weights)[0]
+                if f not in picks:
+                    picks.append(f)
+            # whole-visit scenarios replace the visit, so they come first and stand alone
+            if any(f in (_err_nsaid_ulcer, _err_interaction, _err_stroke_no_referral, _err_mi_clean) for f in picks):
+                picks = [next(f for f in picks if f in (_err_nsaid_ulcer, _err_interaction, _err_stroke_no_referral, _err_mi_clean))]
+                if picks[0] is _err_mi_clean or picks[0] is _err_stroke_no_referral:
+                    age = v["age"] = max(age, 35)
+            for f in picks:
+                try:
+                    expected += f(rng, v)
+                except (IndexError, ValueError):
+                    pass
+            if not expected:
+                continue
+        key = json.dumps({k: v[k] for k in v if k != "age"}, sort_keys=True) + str(age) + sex
+        if key in seen:
+            continue
+        seen.add(key)
+        i = len(out) + 1
+        pool = MALE if sex == "Male" else FEMALE
+        v["name"] = f"{pool[i % len(pool)]} {i:03d}"
+        v["id"] = f"C{i:03d}"
+        v["expected"] = expected
+        out.append(v)
+    return out
+
+
 ADULT_ERRORS = [_err_cc_sex, _err_cc_nodur, _err_hx_sex, _err_hx_life, _err_inv_sex, _err_dx_sex, _err_unmatched_rx]
 WEAK = {"Rx.cc.sym", "Adv.refer", "Rx.demo", "CC.time", "Inv.dx", "Inv.hs", "Rx.ddi", "Dx.hs.1", "CC.4", "Rx.over"}
 
@@ -248,8 +378,8 @@ class Doctor:
             raise RuntimeError(f"{self.name}: sign-in failed")
 
 
-def run(base: str, codes: dict, think: tuple[float, float], seed: int) -> dict:
-    rxs = make_prescriptions(seed=seed)
+def run(base: str, codes: dict, think: tuple[float, float], seed: int, scenario: str = "basic") -> dict:
+    rxs = make_critical(n=5 * len(codes), seed=seed) if scenario == "critical" else make_prescriptions(seed=seed)
     names = list(codes)
     per_doc = {n: rxs[i::len(names)] for i, n in enumerate(names)}
     rng = random.Random(seed + 1)
@@ -307,7 +437,7 @@ def run(base: str, codes: dict, think: tuple[float, float], seed: int) -> dict:
     wall = time.time() - started
     gpu.stop.set()
     gpu.join()
-    return {"base": base, "doctors": names, "think_s": think, "wall_s": round(wall, 1), "gpu": gpu.summary(),
+    return {"base": base, "scenario": scenario, "doctors": names, "think_s": think, "wall_s": round(wall, 1), "gpu": gpu.summary(),
             "gpu_rows": gpu.rows, "prescriptions": rxs, "events": events, "problems": problems,
             "assignment": {n: [p["id"] for p in per_doc[n]] for n in names}}
 
@@ -315,6 +445,28 @@ def run(base: str, codes: dict, think: tuple[float, float], seed: int) -> dict:
 # ---------------------------------------------------------------------------------------------------------------
 # Scoring
 # ---------------------------------------------------------------------------------------------------------------
+# An alert counts as catching an error only if it names the error's line AND is the right kind of alert
+# (a "side of the knee not stated" alert that quotes the NSAID line does not catch the NSAID-with-ulcer error).
+RIGHT_KIND = {
+    "Rx.freq.missing": {"Rx.freq.missing", "Rx.instr"},
+    "Rx.duration.missing": {"Rx.duration.missing"},
+    "Rx.over": {"Rx.over", "Rx.cc.mis", "unsupported", "no_indication"},
+    "Rx.dup": {"Rx.dup", "Rx.multi", "duplicate"},
+    "Rx.hs": {"Rx.hs", "Rx.contra", "unsafe_for_patient", "contraindicated", "contradiction"},
+    "Rx.ddi": {"Rx.ddi", "interaction", "unsafe_for_patient"},
+    "Rx.demo": {"Rx.demo", "Rx.dose.weight", "Rx.dose.high", "unsafe_for_patient"},
+    "Rx.cc.sym": {"Rx.cc.sym"},
+    "CC.3": {"CC.3"},
+    "CC.demo": {"CC.demo", "CC.context.demo", "sex_age_anatomy"},
+    "Hx.demo": {"Hx.demo", "Hx.context.demo", "sex_age_anatomy"},
+    "Hx.time.plausibility": {"Hx.time.plausibility", "implausible"},
+    "Dx.demo": {"Dx.cc.1", "Dx.demo", "sex_age_anatomy"},
+    "Inv.relevance": {"Inv.relevance", "Inv.hs", "Inv.cc", "sex_age_anatomy"},
+    "Adv.refer": {"Adv.refer", "referral_missing"},
+}
+DOC_REMINDERS = {"side_missing", "severity_missing"}
+
+
 def score(res: dict) -> dict:
     by_rx = {p["id"]: p for p in res["prescriptions"]}
     ev_by = {}
@@ -330,8 +482,10 @@ def score(res: dict) -> dict:
         caught_all = True
         for s, t, ty in exp:
             sec = [e for e in evs if e["section"] == s]
-            hit1 = any(t in a["text"].casefold() for e in sec for a in e.get("l1", []))
-            hit2 = any(t in a["text"].casefold() for e in sec for a in e.get("l2", []))
+            kinds = RIGHT_KIND.get(ty)
+            fits = lambda a: t in a["text"].casefold() and (kinds is None or a["rule"] in kinds)  # noqa: E731
+            hit1 = any(fits(a) for e in sec for a in e.get("l1", []))
+            hit2 = any(fits(a) for e in sec for a in e.get("l2", []))
             row = types.setdefault(ty, {"n": 0, "l1": 0, "l2": 0, "either": 0})
             row["n"] += 1
             row["l1"] += hit1
@@ -343,13 +497,19 @@ def score(res: dict) -> dict:
             tot["either"] += hit1 or hit2
             caught_all &= hit1 or hit2
         false = []
+        all_err = [t for _, t, _ in exp]
         for e in evs:
             err_texts = [t for s, t, _ in exp if s == e["section"]]
             for layer in ("l1", "l2"):
                 for a in e.get(layer, []):
-                    if not any(t in a["text"].casefold() for t in err_texts):
-                        tot[f"false_{layer}"] += 1
-                        false.append((layer, e["section"], a["rule"], a["text"][:110]))
+                    txt = a["text"].casefold()
+                    if any(t in txt for t in err_texts) and a["rule"] not in DOC_REMINDERS:
+                        continue
+                    if any(t in txt for t in all_err) and a["rule"] not in DOC_REMINDERS:
+                        tot["repeats"] = tot.get("repeats", 0) + 1      # a real error raised again elsewhere
+                        continue
+                    tot[f"false_{layer}"] += 1
+                    false.append((layer, e["section"], a["rule"], a["text"][:110]))
             if not err_texts:
                 tot["clean_sections"] += 1
                 tot["clean_sections_quiet"] += not (e.get("l1") or e.get("l2"))
@@ -371,7 +531,11 @@ def score(res: dict) -> dict:
                       "alerts_l2": sum(len(e["l2"]) for e in evs),
                       "wait_median": round(statistics.median([e["l1_s"] + e["l2_s"] for e in evs]), 2) if evs else 0,
                       "errors": len([e for e in res["events"] if e["doctor"] == d and "error" in e])}
-    return {"tot": tot, "types": types, "per_rx": per_rx, "per_doc": per_doc,
+    by_sec = {}
+    for e in ok:
+        by_sec.setdefault(e["section"], []).append(e["l1_s"] + e["l2_s"])
+    sec_lat = {k: {"n": len(v), "p50": round(statistics.median(v), 2), "p95": round(pct(v, 0.95), 2)} for k, v in by_sec.items()}
+    return {"tot": tot, "types": types, "per_rx": per_rx, "per_doc": per_doc, "sec_lat": sec_lat,
             "lat": {k: {"p50": round(statistics.median(v), 2), "p95": round(pct(v, 0.95), 2), "max": round(max(v), 2)}
                     for k, v in lat.items() if v},
             "checks": len(ok), "failed": len(res["events"]) - len(ok),
@@ -386,18 +550,20 @@ def main() -> None:
     ap.add_argument("--codes", type=Path, help="JSON {doctor name: access code}")
     ap.add_argument("--think", type=float, nargs=2, default=[3.0, 8.0], help="seconds between sections (min max)")
     ap.add_argument("--seed", type=int, default=7)
+    ap.add_argument("--scenario", choices=["basic", "critical"], default="basic")
+    ap.add_argument("--n", type=int, default=100, help="prescriptions for list --scenario critical")
     a = ap.parse_args()
     if a.cmd == "list":
-        for p in make_prescriptions(seed=a.seed):
+        for p in (make_critical(n=a.n, seed=a.seed) if a.scenario == "critical" else make_prescriptions(seed=a.seed)):
             print(p["id"], p["sex"], p["age"], p["diagnosis"], [e[2] for e in p["expected"]])
         return
     if a.cmd == "run":
-        res = run(a.link, json.loads(a.codes.read_text(encoding="utf-8")), tuple(a.think), a.seed)
+        res = run(a.link, json.loads(a.codes.read_text(encoding="utf-8")), tuple(a.think), a.seed, a.scenario)
         a.file.parent.mkdir(parents=True, exist_ok=True)
         a.file.write_text(json.dumps(res, indent=1, ensure_ascii=False), encoding="utf-8")
     res = json.loads(a.file.read_text(encoding="utf-8"))
     s = score(res)
-    print(json.dumps({k: s[k] for k in ("tot", "types", "per_doc", "lat", "checks", "failed", "per_min")}, indent=1))
+    print(json.dumps({k: s[k] for k in ("tot", "types", "per_doc", "lat", "sec_lat", "checks", "failed", "per_min")}, indent=1))
     print("wall", res["wall_s"], "gpu", res["gpu"], "problems", res["problems"][:5])
 
 
