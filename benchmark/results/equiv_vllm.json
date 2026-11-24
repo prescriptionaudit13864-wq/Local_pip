@@ -3,7 +3,7 @@
   "ok": true,
   "provider": "VLLMProvider",
   "model": "unsloth/gemma-4-12B-it-qat-q4_0-unquantized",
-  "history_dir": "C:\\Users\\HEAT\\AppData\\Local\\Temp\\claude\\498e5486c024ca5d\\a1a7d2f7-4e68-4da6-8e4a-d4a42c8d3b8b\\scratchpad\\emptydata"
+  "history_dir": "C:\\Users\\HEAT\\Documents\\Local Pipeline\\Local_pip\\.claude\\worktrees\\tanim-vllm-09eeff\\prescribex-app\\backend\\data"
  },
  "checks": [
   {
@@ -20,8 +20,8 @@
     ]
    ],
    "review_status": "done",
-   "layer1_s": 0.68,
-   "review_s": 1.62
+   "layer1_s": 0.72,
+   "review_s": 1.61
   },
   {
    "key": "2:chiefComplaints",
@@ -54,8 +54,8 @@
    ],
    "review": [],
    "review_status": "done",
-   "layer1_s": 1.82,
-   "review_s": 0.26
+   "layer1_s": 1.85,
+   "review_s": 0.29
   },
   {
    "key": "4:chiefComplaints",
@@ -77,8 +77,8 @@
     ]
    ],
    "review_status": "done",
-   "layer1_s": 1.53,
-   "review_s": 1.26
+   "layer1_s": 1.54,
+   "review_s": 1.3
   },
   {
    "key": "5:chiefComplaints",
@@ -94,8 +94,8 @@
     ]
    ],
    "review_status": "done",
-   "layer1_s": 0.57,
-   "review_s": 1.39
+   "layer1_s": 0.58,
+   "review_s": 1.43
   },
   {
    "key": "6:chiefComplaints",
@@ -112,7 +112,7 @@
    ],
    "review_status": "done",
    "layer1_s": 0.58,
-   "review_s": 1.58
+   "review_s": 1.61
   },
   {
    "key": "6:investigations",
@@ -122,8 +122,8 @@
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.8,
-   "review_s": 0.8
+   "layer1_s": 0.78,
+   "review_s": 0.82
   },
   {
    "key": "6:diagnosis",
@@ -139,7 +139,7 @@
     ]
    ],
    "review_status": "done",
-   "layer1_s": 0.59,
+   "layer1_s": 0.6,
    "review_s": 1.95
   },
   {
@@ -167,8 +167,8 @@
     ]
    ],
    "review_status": "done",
-   "layer1_s": 3.04,
-   "review_s": 1.89
+   "layer1_s": 2.98,
+   "review_s": 1.91
   },
   {
    "key": "8:chiefComplaints",
@@ -223,8 +223,8 @@
    ],
    "review": [],
    "review_status": "done",
-   "layer1_s": 2.03,
-   "review_s": 0.44
+   "layer1_s": 2.04,
+   "review_s": 0.45
   },
   {
    "key": "10:chiefComplaints",
@@ -234,8 +234,8 @@
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.58,
-   "review_s": 0.69
+   "layer1_s": 0.56,
+   "review_s": 0.7
   },
   {
    "key": "10:investigations",
@@ -254,16 +254,10 @@
      "Burning micturition is a complaint, but a pap smear does not address it."
     ]
    ],
-   "review": [
-    [
-     "sex_age_anatomy",
-     "Pap smear",
-     "A Pap smear is not a suitable test for a male patient."
-    ]
-   ],
+   "review": [],
    "review_status": "done",
-   "layer1_s": 1.99,
-   "review_s": 1.47
+   "layer1_s": 2.0,
+   "review_s": 0.44
   },
   {
    "key": "11:chiefComplaints",
@@ -273,8 +267,8 @@
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.57,
-   "review_s": 0.63
+   "layer1_s": 0.56,
+   "review_s": 0.64
   },
   {
    "key": "11:diagnosis",
@@ -301,8 +295,8 @@
     ]
    ],
    "review_status": "done",
-   "layer1_s": 2.13,
-   "review_s": 2.62
+   "layer1_s": 2.14,
+   "review_s": 2.63
   },
   {
    "key": "12:chiefComplaints",
@@ -313,7 +307,7 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 0.57,
-   "review_s": 0.49
+   "review_s": 0.48
   },
   {
    "key": "12:diagnosis",
@@ -324,13 +318,24 @@
     [
      "Dx.cc.1",
      "Diagnosis: Pregnancy in 3rd trimester, Gestational diabetes mellitus | Chief complaint: Increased thirst for 1 month",
-     "Pregnancy in 3rd trimester, Gestational diabetes mellitus are not possible at age 31 in a male patient."
+     "Pregnancy in 3rd trimester and gestational diabetes are not possible in a male patient: check the complaint and the recorded sex."
     ]
    ],
-   "review": [],
+   "review": [
+    [
+     "sex_age_anatomy",
+     "Pregnancy in 3rd trimester",
+     "Pregnancy is not possible for a male patient."
+    ],
+    [
+     "sex_age_anatomy",
+     "Gestational diabetes mellitus",
+     "Gestational diabetes mellitus is not possible for a male patient."
+    ]
+   ],
    "review_status": "done",
-   "layer1_s": 1.95,
-   "review_s": 0.3
+   "layer1_s": 1.98,
+   "review_s": 2.71
   },
   {
    "key": "13:chiefComplaints",
@@ -352,7 +357,7 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 0.5,
-   "review_s": 1.3
+   "review_s": 1.29
   },
   {
    "key": "13:rx",
@@ -369,7 +374,7 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 2.72,
-   "review_s": 2.31
+   "review_s": 0.6
   },
   {
    "key": "14:chiefComplaints",
@@ -379,8 +384,8 @@
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.55,
-   "review_s": 0.27
+   "layer1_s": 0.56,
+   "review_s": 0.26
   },
   {
    "key": "14:diagnosis",
@@ -390,8 +395,8 @@
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.48,
-   "review_s": 0.58
+   "layer1_s": 0.5,
+   "review_s": 0.6
   },
   {
    "key": "14:rx",
@@ -407,8 +412,8 @@
     ]
    ],
    "review_status": "done",
-   "layer1_s": 0.79,
-   "review_s": 2.59
+   "layer1_s": 0.77,
+   "review_s": 2.6
   },
   {
    "key": "15:chiefComplaints",
@@ -440,8 +445,8 @@
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.88,
-   "review_s": 2.31
+   "layer1_s": 0.87,
+   "review_s": 2.32
   },
   {
    "key": "16:chiefComplaints",
@@ -462,8 +467,8 @@
    ],
    "review": [],
    "review_status": "done",
-   "layer1_s": 4.45,
-   "review_s": 1.5
+   "layer1_s": 4.49,
+   "review_s": 1.51
   },
   {
    "key": "16:pastHistory",
@@ -484,11 +489,39 @@
    ],
    "review": [],
    "review_status": "done",
-   "layer1_s": 2.97,
-   "review_s": 1.91
+   "layer1_s": 2.98,
+   "review_s": 1.93
   },
   {
    "key": "17:chiefComplaints",
+   "case": "Male, pregnancy plus a complaint with no duration among others",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [
+    [
+     "CC.context.demo",
+     "Complaint: Pregnancy for 3 days",
+     "'Pregnancy' does not fit a male patient: check the complaint and the recorded sex."
+    ],
+    [
+     "CC.3",
+     "Complaint: Fever",
+     "Duration is not mentioned for 'Fever'."
+    ]
+   ],
+   "review": [
+    [
+     "side_missing",
+     "knee joint pain for 3 weeks",
+     "The side of the knee joint is not specified."
+    ]
+   ],
+   "review_status": "done",
+   "layer1_s": 3.56,
+   "review_s": 2.25
+  },
+  {
+   "key": "18:chiefComplaints",
    "case": "Female-only history in a man",
    "group": "suite",
    "section": "chiefComplaints",
@@ -496,10 +529,10 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 0.57,
-   "review_s": 0.63
+   "review_s": 0.65
   },
   {
-   "key": "17:pastHistory",
+   "key": "18:pastHistory",
    "case": "Female-only history in a man",
    "group": "suite",
    "section": "pastHistory",
@@ -513,21 +546,21 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 1.83,
-   "review_s": 0.27
+   "review_s": 0.26
   },
   {
-   "key": "18:chiefComplaints",
+   "key": "19:chiefComplaints",
    "case": "Clean history",
    "group": "suite",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.56,
+   "layer1_s": 0.58,
    "review_s": 0.64
   },
   {
-   "key": "18:pastHistory",
+   "key": "19:pastHistory",
    "case": "Clean history",
    "group": "suite",
    "section": "pastHistory",
@@ -538,18 +571,18 @@
    "review_s": 1.18
   },
   {
-   "key": "19:chiefComplaints",
+   "key": "20:chiefComplaints",
    "case": "History longer than life",
    "group": "suite",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.56,
+   "layer1_s": 0.57,
    "review_s": 0.64
   },
   {
-   "key": "19:pastHistory",
+   "key": "20:pastHistory",
    "case": "History longer than life",
    "group": "suite",
    "section": "pastHistory",
@@ -566,18 +599,18 @@
    "review_s": 0.26
   },
   {
-   "key": "20:chiefComplaints",
+   "key": "21:chiefComplaints",
    "case": "Diagnosis does not explain complaint",
    "group": "suite",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.56,
+   "layer1_s": 0.55,
    "review_s": 0.27
   },
   {
-   "key": "20:diagnosis",
+   "key": "21:diagnosis",
    "case": "Diagnosis does not explain complaint",
    "group": "suite",
    "section": "diagnosis",
@@ -590,89 +623,23 @@
    ],
    "review": [],
    "review_status": "done",
-   "layer1_s": 1.82,
-   "review_s": 1.22
-  },
-  {
-   "key": "21:chiefComplaints",
-   "case": "Clean diagnosis",
-   "group": "suite",
-   "section": "chiefComplaints",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.57,
-   "review_s": 0.27
-  },
-  {
-   "key": "21:diagnosis",
-   "case": "Clean diagnosis",
-   "group": "suite",
-   "section": "diagnosis",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.5,
-   "review_s": 0.26
+   "layer1_s": 1.84,
+   "review_s": 1.23
   },
   {
    "key": "22:chiefComplaints",
-   "case": "Suspected dengue without NS1",
-   "group": "suite",
-   "section": "chiefComplaints",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.64,
-   "review_s": 1.2
-  },
-  {
-   "key": "22:investigations",
-   "case": "Suspected dengue without NS1",
-   "group": "suite",
-   "section": "investigations",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.76,
-   "review_s": 1.41
-  },
-  {
-   "key": "22:diagnosis",
-   "case": "Suspected dengue without NS1",
-   "group": "suite",
-   "section": "diagnosis",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.51,
-   "review_s": 0.26
-  },
-  {
-   "key": "23:chiefComplaints",
-   "case": "Clean diabetes tests",
+   "case": "Clean diagnosis",
    "group": "suite",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
    "layer1_s": 0.57,
-   "review_s": 0.63
+   "review_s": 0.27
   },
   {
-   "key": "23:investigations",
-   "case": "Clean diabetes tests",
-   "group": "suite",
-   "section": "investigations",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.71,
-   "review_s": 1.29
-  },
-  {
-   "key": "23:diagnosis",
-   "case": "Clean diabetes tests",
+   "key": "22:diagnosis",
+   "case": "Clean diagnosis",
    "group": "suite",
    "section": "diagnosis",
    "layer1": [],
@@ -682,7 +649,73 @@
    "review_s": 0.27
   },
   {
+   "key": "23:chiefComplaints",
+   "case": "Suspected dengue without NS1",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.66,
+   "review_s": 1.2
+  },
+  {
+   "key": "23:investigations",
+   "case": "Suspected dengue without NS1",
+   "group": "suite",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.75,
+   "review_s": 1.4
+  },
+  {
+   "key": "23:diagnosis",
+   "case": "Suspected dengue without NS1",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 0.26
+  },
+  {
    "key": "24:chiefComplaints",
+   "case": "Clean diabetes tests",
+   "group": "suite",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.58,
+   "review_s": 0.64
+  },
+  {
+   "key": "24:investigations",
+   "case": "Clean diabetes tests",
+   "group": "suite",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.7,
+   "review_s": 1.3
+  },
+  {
+   "key": "24:diagnosis",
+   "case": "Clean diabetes tests",
+   "group": "suite",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.5,
+   "review_s": 0.26
+  },
+  {
+   "key": "25:chiefComplaints",
    "case": "Adult paracetamol dose for a 4-year-old",
    "group": "suite",
    "section": "chiefComplaints",
@@ -690,10 +723,10 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 0.56,
-   "review_s": 0.64
+   "review_s": 0.65
   },
   {
-   "key": "24:diagnosis",
+   "key": "25:diagnosis",
    "case": "Adult paracetamol dose for a 4-year-old",
    "group": "suite",
    "section": "diagnosis",
@@ -701,10 +734,10 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 0.5,
-   "review_s": 1.24
+   "review_s": 1.21
   },
   {
-   "key": "24:rx",
+   "key": "25:rx",
    "case": "Adult paracetamol dose for a 4-year-old",
    "group": "suite",
    "section": "rx",
@@ -720,129 +753,123 @@
      "Napa 500 mg three times a day is an adult dose; a 5-year-old (about 20 kg) needs about 15 mg/kg, so 300 mg per dose is enough."
     ]
    ],
-   "review": [
-    [
-     "unsafe_for_patient",
-     "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
-     "An adult dose of 500 mg is prescribed for a 5-year-old child."
-    ]
-   ],
+   "review": [],
    "review_status": "done",
-   "layer1_s": 2.84,
-   "review_s": 2.37
+   "layer1_s": 2.77,
+   "review_s": 0.44
   },
   {
-   "key": "24:advice",
+   "key": "25:advice",
    "case": "Adult paracetamol dose for a 4-year-old",
    "group": "suite",
    "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.62,
+   "layer1_s": 0.6,
    "review_s": 0.32
   },
   {
-   "key": "25:chiefComplaints",
+   "key": "26:chiefComplaints",
    "case": "Hyperlipidaemia without diet advice",
    "group": "suite",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.58,
+   "layer1_s": 0.6,
    "review_s": 0.25
   },
   {
-   "key": "25:diagnosis",
+   "key": "26:diagnosis",
    "case": "Hyperlipidaemia without diet advice",
    "group": "suite",
    "section": "diagnosis",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.51,
+   "layer1_s": 0.57,
    "review_s": 0.6
   },
   {
-   "key": "25:rx",
+   "key": "26:rx",
    "case": "Hyperlipidaemia without diet advice",
    "group": "suite",
    "section": "rx",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.71,
+   "layer1_s": 0.78,
    "review_s": 0.43
   },
   {
-   "key": "25:advice",
+   "key": "26:advice",
    "case": "Hyperlipidaemia without diet advice",
    "group": "suite",
    "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.57,
-   "review_s": 0.31
+   "layer1_s": 0.6,
+   "review_s": 0.3
   },
   {
-   "key": "26:chiefComplaints",
+   "key": "27:chiefComplaints",
    "case": "Clean adult UTI",
    "group": "suite",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.57,
-   "review_s": 0.71
+   "layer1_s": 0.6,
+   "review_s": 0.69
   },
   {
-   "key": "26:investigations",
+   "key": "27:investigations",
    "case": "Clean adult UTI",
    "group": "suite",
    "section": "investigations",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.73,
-   "review_s": 0.41
+   "layer1_s": 0.72,
+   "review_s": 0.42
   },
   {
-   "key": "26:diagnosis",
+   "key": "27:diagnosis",
    "case": "Clean adult UTI",
    "group": "suite",
    "section": "diagnosis",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.49,
-   "review_s": 1.32
+   "layer1_s": 0.57,
+   "review_s": 1.33
   },
   {
-   "key": "26:rx",
+   "key": "27:rx",
    "case": "Clean adult UTI",
    "group": "suite",
    "section": "rx",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.72,
-   "review_s": 0.43
+   "layer1_s": 0.78,
+   "review_s": 0.42
   },
   {
-   "key": "26:advice",
+   "key": "27:advice",
    "case": "Clean adult UTI",
    "group": "suite",
    "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.58,
+   "layer1_s": 0.62,
    "review_s": 0.38
   },
   {
-   "key": "27:chiefComplaints",
+   "key": "28:chiefComplaints",
    "case": "Impossible duration",
    "group": "suite",
    "section": "chiefComplaints",
@@ -855,11 +882,11 @@
     ]
    ],
    "review_status": "done",
-   "layer1_s": 0.57,
-   "review_s": 1.62
+   "layer1_s": 0.59,
+   "review_s": 1.63
   },
   {
-   "key": "28:chiefComplaints",
+   "key": "29:chiefComplaints",
    "case": "Infant cold, no danger-sign advice",
    "group": "suite",
    "section": "chiefComplaints",
@@ -870,40 +897,40 @@
    "review_s": 0.67
   },
   {
-   "key": "28:diagnosis",
+   "key": "29:diagnosis",
    "case": "Infant cold, no danger-sign advice",
    "group": "suite",
    "section": "diagnosis",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.5,
-   "review_s": 0.55
+   "layer1_s": 0.58,
+   "review_s": 0.56
   },
   {
-   "key": "28:rx",
+   "key": "29:rx",
    "case": "Infant cold, no danger-sign advice",
    "group": "suite",
    "section": "rx",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.68,
-   "review_s": 0.39
+   "layer1_s": 0.77,
+   "review_s": 0.41
   },
   {
-   "key": "28:advice",
+   "key": "29:advice",
    "case": "Infant cold, no danger-sign advice",
    "group": "suite",
    "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.56,
-   "review_s": 0.3
+   "layer1_s": 0.61,
+   "review_s": 0.31
   },
   {
-   "key": "29:chiefComplaints",
+   "key": "30:chiefComplaints",
    "case": "Clean: adult cystitis",
    "group": "clean",
    "section": "chiefComplaints",
@@ -911,10 +938,10 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 0.64,
-   "review_s": 1.38
+   "review_s": 1.36
   },
   {
-   "key": "29:diagnosis",
+   "key": "30:diagnosis",
    "case": "Clean: adult cystitis",
    "group": "clean",
    "section": "diagnosis",
@@ -925,282 +952,282 @@
    "review_s": 0.26
   },
   {
-   "key": "29:rx",
-   "case": "Clean: adult cystitis",
-   "group": "clean",
-   "section": "rx",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.94,
-   "review_s": 2.43
-  },
-  {
-   "key": "29:advice",
-   "case": "Clean: adult cystitis",
-   "group": "clean",
-   "section": "advice",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.6,
-   "review_s": 1.76
-  },
-  {
-   "key": "30:chiefComplaints",
-   "case": "Clean: child common cold",
-   "group": "clean",
-   "section": "chiefComplaints",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.63,
-   "review_s": 1.23
-  },
-  {
-   "key": "30:diagnosis",
-   "case": "Clean: child common cold",
-   "group": "clean",
-   "section": "diagnosis",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.5,
-   "review_s": 0.55
-  },
-  {
    "key": "30:rx",
-   "case": "Clean: child common cold",
+   "case": "Clean: adult cystitis",
    "group": "clean",
    "section": "rx",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.71,
-   "review_s": 0.45
+   "layer1_s": 0.92,
+   "review_s": 2.38
   },
   {
    "key": "30:advice",
-   "case": "Clean: child common cold",
+   "case": "Clean: adult cystitis",
    "group": "clean",
    "section": "advice",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.6,
-   "review_s": 1.92
-  },
-  {
-   "key": "31:chiefComplaints",
-   "case": "Clean: gastritis",
-   "group": "clean",
-   "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
    "layer1_s": 0.65,
-   "review_s": 1.29
+   "review_s": 1.74
   },
   {
-   "key": "31:diagnosis",
-   "case": "Clean: gastritis",
-   "group": "clean",
-   "section": "diagnosis",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.51,
-   "review_s": 0.26
-  },
-  {
-   "key": "31:rx",
-   "case": "Clean: gastritis",
-   "group": "clean",
-   "section": "rx",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.74,
-   "review_s": 0.44
-  },
-  {
-   "key": "31:advice",
-   "case": "Clean: gastritis",
-   "group": "clean",
-   "section": "advice",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.59,
-   "review_s": 0.38
-  },
-  {
-   "key": "32:chiefComplaints",
-   "case": "Clean: hypertension follow-up",
+   "key": "31:chiefComplaints",
+   "case": "Clean: child common cold",
    "group": "clean",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.56,
-   "review_s": 0.61
+   "layer1_s": 0.67,
+   "review_s": 1.22
   },
   {
-   "key": "32:pastHistory",
-   "case": "Clean: hypertension follow-up",
-   "group": "clean",
-   "section": "pastHistory",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.58,
-   "review_s": 0.27
-  },
-  {
-   "key": "32:diagnosis",
-   "case": "Clean: hypertension follow-up",
+   "key": "31:diagnosis",
+   "case": "Clean: child common cold",
    "group": "clean",
    "section": "diagnosis",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.51,
-   "review_s": 0.55
+   "layer1_s": 0.57,
+   "review_s": 0.56
   },
   {
-   "key": "32:rx",
-   "case": "Clean: hypertension follow-up",
+   "key": "31:rx",
+   "case": "Clean: child common cold",
    "group": "clean",
    "section": "rx",
    "layer1": [],
    "review": [],
    "review_status": "done",
    "layer1_s": 0.77,
-   "review_s": 0.5
+   "review_s": 0.44
+  },
+  {
+   "key": "31:advice",
+   "case": "Clean: child common cold",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.63,
+   "review_s": 1.88
+  },
+  {
+   "key": "32:chiefComplaints",
+   "case": "Clean: gastritis",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.7,
+   "review_s": 1.25
+  },
+  {
+   "key": "32:diagnosis",
+   "case": "Clean: gastritis",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.26
+  },
+  {
+   "key": "32:rx",
+   "case": "Clean: gastritis",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.79,
+   "review_s": 0.46
   },
   {
    "key": "32:advice",
+   "case": "Clean: gastritis",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.61,
+   "review_s": 0.37
+  },
+  {
+   "key": "33:chiefComplaints",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.6,
+   "review_s": 0.6
+  },
+  {
+   "key": "33:pastHistory",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "pastHistory",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.26
+  },
+  {
+   "key": "33:diagnosis",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.56,
+   "review_s": 0.56
+  },
+  {
+   "key": "33:rx",
+   "case": "Clean: hypertension follow-up",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.82,
+   "review_s": 0.46
+  },
+  {
+   "key": "33:advice",
    "case": "Clean: hypertension follow-up",
    "group": "clean",
    "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.61,
-   "review_s": 1.68
+   "layer1_s": 0.64,
+   "review_s": 1.63
   },
   {
-   "key": "33:chiefComplaints",
+   "key": "34:chiefComplaints",
    "case": "Clean: new type 2 diabetes",
    "group": "clean",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.65,
-   "review_s": 1.23
+   "layer1_s": 0.69,
+   "review_s": 1.2
   },
   {
-   "key": "33:investigations",
+   "key": "34:investigations",
    "case": "Clean: new type 2 diabetes",
    "group": "clean",
    "section": "investigations",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.79,
-   "review_s": 1.31
+   "layer1_s": 0.76,
+   "review_s": 1.29
   },
   {
-   "key": "33:diagnosis",
+   "key": "34:diagnosis",
    "case": "Clean: new type 2 diabetes",
    "group": "clean",
    "section": "diagnosis",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.52,
+   "layer1_s": 0.57,
    "review_s": 0.26
   },
   {
-   "key": "33:rx",
+   "key": "34:rx",
    "case": "Clean: new type 2 diabetes",
    "group": "clean",
    "section": "rx",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.78,
-   "review_s": 0.5
+   "layer1_s": 0.84,
+   "review_s": 0.49
   },
   {
-   "key": "33:advice",
+   "key": "34:advice",
    "case": "Clean: new type 2 diabetes",
    "group": "clean",
    "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.61,
-   "review_s": 1.71
+   "layer1_s": 0.65,
+   "review_s": 1.72
   },
   {
-   "key": "34:chiefComplaints",
+   "key": "35:chiefComplaints",
    "case": "Clean: scabies",
    "group": "clean",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.56,
-   "review_s": 0.27
+   "layer1_s": 0.61,
+   "review_s": 0.28
   },
   {
-   "key": "34:diagnosis",
+   "key": "35:diagnosis",
    "case": "Clean: scabies",
    "group": "clean",
    "section": "diagnosis",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.49,
+   "layer1_s": 0.58,
    "review_s": 0.26
   },
   {
-   "key": "34:rx",
+   "key": "35:rx",
    "case": "Clean: scabies",
    "group": "clean",
    "section": "rx",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.86,
-   "review_s": 3.13
+   "layer1_s": 0.96,
+   "review_s": 3.12
   },
   {
-   "key": "34:advice",
+   "key": "35:advice",
    "case": "Clean: scabies",
    "group": "clean",
    "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.6,
-   "review_s": 1.33
+   "layer1_s": 0.65,
+   "review_s": 1.34
   },
   {
-   "key": "35:chiefComplaints",
+   "key": "36:chiefComplaints",
    "case": "Clean: left knee osteoarthritis",
    "group": "clean",
    "section": "chiefComplaints",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.55,
-   "review_s": 0.27
+   "layer1_s": 0.6,
+   "review_s": 0.28
   },
   {
-   "key": "35:investigations",
+   "key": "36:investigations",
    "case": "Clean: left knee osteoarthritis",
    "group": "clean",
    "section": "investigations",
@@ -1208,95 +1235,95 @@
    "review": [],
    "review_status": "done",
    "layer1_s": 0.76,
-   "review_s": 0.45
+   "review_s": 0.43
   },
   {
-   "key": "35:diagnosis",
+   "key": "36:diagnosis",
    "case": "Clean: left knee osteoarthritis",
    "group": "clean",
    "section": "diagnosis",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.49,
-   "review_s": 0.26
-  },
-  {
-   "key": "35:rx",
-   "case": "Clean: left knee osteoarthritis",
-   "group": "clean",
-   "section": "rx",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.7,
-   "review_s": 0.44
-  },
-  {
-   "key": "35:advice",
-   "case": "Clean: left knee osteoarthritis",
-   "group": "clean",
-   "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
    "layer1_s": 0.58,
-   "review_s": 1.54
-  },
-  {
-   "key": "36:chiefComplaints",
-   "case": "Clean: first antenatal visit",
-   "group": "clean",
-   "section": "chiefComplaints",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.62,
-   "review_s": 0.26
-  },
-  {
-   "key": "36:investigations",
-   "case": "Clean: first antenatal visit",
-   "group": "clean",
-   "section": "investigations",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.75,
-   "review_s": 2.86
-  },
-  {
-   "key": "36:diagnosis",
-   "case": "Clean: first antenatal visit",
-   "group": "clean",
-   "section": "diagnosis",
-   "layer1": [],
-   "review": [],
-   "review_status": "done",
-   "layer1_s": 0.49,
-   "review_s": 0.26
+   "review_s": 0.27
   },
   {
    "key": "36:rx",
-   "case": "Clean: first antenatal visit",
+   "case": "Clean: left knee osteoarthritis",
    "group": "clean",
    "section": "rx",
    "layer1": [],
    "review": [],
    "review_status": "done",
-   "layer1_s": 0.7,
-   "review_s": 0.44
+   "layer1_s": 0.77,
+   "review_s": 0.43
   },
   {
    "key": "36:advice",
-   "case": "Clean: first antenatal visit",
+   "case": "Clean: left knee osteoarthritis",
    "group": "clean",
    "section": "advice",
    "layer1": [],
    "review": [],
    "review_status": "done",
    "layer1_s": 0.61,
-   "review_s": 2.35
+   "review_s": 1.55
+  },
+  {
+   "key": "37:chiefComplaints",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "chiefComplaints",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.67,
+   "review_s": 0.28
+  },
+  {
+   "key": "37:investigations",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "investigations",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.78,
+   "review_s": 2.88
+  },
+  {
+   "key": "37:diagnosis",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "diagnosis",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.57,
+   "review_s": 0.27
+  },
+  {
+   "key": "37:rx",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "rx",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.79,
+   "review_s": 0.43
+  },
+  {
+   "key": "37:advice",
+   "case": "Clean: first antenatal visit",
+   "group": "clean",
+   "section": "advice",
+   "layer1": [],
+   "review": [],
+   "review_status": "done",
+   "layer1_s": 0.64,
+   "review_s": 2.33
   }
  ]
 }
