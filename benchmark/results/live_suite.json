@@ -1,8 +1,8 @@
 {
  "totals": {
-  "caught": 13,
+  "caught": 18,
   "missed": 3,
-  "wrong": 0
+  "wrong": 4
  },
  "results": [
   {
@@ -141,19 +141,42 @@
    "known_gap": false,
    "caught": 1,
    "missed": 0,
-   "wrong": [],
+   "wrong": [
+    [
+     "rx",
+     "Rx.contra",
+     "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]"
+    ],
+    [
+     "rx",
+     "Rx.over",
+     "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]"
+    ]
+   ],
    "alerts": [
     {
      "section": "rx",
      "rule_id": "Rx.dose.weight",
      "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
-     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old needs about 125 mg per dose."
+     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old (about 18 kg) needs about 15 mg/kg, so about 270 mg per dose."
     },
     {
      "section": "rx",
      "rule_id": "Rx.demo",
      "evidence": "Diagnosis: Fever | Medication: Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal] | Chief_Complaint: Fever for 2 days | Health_Screening: none | Age: 4 | Gender: M",
-     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old needs about 125 mg per dose."
+     "why": "Napa 500 mg three times a day is an adult dose; a 4-year-old (about 18 kg) needs about 15 mg/kg, so about 270 mg per dose."
+    },
+    {
+     "section": "rx",
+     "rule_id": "Rx.contra",
+     "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+     "why": "The dose of 500 mg is higher than the reference fact for children 1-5 years (125-250 mg 4 times daily)."
+    },
+    {
+     "section": "rx",
+     "rule_id": "Rx.over",
+     "evidence": "Napa 500 mg (1 + 1 + 1) - (3 day(s)) [After meal]",
+     "why": "The prescribed dose of 500 mg is higher than the reference dose of 125-250 mg for children 1-5 years."
     }
    ]
   },
@@ -184,13 +207,119 @@
      "section": "rx",
      "rule_id": "Rx.freq.missing",
      "evidence": "Ace 500 mg",
-     "why": "The amount and frequency of the medication are not specified in the doctor's note."
+     "why": "The doctor did not specify the amount or frequency of the medication in the designated section."
     },
     {
      "section": "rx",
      "rule_id": "Rx.duration.missing",
      "evidence": "Ace 500 mg",
-     "why": "The doctor did not specify a duration for the medication."
+     "why": "The doctor did not specify a duration, and the drug database provides multiple different dosing schedules without a fixed treatment length."
+    }
+   ]
+  },
+  {
+   "case": "Inhaler with no amount written",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.freq.missing",
+     "evidence": "Azmasol 100 mcg - (30 day(s)) [As needed]",
+     "why": "The \"amount and how often\" section is empty, leaving the patient without a specific quantity (e.g., puffs or sprays) to take when the medicine is needed."
+    }
+   ]
+  },
+  {
+   "case": "Inhaler written in full (no meal timing needed)",
+   "known_gap": false,
+   "caught": 0,
+   "missed": 0,
+   "wrong": [],
+   "alerts": []
+  },
+  {
+   "case": "Two antihistamines together",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.dup",
+     "evidence": "Fexo 120 mg (0 + 0 + 1) - (14 day(s)) [After meal], Alatrol 10 mg (0 + 0 + 1) - (14 day(s)) [After meal]",
+     "why": "Both are antihistamines prescribed for the same purpose of allergic rhinitis."
+    }
+   ]
+  },
+  {
+   "case": "Antibiotic with no infection",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.over",
+     "evidence": "Diagnosis: Tension headache | Medication: Napa 500 mg (1 + 0 + 1) - (5 day(s)) [After meal], Azithrocin 500 mg (1 + 0 + 0) - (3 day(s)) [After meal] | Chief_Complaint: Headache for 5 days | Health_Screening: none | Age: 38 | Gender: M",
+     "why": "Azithrocin is prescribed, but no condition that calls for it is recorded in the complaints, diagnosis or past history."
+    }
+   ]
+  },
+  {
+   "case": "NSAID with a peptic ulcer history",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.contra",
+     "evidence": "Naprosyn 500 mg (1 + 0 + 1) - (10 day(s)) [After meal]",
+     "why": "The patient has a history of peptic ulcer and Naproxen is associated with an increased risk of GI bleeding."
+    }
+   ]
+  },
+  {
+   "case": "Warfarin with aspirin",
+   "known_gap": false,
+   "caught": 1,
+   "missed": 0,
+   "wrong": [
+    [
+     "rx",
+     "Rx.contra",
+     "Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal]"
+    ],
+    [
+     "rx",
+     "Rx.over",
+     "Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal]"
+    ]
+   ],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.ddi",
+     "evidence": "Warin 5 mg (0 + 0 + 1) - (30 day(s)) [After meal], Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal]",
+     "why": "Salicylates may enhance the effect of anticoagulants."
+    },
+    {
+     "section": "rx",
+     "rule_id": "Rx.contra",
+     "evidence": "Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal]",
+     "why": "Salicylates may enhance the effect of anticoagulants and the patient has a history of atrial fibrillation."
+    },
+    {
+     "section": "rx",
+     "rule_id": "Rx.over",
+     "evidence": "Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal]",
+     "why": "There is no mention of arterial occlusive events, myocardial infarction, or pain/inflammation in the complaints, history, or diagnosis."
     }
    ]
   },
@@ -207,170 +336,271 @@
    "known_gap": true,
    "caught": 0,
    "missed": 1,
-   "wrong": [],
-   "alerts": []
+   "wrong": [
+    [
+     "rx",
+     "Rx.contra",
+     "Antista 2 mg/5 ml (1/2 tsp twice) - (5 day(s)) [After meal]"
+    ]
+   ],
+   "alerts": [
+    {
+     "section": "rx",
+     "rule_id": "Rx.contra",
+     "evidence": "Antista 2 mg/5 ml (1/2 tsp twice) - (5 day(s)) [After meal]",
+     "why": "The prescribed dose of 2 mg/5 ml (1/2 tsp) is higher than the reference dose of 1 mg twice daily for a 1-2 year old."
+    }
+   ]
   }
  ],
  "timings": [
   [
    "chiefComplaints",
-   14.758010499999727
+   4.492825499997707
   ],
   [
    "pastHistory",
-   9.082472500000222
+   2.96622980000393
   ],
   [
    "chiefComplaints",
-   12.484496200000649
+   3.1020424000016646
   ],
   [
    "chiefComplaints",
-   2.1972261000009894
+   0.5667824999982258
   ],
   [
    "pastHistory",
-   7.678047100000185
+   1.8293991000027745
   ],
   [
    "chiefComplaints",
-   2.1937455000006594
+   0.5562815999946906
   ],
   [
    "pastHistory",
-   2.23368020000089
+   0.5358866000024136
   ],
   [
    "chiefComplaints",
-   2.1893897999998444
+   0.564979000002495
   ],
   [
    "pastHistory",
-   7.699239800000214
+   1.8663932000054047
   ],
   [
    "chiefComplaints",
-   2.1897732999987056
+   0.5532948999971268
   ],
   [
    "diagnosis",
-   7.69081339999866
+   2.382314499998756
   ],
   [
    "chiefComplaints",
-   2.1724555999990116
+   0.5735211999999592
   ],
   [
    "diagnosis",
-   2.169022499998391
+   0.5081677999987733
   ],
   [
    "chiefComplaints",
-   2.4055380999998306
+   0.6440932000041357
   ],
   [
    "investigations",
-   2.3574080999987927
+   0.7412973000027705
   ],
   [
    "diagnosis",
-   2.1893314000008104
+   0.4923538000002736
   ],
   [
    "chiefComplaints",
-   2.173423800000819
+   0.556986900002812
   ],
   [
    "investigations",
-   2.3334367999996175
+   0.702383000003465
   ],
   [
    "diagnosis",
-   2.180368900000758
+   0.4998792999977013
   ],
   [
    "chiefComplaints",
-   2.2021631999996316
+   0.564639599993825
   ],
   [
    "diagnosis",
-   2.170108299998901
+   0.503651400002127
   ],
   [
    "rx",
-   9.622353499999008
+   4.779123199994501
   ],
   [
    "advice",
-   2.1949397000007593
+   0.621585300003062
   ],
   [
    "chiefComplaints",
-   2.183284200000344
+   0.558308699997724
   ],
   [
    "diagnosis",
-   3.2448623000000225
+   0.4988766999958898
   ],
   [
    "rx",
-   2.412521199999901
+   2.196535800001584
   ],
   [
    "advice",
-   2.2318880000002537
+   0.5733533000020543
   ],
   [
    "chiefComplaints",
-   2.234270500001003
+   0.5693524000016623
   ],
   [
    "investigations",
-   2.396593800000119
+   0.7337459999980638
   ],
   [
    "diagnosis",
-   2.182719200000065
+   0.4936042000044836
   ],
   [
    "rx",
-   2.442286800000147
+   1.4119925999984844
   ],
   [
    "advice",
-   2.2417093999993085
+   0.598978400004853
   ],
   [
    "chiefComplaints",
-   2.161460799999986
+   0.6391740999970352
   ],
   [
    "diagnosis",
-   2.162039000000732
+   0.508134900002915
   ],
   [
    "rx",
-   8.988236999999572
+   3.778546900000947
   ],
   [
    "chiefComplaints",
-   2.1747295999994094
+   0.5803967999963788
   ],
   [
-   "chiefComplaints",
-   2.193662599998788
+   "pastHistory",
+   0.5667358999999124
   ],
   [
    "diagnosis",
-   2.158198799999809
+   0.4967813999974169
   ],
   [
    "rx",
-   3.53833350000059
+   2.829476599996269
+  ],
+  [
+   "chiefComplaints",
+   0.5782366999992519
+  ],
+  [
+   "pastHistory",
+   0.5178828999996767
+  ],
+  [
+   "diagnosis",
+   0.5020750999974553
+  ],
+  [
+   "rx",
+   2.7034987000006367
+  ],
+  [
+   "chiefComplaints",
+   0.5677916999993613
+  ],
+  [
+   "diagnosis",
+   0.5073806000000332
+  ],
+  [
+   "rx",
+   2.739399999998568
+  ],
+  [
+   "chiefComplaints",
+   0.5697720000025583
+  ],
+  [
+   "diagnosis",
+   0.5014041000031284
+  ],
+  [
+   "rx",
+   3.1178158999973675
+  ],
+  [
+   "chiefComplaints",
+   0.5633950000046752
+  ],
+  [
+   "pastHistory",
+   0.5634782999986783
+  ],
+  [
+   "diagnosis",
+   0.5038901000007172
+  ],
+  [
+   "rx",
+   2.326281599998765
+  ],
+  [
+   "chiefComplaints",
+   0.5617367999948328
+  ],
+  [
+   "pastHistory",
+   0.5297085000056541
+  ],
+  [
+   "diagnosis",
+   0.4996891999981017
+  ],
+  [
+   "rx",
+   3.23009330000059
+  ],
+  [
+   "chiefComplaints",
+   0.5643146000002162
+  ],
+  [
+   "chiefComplaints",
+   0.5741998000012245
+  ],
+  [
+   "diagnosis",
+   0.5101586999953724
+  ],
+  [
+   "rx",
+   2.762039100001857
   ],
   [
    "advice",
-   2.1872013000011066
+   0.6063738000011654
   ]
  ]
 }

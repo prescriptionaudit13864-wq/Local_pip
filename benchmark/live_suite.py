@@ -39,6 +39,7 @@ FAMILY = {
     "Hx.demo": {"Hx.context.demo"},
     "Dx.cc": {"Dx.cc.1", "Dx.cc.2"},
     "Rx.dose": {"Rx.demo", "Rx.dose.high", "Rx.dose.max", "Rx.dose.weight"},
+    "Rx.dup": {"Rx.dup", "Rx.dup.class"},
     "Inv": {"Inv.dx", "Inv.cc", "Inv.hs", "Inv.relevance", "Inv.rag.missing"},
 }
 
@@ -202,7 +203,8 @@ CASES = [
         "Female",
         30,
         {
-            "chiefComplaints": ["Fever for 3 days"],
+            # the heartburn gives omeprazole its reason: without it the medicine-choice check rightly asks why
+            "chiefComplaints": ["Fever for 3 days", "Heartburn for 1 week"],
             "diagnosis": ["Viral fever"],
             "rxList": [
                 med("Ace", "Paracetamol", "500 mg", "", "", instruction=""),
@@ -210,6 +212,95 @@ CASES = [
             ],
         },
         [("rx", "Rx.freq.missing", "Ace 500 mg"), ("rx", "Rx.duration.missing", "Ace 500 mg")],
+        False,
+    ),
+    # Pilot rehearsal 2 (Nov 2026): what the fast check missed, now asked of the base model with the drug facts.
+    (
+        "Inhaler with no amount written",
+        "Male",
+        34,
+        {
+            "chiefComplaints": ["Shortness of breath for 3 days"],
+            "pastHistory": ["Asthma for 6 years"],
+            "diagnosis": ["Bronchial asthma"],
+            "rxList": [med("Azmasol", "Salbutamol", "100 mcg", "", "30 days", instruction="As needed", form="Inhaler")],
+        },
+        [("rx", "Rx.freq.missing", "Azmasol")],
+        False,
+    ),
+    (
+        "Inhaler written in full (no meal timing needed)",
+        "Female",
+        29,
+        {
+            "chiefComplaints": ["Wheeze for 2 days"],
+            "pastHistory": ["Asthma for 4 years"],
+            "diagnosis": ["Bronchial asthma"],
+            "rxList": [
+                med("Azmasol", "Salbutamol", "100 mcg", "2 puffs when needed", "30 days", instruction="As needed",
+                    form="Inhaler")
+            ],
+        },
+        [],
+        False,
+    ),
+    (
+        "Two antihistamines together",
+        "Female",
+        27,
+        {
+            "chiefComplaints": ["Sneezing for 2 weeks"],
+            "diagnosis": ["Allergic rhinitis"],
+            "rxList": [
+                med("Fexo", "Fexofenadine", "120 mg", "0+0+1", "14 days"),
+                med("Alatrol", "Cetirizine", "10 mg", "0+0+1", "14 days"),
+            ],
+        },
+        [("rx", "Rx.dup", "Alatrol")],
+        False,
+    ),
+    (
+        "Antibiotic with no infection",
+        "Male",
+        38,
+        {
+            "chiefComplaints": ["Headache for 5 days"],
+            "diagnosis": ["Tension headache"],
+            "rxList": [
+                med("Napa", "Paracetamol", "500 mg", "1+0+1", "5 days"),
+                med("Azithrocin", "Azithromycin", "500 mg", "1+0+0", "3 days"),
+            ],
+        },
+        [("rx", "Rx.over", "Azithrocin")],
+        False,
+    ),
+    (
+        "NSAID with a peptic ulcer history",
+        "Male",
+        55,
+        {
+            "chiefComplaints": ["Knee pain for 3 weeks"],
+            "pastHistory": ["Peptic ulcer for 3 years"],
+            "diagnosis": ["Osteoarthritis of knee"],
+            "rxList": [med("Naprosyn", "Naproxen", "500 mg", "1+0+1", "10 days")],
+        },
+        [("rx", "Rx.contra", "Naprosyn")],
+        False,
+    ),
+    (
+        "Warfarin with aspirin",
+        "Male",
+        62,
+        {
+            "chiefComplaints": ["Headache for 3 days"],
+            "pastHistory": ["Atrial fibrillation for 2 years"],
+            "diagnosis": ["Tension headache"],
+            "rxList": [
+                med("Warin", "Warfarin", "5 mg", "0+0+1", "30 days"),
+                med("Ecosprin", "Aspirin", "300 mg", "1+0+1", "5 days"),
+            ],
+        },
+        [("rx", "Rx.ddi", "Ecosprin")],
         False,
     ),
     (

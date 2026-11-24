@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from .rule_text import RULE_TEXT
+from .rx_line import split_app_line
 
 TAXONOMY_PATH = Path(__file__).resolve().parent / "configs" / "finetune_taxonomy.json"
 UNSUPPORTED_POLICIES = {"confirm_high", "omit", "confirm"}
@@ -313,12 +314,12 @@ KNOWLEDGE_QUESTIONS: dict[str, tuple[str, str]] = {
         "Patient: {patient}. Diagnosis: {diagnosis}. Medicine line exactly as the doctor wrote it: '{entry}'.\n"
         "{parts}"
         "Reference facts for this medicine from the drug database:\n{facts}\n"
-        "Is the amount to take or how often to take it missing, or impossible to understand, so the patient would "
-        "not know how to take this medicine? Any understandable schedule counts as written: 1+0+1, ১+০+১, "
-        "1 tab twice daily, 1/2 tsp twice, 1 tab when needed, 2 puffs when needed, SOS, at night, once only. "
-        "A schedule does not need an interval in hours: 'twice' means twice a day, and 'when needed' or SOS is a "
-        "complete schedule. Answer YES only when the amount-and-how-often part is not written or is meaningless "
-        "text. Whether the amount is the right dose is a different check: do not judge it here.",
+        "Is the amount and how often to take it missing or meaningless, so the patient would not know how much to "
+        "take each time? Any understandable schedule is fine, without an interval in hours: 1+0+1, ১+০+১, "
+        "1 tab twice daily, 1/2 tsp twice, 1 tab when needed, 2 puffs when needed, SOS, once at night, or an amount "
+        "tied to an event such as 1 sachet after each loose stool. When the "
+        "line is split into parts above, judge the amount-and-how-often part: if it is (nothing written), the "
+        "answer is YES, even when the instruction says 'As needed'. Do not judge whether the dose is right.",
         "Write the dose and how often to take it (for example 1+0+1), checked against the reference dose.",
     ),
     "Rx.duration.missing": (
@@ -331,14 +332,6 @@ KNOWLEDGE_QUESTIONS: dict[str, tuple[str, str]] = {
         "Write how long the medicine should be taken (days, weeks, or continue).",
     ),
 }
-# The app writes a medicine line as `<name> <strength> (<amount and how often>) - (<duration>) [<instruction>]`
-# (app_adapter.medication_line), leaving out a part the doctor did not fill in.
-_RX_LINE = re.compile(
-    r"^(?P<name>[^(\[]+?)\s*"
-    r"(?:\((?P<freq>(?:[^()]|\([^()]*\))*)\))?\s*"  # one inner bracket is allowed: "5 day(s)"
-    r"(?:-\s*\((?P<dur>(?:[^()]|\([^()]*\))*)\))?\s*"
-    r"(?:\[(?P<note>[^\]]*)\])?\s*$"
-)
 _NOT_WRITTEN = "(nothing written)"
 
 
@@ -347,17 +340,258 @@ def _medicine_line_parts(line: str) -> str:
 
     The model judged the bare line unreliably: it missed "Ace 500 mg" having no schedule and faulted "1/2 tsp
     twice". Named parts let it judge what is written instead of first having to take the line apart."""
-    match = _RX_LINE.match(line.strip())
-    if not match:
+    parts = split_app_line(line)
+    if parts is None:
         return ""
-    part = lambda key: (match.group(key) or "").strip() or _NOT_WRITTEN  # noqa: E731
     return (
         "What the doctor wrote in each part of the line:\n"
-        f"- medicine and strength: {part('name')}\n"
-        f"- amount and how often: {part('freq')}\n"
-        f"- duration: {part('dur')}\n"
-        f"- instruction: {part('note')}\n"
+        f"- medicine and strength: {parts['name'] or _NOT_WRITTEN}\n"
+        f"- amount and how often: {parts['freq'] or _NOT_WRITTEN}\n"
+        f"- duration: {parts['dur'] or _NOT_WRITTEN}\n"
+        f"- instruction: {parts['note'] or _NOT_WRITTEN}\n"
     )
+
+
+# Choice-of-medicine checks over the whole medicine list. The fine-tune lists these rules but almost never raises
+# them (pilot rehearsal 2, Nov 2026: duplicates 0/13, antibiotic with no infection 3/14, drug against the history 0/4,
+# interactions 0/3), so the base model is asked about each one with every medicine's reference facts from the drug
+# database. {context} is the patient and the record so far, {medicines} the numbered medicine lines.
+PRESCRIPTION_QUESTIONS: dict[str, tuple[str, str, int]] = {
+    # rule id: (question, correction shown when confirmed, minimum number of medicines)
+    # Asked in this order. When the duplicate and the interaction question both name the same two medicines, only
+    # the first is shown (provider._one_choice_alert_per_medicines): the duplicate answer is the more specific
+    # claim (it must say "same class"), and on vLLM the interaction question also named same-class pairs.
+    "Rx.dup": (
+        "Which medicine duplicates another one: the same drug twice, or a second drug of the same class (the "
+        "class in square brackets in the reference facts) given for the same purpose, for example propranolol "
+        "with atenolol? Drugs of different classes are not duplicates, even when they act on a similar problem "
+        "(an anticoagulant with an antiplatelet, a pain killer with a stomach protector).",
+        "Keep one medicine of the class, or document why both are needed.",
+        2,
+    ),
+    "Rx.ddi": (
+        "Which two medicines have a major, clinically important interaction with each other that the "
+        "prescription does not address, for example clarithromycin with simvastatin? Use the interactions in the "
+        "reference facts and established medical knowledge. A minor or theoretical interaction, or two medicines "
+        "that merely share a side effect, does not count. Two drugs of the same class (the class in square "
+        "brackets) given for the same purpose are a duplicate, which is a separate check: answer NONE for them "
+        "here.",
+        "Review the combination: avoid it, adjust the dose, or document monitoring.",
+        2,
+    ),
+    "Rx.contra": (
+        "Which medicine is unsafe for this patient because of a condition that IS WRITTEN in this prescription "
+        "(past history, complaints, examination or diagnosis), or because of the patient's age, sex or "
+        "pregnancy? For example propranolol when asthma is written, or metformin when severe kidney failure is "
+        "written. A possible allergy or condition that is not written does not count, and neither does a "
+        "general warning that applies to every patient.",
+        "Review the medicine against the patient's condition; choose a safer alternative or document the reason.",
+        1,
+    ),
+    "Rx.over": (
+        "Which medicine has no condition written in this prescription that it treats? For each medicine, look "
+        "for its condition in the complaints, past history, examination and diagnosis. A written diagnosis is "
+        "enough: do not ask for more evidence for it (acute otitis media, a urinary tract infection or "
+        "pharyngitis are written infections that justify an antibiotic). A written complaint that the medicine "
+        "treats is a reason too, even with no matching diagnosis: an acid reducer for heartburn or dyspepsia, an "
+        "antihistamine for itching or sneezing, a pain killer for a pain. An antibiotic with no infection written "
+        "anywhere is not justified.",
+        "Remove the medicine or document the condition it is prescribed for.",
+        1,
+    ),
+}
+# A choice question asks the model to name a medicine or write NONE: asked YES/NO over a whole list, the model
+# said YES to almost every check (a warning that applies to every patient, "no major interaction... YES").
+_NAME_FORMAT = (
+    "Reply on one line in exactly this form: ANSWER: <the medicine name(s), or NONE> | REASON: <one short sentence "
+    "that quotes the written condition or reference fact it rests on>. Write NONE when nothing clearly qualifies."
+)
+_NAMED_ANSWER = re.compile(r"answer\W*:\W*(?P<names>[^|\n]*)(?:\|\W*reason\W*:\s*(?P<reason>.*))?", re.IGNORECASE)
+
+
+def named_answer(answer: str) -> tuple[str, str] | None:
+    """(names, reason) from an "ANSWER: ... | REASON: ..." reply, or None for NONE or an unreadable reply."""
+    match = _NAMED_ANSWER.search(answer or "")
+    if not match:
+        return None
+    names = match.group("names").strip().strip(".*<> ")
+    if not names or re.fullmatch(r"(?i)(none|no|nil|n/?a|-)\W*", names):
+        return None
+    return names, (match.group("reason") or "").split("\n", 1)[0].strip(" *")
+
+
+def finding_from_named(candidate: Mapping[str, Any], answer: str, fields: Mapping[str, Any]) -> dict[str, Any] | None:
+    """A finding for a choice question the model answered with a medicine, pointed at the lines it names."""
+    named = named_answer(answer)
+    if named is None:
+        return None
+    names, reason = named
+    rule_id = str(candidate.get("rule_id", "")).strip()
+    lines = lines_named(f"{names} {reason}", medicine_lines(fields), fields)
+    return {
+        "candidate_id": candidate.get("candidate_id", ""),
+        "rule_name": candidate.get("rule_name", ""),
+        "rule_id": rule_id,
+        "why": reason or f"{names}: {RULE_TEXT.get(rule_id, ('needs review', ''))[0]}",
+        "correction": PRESCRIPTION_QUESTIONS[rule_id][1],
+        "evidence": ", ".join(lines) or str(candidate.get("evidence", "")),
+        "confidence": "medium",
+        # No rule-engine candidate proposes these checks; without this mark the audit writer drops the finding.
+        "model_first": True,
+    }
+
+
+_RULE_NAMES = {
+    "Rx.dup": "duplicate_or_same_class_polypharmacy",
+    "Rx.over": "overprescribing_without_matching_condition",
+    "Rx.contra": "medicine_contraindicated_by_patient_condition",
+    "Rx.ddi": "drug_drug_interaction_unaddressed",
+}
+
+
+def _patient_text(fields: Mapping[str, Any]) -> str:
+    age, gender = str(fields.get("Age", "") or "").strip(), str(fields.get("Gender", "") or "").strip()
+    sex = {"m": "male", "f": "female"}.get(gender[:1].casefold(), "patient")
+    return " ".join(part for part in (f"{age}-year-old" if age else "", sex) if part)
+
+
+def _record_context(fields: Mapping[str, Any]) -> str:
+    """The patient and the written record, one labelled line per field; a field not written yet says so."""
+    labels = (
+        ("Chief_Complaint", "Complaints"),
+        ("Past_History", "Past history"),
+        ("Health_Screening", "Health screening"),
+        ("On_Examination", "Examination"),
+        ("Investigation", "Investigations ordered"),
+        ("Investigation_Results", "Investigation results"),
+        ("Diagnosis", "Diagnosis"),
+    )
+    lines = [f"Patient: {_patient_text(fields)}."]
+    lines += [f"{label}: {str(fields.get(key, '') or '').strip() or 'not written'}" for key, label in labels]
+    return "\n".join(lines)
+
+
+def medicine_lines(fields: Mapping[str, Any]) -> list[str]:
+    """The prescription's medicine lines (the app joins them with ", "; a comma inside brackets is kept)."""
+    text = str(fields.get("Medication", "") or "")
+    lines, depth, current = [], 0, ""
+    for char in text:
+        depth += char in "(["
+        depth -= char in ")]"
+        if char in ",\n" and depth <= 0:
+            lines.append(current.strip())
+            current = ""
+        else:
+            current += char
+    lines.append(current.strip())
+    return [line for line in lines if line]
+
+
+def build_prescription_questions(
+    fields: Mapping[str, Any], rules: set[str] | frozenset[str]
+) -> list[tuple[dict[str, Any], str]]:
+    """(candidate, question) for each choice-of-medicine check in `rules` that applies to this medicine list."""
+    lines = medicine_lines(fields)
+    if not lines:
+        return []
+    out = []
+    numbered = "\n".join(f"{i}. {line}" for i, line in enumerate(lines, 1))
+    facts = "\n".join(_medicine_facts_text(line, fields) for line in lines)
+    context = _record_context(fields)
+    for rule, (template, _correction, minimum) in PRESCRIPTION_QUESTIONS.items():
+        if rule not in rules or len(lines) < minimum:
+            continue
+        candidate = {
+            "candidate_id": f"{rule}:question",
+            "rule_name": _RULE_NAMES[rule],
+            "rule_id": rule,
+            "evidence": ", ".join(lines),
+            "section": "Rx",
+        }
+        question = f"{context}\nMedicines:\n{numbered}\nReference facts from the drug database:\n{facts}\n{template}"
+        out.append((candidate, question + " " + _NAME_FORMAT))
+    return out
+
+
+def lines_named(why: str, lines: list[str], fields: Mapping[str, Any]) -> list[str]:
+    """The medicine lines an answer names, by brand or generic name, in the prescription's order."""
+    text = why.casefold()
+    named = []
+    for line in lines:
+        names = {(split_app_line(line) or {}).get("name", "") or line}
+        try:
+            for medicine in _mapper().map(line):
+                names |= {str(medicine.get("brand_name", "") or ""), str(medicine.get("generic_name", "") or "")}
+        except Exception:  # noqa: BLE001 - match on the written name only
+            pass
+        words = set()
+        for name in (name.strip().casefold() for name in names if name.strip()):
+            words.add(re.split(r"\s+\d", name, maxsplit=1)[0])  # the name without its strength
+            words.add(name.split()[0])  # "warfarin" of "Warfarin Sodium"
+        words -= {"oral", "tab", "tab.", "cap", "cap.", "syp", "syp."}
+        if any(len(word) >= 3 and re.search(rf"\b{re.escape(word)}", text) for word in words):
+            named.append(line)
+    return named
+
+
+# Second opinion on a fast-check finding of a rule the fine-tune often raises wrongly (pilot rehearsal 2: "required
+# medicine missing" mostly wrong, a diagnosis said not to explain a complaint it explains, a test questioned before
+# the diagnosis was written). The base model sees the record and the finding and decides whether it stands.
+VERIFY_QUESTION = (
+    "{context}\nMedicines: {medicines}\n{facts}"
+    "An automated first check raised this concern about the {section} section:\n"
+    "Entry: {evidence}\nConcern: {why}\n"
+    "As a senior physician, would you ask the doctor to correct this? DROP the concern when it is medically "
+    "wrong, when it rests on a condition, allergy or medicine that is not written in this prescription, when "
+    "the entry is usual practice for this patient (a diagnosis explains a complaint that is a recognised symptom "
+    "or consequence of it, whether the diagnosis is acute or chronic), or when it only depends on the diagnosis "
+    "and the "
+    "diagnosis is not written yet (the check is repeated once it is). KEEP it when the entry really is a problem, "
+    "including an error that does not depend on the diagnosis (a test or medicine unsuitable for the patient's "
+    "sex or age, two medicines doing the same job)."
+)
+# Reason first, then the verdict: asked YES/NO first, the model answered "NO." and then explained why the concern was
+# right ("two antihistamines... redundant"), which dropped correct alerts.
+_VERIFY_FORMAT = "Reply on one line in exactly this form: REASON: <one short sentence> | VERDICT: KEEP or DROP"
+_VERDICT = re.compile(r"verdict\W*:?\W*(keep|drop)", re.IGNORECASE)
+_SECTION_NAMES = {
+    "CC": "chief complaints",
+    "Hx": "past history",
+    "Inv": "investigations",
+    "Dx": "diagnosis",
+    "Rx": "medicines",
+    "Adv": "advice",
+}
+
+
+def build_verify_question(finding: Mapping[str, Any], section: str, fields: Mapping[str, Any]) -> str:
+    return (
+        VERIFY_QUESTION.format(
+            context=_record_context(fields),
+            medicines=str(fields.get("Medication", "") or "").strip() or "not written",
+            # Without the drug facts the second look confused brands (Alatrol taken for amlodipine).
+            facts=(
+                "Reference facts from the drug database:\n"
+                + "\n".join(_medicine_facts_text(line, fields) for line in medicine_lines(fields))
+                + "\n"
+                if section == "Rx" and medicine_lines(fields)
+                else ""
+            ),
+            section=_SECTION_NAMES.get(section, section),
+            evidence=str(finding.get("evidence", "") or "").strip()[:400],
+            why=str(finding.get("why", "") or "").strip()[:400],
+        )
+        + " "
+        + _VERIFY_FORMAT
+    )
+
+
+def answer_is_no(answer: str) -> bool:
+    """True only for a clear DROP verdict; an unreadable answer keeps the finding."""
+    match = _VERDICT.search(answer or "")
+    return bool(match) and match.group(1).casefold() == "drop"
+
+
 # Checks about one medicine line: their question carries that medicine's reference facts.
 _MEDICINE_QUESTION_RULES = {"Rx.freq.missing", "Rx.duration.missing"}
 
@@ -369,7 +603,23 @@ def _medicine_facts_text(line: str, fields: Mapping[str, Any]) -> str:
     except Exception:  # noqa: BLE001 - the question still works without reference facts
         facts = ""
     return facts or "(no reference entry found for this medicine)"
-_EVIDENCE_LABELS = ("Past history: ", "Entered chief complaint: ", "Complaint: ")
+
+
+_CLASS_STOP = {"drug", "agent", "for", "non", "sedating", "oral", "of", "and", "the", "blocking", "other", "selective"}
+
+
+def medicine_class(line: str, fields: Mapping[str, Any]) -> tuple[str, frozenset[str]] | None:
+    """(generic, class words) of a medicine line from the drug database ("Sedating Anti-histamine" ->
+    {"antihistamine"}), or None when the database has no class for it."""
+    match = re.search(r"= ([^\[\n]*?)\s*\[([^\]]+)\]", _medicine_facts_text(line, fields))
+    if not match:
+        return None
+    text = re.sub(r"\banti[\s-]+", "anti", match.group(2).casefold())
+    words = {w.rstrip("s") for w in re.findall(r"[a-z]+", text)} - _CLASS_STOP
+    return match.group(1).strip().casefold(), frozenset(w for w in words if len(w) > 2)
+
+
+_EVIDENCE_LABELS =("Past history: ", "Entered chief complaint: ", "Complaint: ")
 _ANSWER_FORMAT = "Answer YES or NO first, then one short sentence explaining why."
 
 
@@ -424,7 +674,7 @@ def finding_from_answer(candidate: Mapping[str, Any], answer: str, question: str
         "rule_name": candidate.get("rule_name", ""),
         "rule_id": rule_id,
         "why": why or RULE_TEXT.get(rule_id, ("This entry needs review for this check.", ""))[0],
-        "correction": KNOWLEDGE_QUESTIONS[rule_id][1],
+        "correction": (KNOWLEDGE_QUESTIONS.get(rule_id) or PRESCRIPTION_QUESTIONS.get(rule_id) or ("", ""))[1],
         "evidence": candidate.get("evidence", ""),
         "confidence": "medium",
     }
@@ -432,6 +682,15 @@ def finding_from_answer(candidate: Mapping[str, Any], answer: str, question: str
 
 __all__ = [
     "KNOWLEDGE_QUESTIONS",
+    "PRESCRIPTION_QUESTIONS",
+    "answer_is_no",
+    "build_prescription_questions",
+    "build_verify_question",
+    "finding_from_named",
+    "named_answer",
+    "lines_named",
+    "medicine_class",
+    "medicine_lines",
     "candidate_line",
     "build_knowledge_question",
     "finding_from_answer",

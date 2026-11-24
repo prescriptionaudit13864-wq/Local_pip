@@ -45,10 +45,15 @@ TASK = """Check the {title} section ({names}). Use the rest of the prescription 
 This clinic's documentation standard (from its physicians):
 - A complaint, finding, test or diagnosis about a body part that exists on both sides or more than once (ear, eye,
   limb, joint, breast, kidney, tooth...) must say which one (left, right, both, or which tooth); a missing side is
-  reported as "documentation". Single organs (bladder, heart, stomach, uterus, liver...) have no side.
+  reported as "documentation". Single organs (bladder, heart, stomach, uterus, liver...) and midline areas (back,
+  low back, neck, spine, chest, abdomen, head, throat) have no side. A missing side is reported once, in the first
+  section that names the body part (usually the complaint), not again for the test, diagnosis or medicine about it;
+  a medicine line never needs a side.
 - Severity must be stated only for symptoms where it decides emergency care (for example chest pain, breathlessness,
   sudden severe headache, severe abdominal pain). Do not ask for the severity of ordinary complaints (itching,
-  thirst, cough, fever, urinary symptoms, routine aches, an ordinary headache).
+  thirst, cough, fever, urinary symptoms, routine aches, back pain, joint pain, an ordinary headache), and not
+  when the diagnosis already explains a non-urgent symptom (headache in hypertension, back pain in spondylosis).
+  A symptom present for weeks or months (abdominal pain for 2 weeks) is not an emergency.
 - An antibiotic course longer than 14 days without a stated reason is reported as "review".
 
 Report a problem in this section when, for this patient:
@@ -184,7 +189,9 @@ VERIFY = """A colleague listed these possible problems in the {title} section of
 For each one, decide as a senior physician of this clinic: is it a real error that you would ask the prescribing doctor
 to correct for this patient? In this clinic a missing side for a body part that exists on both sides or more than once,
 and a missing severity for a symptom where severity decides emergency care (such as chest pain), are real
-documentation errors; severity of ordinary complaints is not. A comment on how complete a diagnosis is (premature,
+documentation errors; severity of ordinary complaints (headache, back or joint pain, routine aches) is not, and
+the back, neck, chest, abdomen and head have no side. A symptom lasting weeks is not an emergency. A missing side
+already reported for the complaint, or asked of a medicine line, is not a real error here. A comment on how complete a diagnosis is (premature,
 non-specific, other causes possible), or on a dose other than an adult dose for a child or an antibiotic longer than
 14 days, is not a real error. Drop it if it is a usual practice (including a working diagnosis made before test results are back,
 and a usual dose for the use), a matter of preference, a wrong medical claim, about a section not written yet, or a
@@ -238,6 +245,39 @@ def in_section(row: Mapping[str, Any], section_key: str, problems: list[dict[str
         entry = re.sub(r"\s+", " ", p.get("entry", "")).strip().casefold()
         if not entry or entry in ("n/a", "none", "not provided") or entry[:20] in text:
             out.append(p)
+    return out
+
+
+# Body parts that exist on both sides or more than once (the documentation standard in TASK above).
+_PAIRED_PART = re.compile(
+    r"\b(ears?|eyes?|knees?|hips?|shoulders?|elbows?|wrists?|ankles?|feet|foot|hands?|legs?|arms?|limbs?|breasts?|"
+    r"kidneys?|testes|testis|testicles?|ovar(?:y|ies)|lungs?|tooth|teeth|joints?)\b",
+    re.IGNORECASE,
+)
+
+
+def side_once(row: Mapping[str, Any], section_key: str, problems: list[dict[str, str]]) -> list[dict[str, str]]:
+    """The documentation standard's "a missing side is reported once" (TASK above), which the model did not keep: in
+    pilot rehearsal 2 one knee without a side was reported in up to five sections, even on "Reduce weight" and on the
+    medicine line. A side reminder is dropped when an earlier section already names that body part (it was reported
+    there). Display filter only: it never adds a problem."""
+    names = [item[0] for item in SECTIONS]
+    earlier = " ".join(
+        str(row.get(field, "") or "") for key, _s, field, _t in SECTIONS[: names.index(section_key)]
+    ).casefold() if section_key in names else ""
+    out = []
+    for p in problems:
+        if p.get("type") != "side_missing":
+            out.append(p)
+            continue
+        part = _PAIRED_PART.search(f"{p.get('problem', '')} {p.get('entry', '')}")
+        if part is None:
+            out.append(p)  # no paired body part named: nothing to compare
+            continue
+        word = part.group(1).casefold().rstrip("s")  # "knees" -> "knee"
+        if re.search(rf"\b{re.escape(word)}", earlier):
+            continue
+        out.append(p)
     return out
 
 

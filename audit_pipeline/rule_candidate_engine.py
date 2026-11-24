@@ -13,6 +13,7 @@ from typing import Any
 
 from .frequency_parser import normalize_digits
 from .investigation_catalog import match_investigation
+from .rx_line import split_app_line
 from .text_translation import translated_text
 
 SECTIONS = ("Demo", "CC", "Hx", "Dx", "Inv", "Rx", "Adv")
@@ -144,9 +145,11 @@ _MEAL_TIMING = re.compile(
     r"\b(?:ac|pc)\b",
     re.IGNORECASE,
 )
+# Forms that are not swallowed, so meal timing does not apply. "inhal" used to be a whole word and never matched
+# "inhaler"; the drug database calls some inhalers "Respirator Solution" (pilot rehearsal 2, Nov 2026).
 _NON_ORAL_FORM = re.compile(
-    r"\b(topical|cream|ointment|gel|nasal|inhal|injection|infusion|"
-    r"suppository|eye drop|ear drop|spray)\b",
+    r"\b(topical|cream|ointment|gel|lotion|nasal|inhal\w*|respirator\w*|nebuli[sz]\w*|evohaler|rotacaps?|"
+    r"puffs?|injection|injectable|infusion|suppositor\w*|pessar\w*|patch|eye drops?|ear drops?|spray)\b",
     re.IGNORECASE,
 )
 _SPECIAL_TIMING_EXEMPT = re.compile(
@@ -2097,8 +2100,11 @@ def generate_rule_candidates(
                 )
             )
         # A candidate only asks the model; the model decides. It used to need a written strength and duration, so a
-        # line with nothing after the name ("Ace 500 mg") was never checked for its missing dose frequency.
-        if raw and frequency_type == "unknown":
+        # line with nothing after the name ("Ace 500 mg") was never checked for its missing dose frequency. An app
+        # line whose amount-and-how-often part is empty is asked too, even when its instruction reads as a schedule
+        # ("Azmasol 100 mcg [As needed]" says nothing about how many puffs).
+        app_parts = split_app_line(raw) if raw else None
+        if raw and (frequency_type == "unknown" or (app_parts is not None and not app_parts["freq"])):
             grouped["Rx"].append(
                 _candidate(
                     "Rx",
