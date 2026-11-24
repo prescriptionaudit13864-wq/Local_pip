@@ -1,6 +1,6 @@
 # Stop the doctor pilot: the public link first (doctors are cut off at once), then the app, audit server and vLLM.
-$ts = "C:\Program Files\Tailscale\tailscale.exe"
-if (Test-Path $ts) { & $ts funnel reset | Out-Null; Write-Host "Public link closed." }
+Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force
+Write-Host "Public link closed."
 foreach ($port in 4173, 8765) {
     Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
 }

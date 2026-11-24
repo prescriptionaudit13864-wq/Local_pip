@@ -30,3 +30,4 @@ audit_pipeline/configs/*.before_install.json
 pilot/doctors.json
 pilot/secret
 pilot/link.txt
+pilot/cloudflared*.log

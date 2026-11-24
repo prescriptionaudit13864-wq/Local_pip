@@ -47,7 +47,8 @@ button{margin-top:20px;width:100%;padding:12px;font-size:16px;border:0;border-ra
 <button type="submit">Sign in</button>${msg ? `<div class="err">${msg}</div>` : ''}</form></body></html>`;
 
 function clientKey(req) {
-  return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  // Cloudflare Tunnel puts the doctor's real address in cf-connecting-ip.
+  return String(req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 }
 
 function login(req, res) {
@@ -68,7 +69,7 @@ function login(req, res) {
     fails.delete(key);
     const expires = now + SESSION_HOURS * 3600 * 1000;
     const value = `${hit[0]}|${expires}`;
-    const secure = req.headers['x-forwarded-proto'] === 'https' || /\.ts\.net$/i.test(String(req.headers.host || '').split(':')[0]);
+    const secure = req.headers['x-forwarded-proto'] === 'https' || /\.(ts\.net|trycloudflare\.com)$/i.test(String(req.headers.host || '').split(':')[0]);
     res.statusCode = 303;
     res.setHeader('Set-Cookie', `${COOKIE}=${encodeURIComponent(`${value}|${sign(value)}`)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_HOURS * 3600}${secure ? '; Secure' : ''}`);
     res.setHeader('Location', '/');

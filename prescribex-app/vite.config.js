@@ -19,6 +19,6 @@ export default defineConfig({
   // pilotAuth first: with PILOT_MODE=1 (pilot/start_pilot.ps1) every page and API call needs a doctor sign-in.
   plugins: [pilotAuth(), react(), prescriptionBackend()],
   server: { proxy: auditProxy },
-  // The pilot serves the built app with `vite preview` behind a Tailscale Funnel link (*.ts.net).
-  preview: { host: '127.0.0.1', port: 4173, strictPort: true, proxy: auditProxy, allowedHosts: ['.ts.net'] },
+  // The pilot serves the built app with `vite preview` behind a Cloudflare Tunnel link (*.trycloudflare.com).
+  preview: { host: '127.0.0.1', port: 4173, strictPort: true, proxy: auditProxy, allowedHosts: ['.trycloudflare.com', '.ts.net'] },
 })
