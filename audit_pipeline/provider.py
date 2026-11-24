@@ -11,15 +11,22 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from .finetune_prompt import (
+    PRESCRIPTION_QUESTIONS,
     RULE_ALIASES,
     UNSUPPORTED_POLICIES,
+    answer_is_no,
     build_finetune_prompt,
     build_knowledge_question,
+    build_prescription_questions,
+    build_verify_question,
     detected_rule_map,
     finding_from_answer,
+    finding_from_named,
     findings_from_detected,
     flatten_candidates,
     load_taxonomy,
+    medicine_class,
+    medicine_lines,
     parse_section_task,
     trained_rule_ids,
 )
@@ -32,7 +39,12 @@ log = logging.getLogger(__name__)
 
 _KNOWLEDGE_SYSTEM = "You are a careful clinical documentation reviewer."
 DEFAULT_QUESTION_RULES = "CC.2,CC.4,CC.term.unclear,CC.context.conflict,Hx.term.unclear,Hx.context.conflict"
-DEFAULT_RX_QUESTION_RULES = "Rx.freq.missing,Rx.duration.missing"
+# Medicine questions answered by the base model: line checks, then choice-of-medicine checks (finetune_prompt.py).
+DEFAULT_RX_QUESTION_RULES = "Rx.freq.missing,Rx.duration.missing,Rx.dup,Rx.over,Rx.contra,Rx.ddi"
+# Fast-check rules the base model double-checks before they are shown (a clear NO drops the finding).
+DEFAULT_VERIFY_RULES = "Rx.cc.sym,Dx.cc.1,Dx.cc.2,Inv.cc,Inv.hs,Inv.dx,Adv.cc"
+_QUESTION_TOKENS = 90  # YES/NO plus one sentence that may name two medicines and a risk
+_MAX_BATCH_PADDING = 64  # tokens; see _answer_questions
 DEFAULT_ENGINE_CONFIRMED = (
     ""  # the model judges every rule; e.g. "CC.3,Rx.timing" lets the rule engine confirm those alone
 )
@@ -41,6 +53,65 @@ _LINE_FIELDS = {"CC": "Chief_Complaint", "Hx": "Past_History"}
 _LINE_LABELS = {"CC": "Complaint: ", "Hx": "Past history: "}
 # The field a model-first finding points at when the model names no single line.
 _SECTION_FIELD = {"Dx": "Diagnosis", "Inv": "Investigation", "Rx": "Medication", "Adv": "Advice", "Demo": "Age"}
+
+
+def _no_swallowed_medicine(task: Mapping[str, Any]) -> bool:
+    """True when every medicine in the task is a form that is not swallowed (inhaler, cream, drops...)."""
+    from .rule_candidate_engine import _NON_ORAL_FORM
+
+    medicines = [m for m in task.get("normalized_medicines") or [] if isinstance(m, Mapping)]
+    return bool(medicines) and all(
+        _NON_ORAL_FORM.search(f"{m.get('dosage_form', '')} {m.get('raw_text', '')}") for m in medicines
+    )
+
+
+# The two checks that judge a pair of medicines together.
+_PAIR_RULES = {"Rx.dup", "Rx.ddi"}
+
+
+def _same_class(lines: frozenset[str], fields: Mapping[str, Any]) -> bool | None:
+    """True when the medicines share the same generic or a class word in the drug database, False when their classes
+    differ, None when a class is not in the database."""
+    found = [medicine_class(line, fields) for line in lines]
+    if any(item is None for item in found):
+        return None
+    generics = {generic for generic, _words in found}
+    if len(generics) < len(found):
+        return True
+    words = [w for _generic, w in found]
+    return bool(frozenset.intersection(*words))
+
+
+def _one_choice_alert_per_medicines(findings: list[dict[str, Any]], fields: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """One duplicate-or-interaction alert per pair of medicines. On both engines the two questions sometimes named
+    the same pair: two antihistamines also as an "interaction", warfarin with aspirin also as a "duplicate". The
+    drug database decides which label is right: medicines that share a generic or a class word (antihistamine,
+    proton pump inhibitor, beta) are a duplicate, medicines of different classes (an anticoagulant and an
+    antiplatelet) an interaction; with a class missing from the database the duplicate (asked first) is kept.
+    Other alerts (no reason, unsafe for this patient, a fast-check finding, a missing dose or duration) are never
+    dropped here."""
+    lines = medicine_lines(fields)
+
+    def named(item: Mapping[str, Any]) -> frozenset[str]:
+        evidence = str(item.get("evidence", ""))
+        return frozenset(line for line in lines if line and line in evidence)
+
+    asked = [
+        item
+        for item in findings
+        if _trained_rule(item.get("rule_id", "")) in _PAIR_RULES
+        and str(item.get("candidate_id", "")).endswith(":question")
+        and len(named(item)) >= 2
+    ]
+    dropped: list[Mapping[str, Any]] = []
+    for item in asked:
+        others = [o for o in asked if o is not item and named(o) == named(item) and o["rule_id"] != item["rule_id"]]
+        if not others or any(item is d for d in dropped) or any(o is d for o in others for d in dropped):
+            continue
+        same = _same_class(named(item), fields)
+        keep = "Rx.ddi" if same is False else "Rx.dup"
+        dropped += [x for x in (item, *others) if x["rule_id"] != keep]
+    return [item for item in findings if not any(item is d for d in dropped)]
 
 
 def _trained_rule(rule_id: Any) -> str:
@@ -335,6 +406,12 @@ class LocalChatProvider:
             for item in os.getenv("FINETUNE_RX_QUESTION_RULES", DEFAULT_RX_QUESTION_RULES).split(",")
             if item.strip() and item.strip().casefold() != "none"
         }
+        # Second opinion on fast-check findings of rules it often raises wrongly. FINETUNE_VERIFY_RULES=none: off.
+        self.verify_rules = {
+            item.strip()
+            for item in os.getenv("FINETUNE_VERIFY_RULES", DEFAULT_VERIFY_RULES).split(",")
+            if item.strip() and item.strip().casefold() != "none"
+        }
         # Rules whose rule-engine candidate is already the finding (a complaint line with no duration, a medicine
         # with no meal timing): confirmed without waiting for the model, which answers per section and can leave
         # one out when it reports another rule. Comma-separated trained rule ids; "none" turns it off.
@@ -593,7 +670,13 @@ class LocalChatProvider:
                 if own:
                     f["why"] = own
         if self.model_first:
-            findings += self._model_first_findings(section, fields, candidates, flagged, line_answers)
+            own = self._model_first_findings(section, fields, candidates, flagged, line_answers)
+            if section == "Rx" and _no_swallowed_medicine(task):
+                # Meal timing applies only to medicines that are swallowed: the rule engine never proposes it for
+                # an inhaler or a cream, and the model raising it on its own for one was a false alert (pilot
+                # rehearsal 2: "meal timing missing" for a salbutamol inhaler, 3 times).
+                own = [item for item in own if item.get("rule_id") != "Rx.timing"]
+            findings += own
         return {"section": section, "findings": findings}
 
     def _model_first_findings(
@@ -821,43 +904,90 @@ class LocalChatProvider:
             excluded |= {str(c.get("candidate_id", "")) for c, _ in group if c not in keep}
         return excluded
 
-    def _audit_by_questions(self, prompt: str) -> dict[str, Any]:
-        """Ask the model one YES/NO question per candidate check; each YES becomes a finding."""
+    def _ask(self, questions: list[str], max_tokens: int = _QUESTION_TOKENS) -> list[str]:
+        """Plain-question answers from the base model: one batch in-process, one call each on a chat server."""
+        if not questions:
+            return []
+        if self.client is None:
+            return self._answer_questions(questions, max_tokens)
+        replies = []
+        for question in questions:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "system", "content": _KNOWLEDGE_SYSTEM}, {"role": "user", "content": question}],
+                temperature=0,
+                max_tokens=max_tokens,
+            )
+            replies.append(response.choices[0].message.content or "")
+        return replies
+
+    def _questions_and_review(self, prompt: str, result: dict[str, Any]) -> dict[str, Any]:
+        """After the fast check, in one batch on the base model:
+
+        - a YES/NO question for each candidate of a question rule (a medicine line with no schedule, ...);
+        - for the medicines, the choice-of-medicine questions over the whole list (duplicate, no indication,
+          unsafe for this patient, interaction), each pointed at the medicine lines the answer names;
+        - a second opinion on each fast-check finding of a rule in FINETUNE_VERIFY_RULES; a clear NO drops it.
+        """
         task = parse_section_task(prompt)
+        section = str(task.get("section", "")).strip()
         fields = task.get("fields_used") or {}
-        findings, answers = [], []
-        asked = []
+        findings = list(result.get("findings") or [])
+        asked: list[tuple[Mapping[str, Any], str]] = []
         for candidate in flatten_candidates(task.get("candidates")):
             if str(candidate.get("rule_id", "")).strip() not in self.question_rules:
                 continue
             question = build_knowledge_question(candidate, fields)
             if question is not None:
                 asked.append((candidate, question))
-        if not asked:
-            return {"section": task.get("section", ""), "findings": []}
-        if self.client is None:
-            replies = self._answer_questions([question for _, question in asked])
-        else:
-            replies = []
-            for _, question in asked:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[{"role": "system", "content": _KNOWLEDGE_SYSTEM}, {"role": "user", "content": question}],
-                    temperature=0,
-                    max_tokens=60,
-                )
-                replies.append(response.choices[0].message.content or "")
-        for (candidate, question), answer in zip(asked, replies, strict=False):
-            answers.append(f"{candidate.get('rule_id')}: {answer.strip()}")
-            finding = finding_from_answer(candidate, answer, question)
-            if finding is not None:
-                findings.append(finding)
-        text = "\n".join(answers)
-        self.last_output_character_count = len(text)
-        self.last_response_text_preview = text[:1000]
-        return {"section": task.get("section", ""), "findings": findings}
+        if section == "Rx":
+            # A rule the fast check already raised is not asked again (Rx.dup.class is the fast check's Rx.dup).
+            raised = {_trained_rule(item.get("rule_id", "")) for item in findings}
+            asked += build_prescription_questions(fields, self.question_rules - raised)
+        verify = [item for item in findings if _trained_rule(item.get("rule_id", "")) in self.verify_rules]
+        verify_questions = [build_verify_question(item, section, fields) for item in verify]
+        replies = self._ask([question for _, question in asked] + verify_questions)
+        asked_replies, verify_replies = replies[: len(asked)], replies[len(asked) :]
 
-    def _answer_questions(self, questions: list[str], max_tokens: int = 60) -> list[str]:
+        dropped = [item for item, answer in zip(verify, verify_replies, strict=False) if answer_is_no(answer)]
+        findings = [item for item in findings if not any(item is gone for gone in dropped)]
+
+        def key(item: Mapping[str, Any]) -> tuple[str, str, str]:
+            # Rule-engine candidates often have no candidate_id, so the rule and line identify a finding too.
+            return (str(item.get("candidate_id", "")), str(item.get("rule_id", "")), str(item.get("evidence", "")))
+
+        found = {key(item) for item in findings}
+        log_lines = []
+        for (candidate, question), answer in zip(asked, asked_replies, strict=False):
+            log_lines.append(f"{candidate.get('rule_id')}: {answer.strip()}")
+            if str(candidate.get("rule_id", "")) in PRESCRIPTION_QUESTIONS:  # names a medicine or NONE
+                finding = finding_from_named(candidate, answer, fields)
+            else:
+                finding = finding_from_answer(candidate, answer, question)
+            if finding is None:
+                continue
+            if key(finding) not in found:
+                findings.append(finding)
+                found.add(key(finding))
+        # Second look at what the choice questions named: answering over a whole list, the model sometimes names
+        # a medicine and then says the condition is not written ("contraindicated in hepatic disease, but no such
+        # condition..."). The same model re-judges each one as a senior physician; a clear NO drops it.
+        named = [item for item in findings if item.get("candidate_id", "").endswith(":question")]
+        if named:
+            second = self._ask([build_verify_question(item, section, fields) for item in named])
+            for item, answer in zip(named, second, strict=False):
+                log_lines.append(f"second look {item.get('rule_id')}: {answer.strip()}")
+            gone = [item for item, answer in zip(named, second, strict=False) if answer_is_no(answer)]
+            findings = [item for item in findings if not any(item is g for g in gone)]
+        if section == "Rx":
+            findings = _one_choice_alert_per_medicines(findings, fields)
+        for item, answer in zip(verify, verify_replies, strict=False):
+            log_lines.append(f"verify {item.get('rule_id')}: {answer.strip()}")
+        if log_lines:
+            log.info("[local] %s questions: %s", section, " | ".join(line.replace("\n", " ")[:160] for line in log_lines))
+        return {**result, "findings": findings}
+
+    def _answer_questions(self, questions: list[str], max_tokens: int = _QUESTION_TOKENS) -> list[str]:
         """Answer YES/NO questions on the in-process model in one batch.
 
         The answers come from general medical knowledge, so the fine-tune adapter is switched off when the model
@@ -887,9 +1017,25 @@ class LocalChatProvider:
                     add_generation_prompt=True,
                 )
 
+        # Batch only prompts of similar length. With long left padding (about 145 tokens) the padded prompts' answers
+        # came out garbled ("1. Azmasol ..." instead of "ANSWER: NONE ..."); up to about 70 they were the same as
+        # one at a time (Gemma 4 in-process, Nov 2026; explicit position ids did not help).
+        texts = [render(q) for q in questions]
+        lengths = [len(tokenizer(text, add_special_tokens=False)["input_ids"]) for text in texts]
+        order = sorted(range(len(texts)), key=lengths.__getitem__)
+        groups: list[list[int]] = []
+        for i in order:
+            if groups and lengths[i] - lengths[groups[-1][0]] <= _MAX_BATCH_PADDING:
+                groups[-1].append(i)
+            else:
+                groups.append([i])
+        answers = [""] * len(texts)
         base = model.disable_adapter() if hasattr(model, "disable_adapter") else contextlib.nullcontext()
         with self._gpu_lock, base:
-            return self._generate_raw_batch([render(q) for q in questions], max_tokens)
+            for group in groups:
+                for i, answer in zip(group, self._generate_raw_batch([texts[i] for i in group], max_tokens), strict=False):
+                    answers[i] = answer
+        return answers
 
     # One model call at a time on the GPU. The clinical reviewer switches the fine-tune adapter off for its call;
     # without this lock a layer-1 check running on another server thread could decode without its adapter.
@@ -936,18 +1082,8 @@ class LocalChatProvider:
         section = re.search(r'REQUIRED_JSON_SKELETON=\{"section":"([A-Za-z]+)"', prompt)
         if self.prompt_mode == "finetune":
             result = self._audit_finetune(prompt, max_tokens)
-            if self.question_rules:
-                # Rule-engine candidates often have no candidate_id, so the rule and line identify a finding too.
-                def key(item: Mapping[str, Any]) -> tuple[str, str, str]:
-                    return (
-                        str(item.get("candidate_id", "")),
-                        str(item.get("rule_id", "")),
-                        str(item.get("evidence", "")),
-                    )
-
-                found = {key(item) for item in result["findings"]}
-                asked = self._audit_by_questions(prompt)["findings"]
-                result["findings"] += [item for item in asked if key(item) not in found]
+            if self.question_rules or self.verify_rules:
+                result = self._questions_and_review(prompt, result)
             return result
         opening = f'{{"section":"{section.group(1)}","findings":[' if section else ""
 

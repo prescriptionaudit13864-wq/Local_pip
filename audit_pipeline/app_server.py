@@ -183,6 +183,7 @@ class AuditService:
             in_section,
             parse_keep,
             parse_problems,
+            side_once,
             split_shown,
         )
         from .finetune_prompt import _drug_facts, flatten_candidates, parse_section_task
@@ -252,7 +253,7 @@ class AuditService:
         with self._audit_slots:
             # Entry-by-entry answer: the JSON closes with "]}]}" (the last entry's problems, then the list).
             text = provider.review(messages, 600, prefix='{"entries": [', stop="]}]}")
-            proposed = in_section(row, section, parse_problems(text))
+            proposed = side_once(row, section, in_section(row, section, parse_problems(text)))
             # Only the types the reviewer judges reliably are shown; the rest are returned as "hidden".
             candidates_shown, hidden = split_shown(proposed, section)
             problems = candidates_shown

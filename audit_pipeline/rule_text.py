@@ -56,6 +56,10 @@ RULE_TEXT = {
         "Review whether symptomatic treatment is needed.",
     ),
     "Rx.ddi": ("A drug interaction may be unaddressed.", "Review the interaction between the prescribed medicines."),
+    "Rx.contra": (
+        "A medicine may be unsafe for this patient's condition.",
+        "Review the medicine against the patient's condition; choose a safer alternative or document the reason.",
+    ),
     "Rx.demo": (
         "Dose, duration, or form may not suit the patient's age or weight.",
         "Review the dosing against age and weight.",
