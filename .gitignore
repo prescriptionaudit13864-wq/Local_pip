@@ -31,3 +31,4 @@ pilot/doctors.json
 pilot/secret
 pilot/link.txt
 pilot/cloudflared*.log
+pilot/profiles/

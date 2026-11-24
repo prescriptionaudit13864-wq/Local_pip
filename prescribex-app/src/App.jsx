@@ -16,8 +16,9 @@ const APP_DATA_VERSION = 'v20';
 // ==========================================
 // DOCTOR PROFILE (single source of truth for every screen and the printed prescription)
 // Chamber / phone / BMDC number are left empty on purpose: they are printed only when filled in here.
+// In the doctor pilot (PILOT_MODE=1) main.jsx replaces these values with the signed-in doctor's own profile.
 // ==========================================
-const DOCTOR_PROFILE = {
+export const DOCTOR_PROFILE = {
   name: 'Dr. Tanim Moontasir',
   degrees: 'MCPS (UK), FCPS (IND), FRCP (UK), MBBS (BD), MD (Pulmonology)',
   speciality: 'Internal Medicine & General Surgery',
@@ -2684,13 +2685,14 @@ const TopNav = () => (
     </div>
     <div className="flex items-center gap-6 ml-6">
       <button type="button" className="relative p-2 text-[#808493] hover:text-[#0CAAFF]"><Bell size={20} /></button>
-      <div className="flex items-center gap-3 border-l pl-6 border-[#F4F6F8]">
+      <a href={DOCTOR_PROFILE.pilot ? '/pilot/profile' : undefined} title={DOCTOR_PROFILE.pilot ? 'Edit your profile' : undefined}
+        className={`flex items-center gap-3 border-l pl-6 border-[#F4F6F8] ${DOCTOR_PROFILE.pilot ? 'cursor-pointer hover:opacity-80' : ''}`}>
         <Avatar name={DOCTOR_PROFILE.name} size={40} />
         <div className="hidden md:block">
           <h4 className="text-sm font-semibold text-[#2B324B]">{DOCTOR_PROFILE.name}</h4>
           <p className="text-xs text-[#808493]">{DOCTOR_PROFILE.speciality}</p>
         </div>
-      </div>
+      </a>
     </div>
   </header>
 );

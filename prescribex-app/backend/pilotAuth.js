@@ -21,6 +21,18 @@ function secret() {
   if (!fs.existsSync(file)) { fs.mkdirSync(PILOT_DIR, { recursive: true }); fs.writeFileSync(file, crypto.randomBytes(32).toString('hex')); }
   return fs.readFileSync(file, 'utf8').trim();
 }
+const PROFILE_FIELDS = [
+  ['name', 'Name as printed', 'Dr. ...', true],
+  ['degrees', 'Degrees', 'MBBS, FCPS ...', false],
+  ['speciality', 'Speciality', 'Medicine', false],
+  ['chamber', 'Chamber / hospital', '', false],
+  ['phone', 'Mobile', '', false],
+  ['regNo', 'BMDC registration no.', '', false],
+];
+const profileFile = (id) => path.join(PILOT_DIR, 'profiles', `${id.replace(/[^a-z0-9_]/g, '')}.json`);
+const readProfile = (id) => readJson(profileFile(id), null);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 const sign = (value) => crypto.createHmac('sha256', secret()).update(value).digest('base64url');
 
 function sessionDoctor(req) {
@@ -32,6 +44,35 @@ function sessionDoctor(req) {
   if (mac.length !== good.length || !crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(good))) return null;
   const doc = doctors()[id];
   return doc ? { id, name: doc.name } : null;      // removing a doctor from the list ends their session
+}
+
+const STYLE = `<style>body{font-family:system-ui,sans-serif;background:#f4f6f8;margin:0;display:grid;place-items:center;min-height:100vh}
+form{background:#fff;padding:32px;border-radius:12px;box-shadow:0 2px 12px #0002;width:min(380px,90vw)}
+h1{font-size:20px;margin:0 0 4px}p{color:#555;font-size:14px;margin:0 0 20px}label{display:block;font-size:14px;margin:12px 0 4px}
+input{width:100%;box-sizing:border-box;padding:10px;font-size:16px;border:1px solid #bbb;border-radius:8px}
+button{margin-top:20px;width:100%;padding:12px;font-size:16px;border:0;border-radius:8px;background:#0b6efd;color:#fff;cursor:pointer}
+.err{color:#b00020;font-size:14px;margin-top:12px}a{color:#0b6efd;font-size:14px}</style>`;
+
+const profilePage = (doctor, profile, msg = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>PrescribeX profile</title>${STYLE}</head><body>
+<form method="post" action="/pilot/profile"><h1>Your profile</h1>
+<p>Shown in the app and printed on your prescriptions. Only the name is required; you can change it later by clicking your name in the app.</p>
+${PROFILE_FIELDS.map(([k, label, ph, req]) => `<label for="${k}">${label}${req ? ' *' : ''}</label>
+<input id="${k}" name="${k}" maxlength="160" placeholder="${esc(ph)}" value="${esc((profile || {})[k] ?? (k === 'name' ? doctor.name : ''))}"${req ? ' required' : ''}>`).join('')}
+<button type="submit">Save</button>${msg ? `<div class="err">${msg}</div>` : ''}
+${profile ? '<p style="margin-top:16px"><a href="/">Back to the app</a> · <a href="/pilot/logout">Sign out</a></p>' : ''}</form></body></html>`;
+
+function saveProfile(req, res, doctor) {
+  let body = '';
+  req.on('data', c => { body += c; if (body.length > 5000) req.destroy(); });
+  req.on('end', () => {
+    const form = new URLSearchParams(body);
+    const profile = Object.fromEntries(PROFILE_FIELDS.map(([k]) => [k, (form.get(k) || '').trim().slice(0, 160)]));
+    if (!profile.name) { res.setHeader('Content-Type', 'text/html; charset=utf-8'); return res.end(profilePage(doctor, profile, 'Please give your name.')); }
+    fs.mkdirSync(path.dirname(profileFile(doctor.id)), { recursive: true });
+    fs.writeFileSync(profileFile(doctor.id), JSON.stringify(profile, null, 2));
+    res.statusCode = 303; res.setHeader('Location', '/'); res.end();
+  });
 }
 
 const page = (msg = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -72,7 +113,7 @@ function login(req, res) {
     const secure = req.headers['x-forwarded-proto'] === 'https' || /\.(ts\.net|trycloudflare\.com)$/i.test(String(req.headers.host || '').split(':')[0]);
     res.statusCode = 303;
     res.setHeader('Set-Cookie', `${COOKIE}=${encodeURIComponent(`${value}|${sign(value)}`)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_HOURS * 3600}${secure ? '; Secure' : ''}`);
-    res.setHeader('Location', '/');
+    res.setHeader('Location', readProfile(hit[0]) ? '/' : '/pilot/profile');   // first sign-in: fill in the profile
     console.log(`[pilot] sign-in: ${hit[1].name} (${new Date().toISOString()})`);
     res.end();
   });
@@ -100,7 +141,15 @@ function handler(req, res, next) {
     return res.end(JSON.stringify({ success: false, error: 'Signed out: reload the page and sign in again.' }));
   }
   req.pilotDoctor = doctor;
-  if (url === '/pilot/me') { res.setHeader('Content-Type', 'application/json'); return res.end(JSON.stringify(doctor)); }
+  if (url === '/pilot/me') {
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ ...doctor, profile: readProfile(doctor.id) }));
+  }
+  if (url === '/pilot/profile') {
+    if (req.method === 'POST') return saveProfile(req, res, doctor);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.end(profilePage(doctor, readProfile(doctor.id)));
+  }
   next();
 }
 
