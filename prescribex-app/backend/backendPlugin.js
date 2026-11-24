@@ -77,13 +77,32 @@ function visitFolderFor(patientDir, visitId) {
   return { number, folder: `visit_${String(number).padStart(2, '0')}` };
 }
 
+// Pilot: one folder per doctor, named by the doctor's profile name: doctor_<id>_<Name>. The folder holds a
+// .doctor_id file, so when a doctor changes their name the same folder is renamed instead of starting a new one.
+function doctorDir(doctor) {
+  const wanted = path.join(DATA_DIR, `doctor_${safe(doctor.id)}_${safe(doctor.name)}`);
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  const existing = fs.readdirSync(DATA_DIR, { withFileTypes: true })
+    .filter(d => d.isDirectory() && d.name.startsWith('doctor_'))
+    .map(d => path.join(DATA_DIR, d.name))
+    .find(dir => {
+      try { return fs.readFileSync(path.join(dir, '.doctor_id'), 'utf8').trim() === doctor.id; } catch { return false; }
+    }) || [path.join(DATA_DIR, `doctor_${safe(doctor.id)}`)].find(dir => fs.existsSync(dir));   // folder from before names
+  if (existing && existing !== wanted) {
+    try { fs.renameSync(existing, wanted); } catch { return existing; }   // a file open in Excel: keep the old name for now
+  }
+  fs.mkdirSync(wanted, { recursive: true });
+  fs.writeFileSync(path.join(wanted, '.doctor_id'), doctor.id);
+  return wanted;
+}
+
 function saveStep(payload) {
   const { patient, visitId, step, order = 0, data } = payload || {};
   if (!patient?.id || !visitId || !step) throw new Error('patient.id, visitId and step are required');
 
   // Folder is named by the patient's serial number (the Sl. No. shown in the app); falls back to the internal id.
   // Pilot: each signed-in doctor gets their own folder, so two doctors' patient serials never mix.
-  const root = payload.doctor ? path.join(DATA_DIR, `doctor_${safe(payload.doctor.id)}`) : DATA_DIR;
+  const root = payload.doctor ? doctorDir(payload.doctor) : DATA_DIR;
   const patientDir = path.join(root, `patient_${safe(patient.serial || patient.id)}_${safe(patient.name)}`);
   const visit = visitFolderFor(patientDir, visitId);
   // Live-audit results only go to the Excel log (Prescription Log sheet), not to a JSON file.

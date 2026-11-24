@@ -43,7 +43,9 @@ function sessionDoctor(req) {
   const good = sign(`${id}|${expires}`);
   if (mac.length !== good.length || !crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(good))) return null;
   const doc = doctors()[id];
-  return doc ? { id, name: doc.name } : null;      // removing a doctor from the list ends their session
+  if (!doc) return null;                           // removing a doctor from the list ends their session
+  // The name the doctor gave in their profile (falls back to the name used in add_doctor.ps1).
+  return { id, name: readProfile(id)?.name || doc.name };
 }
 
 const STYLE = `<style>body{font-family:system-ui,sans-serif;background:#f4f6f8;margin:0;display:grid;place-items:center;min-height:100vh}
