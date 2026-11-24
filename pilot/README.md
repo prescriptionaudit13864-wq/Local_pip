@@ -56,8 +56,12 @@ Tailscale (`tailscale funnel`) when the network allows it.
 - Every page, save and model call needs a signed-in doctor. Codes are 10 random characters, stored only as salted
   hashes (`pilot/doctors.json`); sessions are signed cookies (HttpOnly, Secure, 12 hours). 5 wrong codes from one
   address lock it for 15 minutes.
-- Each doctor's records go to their own folder (`backend/data/doctor_<name>/`) and are marked with their name;
+- Each doctor's records go to their own folder (`backend/data/doctor_<id>_<Name>/`) and are marked with their name;
   in the Excel log their patient numbers are prefixed with the doctor id. Records are stored only on this PC.
+  Inside: one folder per patient (`patient_<Patient ID>_<Name>/`, with `patient.json` = details and every change to
+  them), one folder per prescription (`visit_01/`, ...) holding the latest version of each section and
+  `history/<section>.json`: every save with what changed (before -> after), every AI check with each error and its
+  suggested fix, the clinical reviewer's problems, and which errors a later edit resolved.
 - `pilot/doctors.json`, `pilot/secret`, `pilot/link.txt` and the tunnel logs are never committed (`.gitignore`).
 - Before real patients: the doctors' and patients' consent and any ethics approval the project needs are your
   responsibility; this setup does not replace them. The tool gives alerts to check, not decisions.
