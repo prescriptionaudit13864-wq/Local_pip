@@ -263,7 +263,10 @@ class AuditService:
             if candidates_shown:  # second look by the same model: only problems it confirms are shown
                 keep = parse_keep(
                     provider.review(
-                        build_verify_messages(row, section, candidates_shown, facts), 60, prefix='{"keep": ['
+                        build_verify_messages(row, section, candidates_shown, facts),
+                        60 + 60 * len(candidates_shown),
+                        prefix='{"decisions": [',
+                        stop="]}",
                     ),
                     len(candidates_shown),
                 )
@@ -462,8 +465,15 @@ def _make_handler(service: AuditService):
     return Handler
 
 
+class _Server(ThreadingHTTPServer):
+    # The default listen queue holds 5 waiting connections. In pilot rehearsal 3 (30 doctors at once) Windows reset the
+    # connections beyond it, and 3 checks failed with "502 Bad Gateway" through the pilot link.
+    request_queue_size = 128
+    daemon_threads = True
+
+
 def serve(service: AuditService, host: str, port: int) -> None:
-    httpd = ThreadingHTTPServer((host, port), _make_handler(service))
+    httpd = _Server((host, port), _make_handler(service))
     print(f"PrescribeX audit bridge listening on http://{host}:{port}")
     status = service.status()
     if status["ok"]:

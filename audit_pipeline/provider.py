@@ -42,7 +42,7 @@ DEFAULT_QUESTION_RULES = "CC.2,CC.4,CC.term.unclear,CC.context.conflict,Hx.term.
 # Medicine questions answered by the base model: line checks, then choice-of-medicine checks (finetune_prompt.py).
 DEFAULT_RX_QUESTION_RULES = "Rx.freq.missing,Rx.duration.missing,Rx.dup,Rx.over,Rx.contra,Rx.ddi"
 # Fast-check rules the base model double-checks before they are shown (a clear NO drops the finding).
-DEFAULT_VERIFY_RULES = "Rx.cc.sym,Dx.cc.1,Dx.cc.2,Inv.cc,Inv.hs,Inv.dx,Adv.cc"
+DEFAULT_VERIFY_RULES = "Rx.cc.sym,Dx.cc.1,Dx.cc.2,Inv.cc,Inv.hs,Inv.dx,Adv.cc,Rx.instr"
 _QUESTION_TOKENS = 90  # YES/NO plus one sentence that may name two medicines and a risk
 _MAX_BATCH_PADDING = 64  # tokens; see _answer_questions
 DEFAULT_ENGINE_CONFIRMED = (

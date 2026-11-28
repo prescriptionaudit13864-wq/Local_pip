@@ -18,6 +18,7 @@ import argparse
 import http.cookiejar
 import json
 import random
+import re
 import statistics
 import sys
 import threading
@@ -378,7 +379,35 @@ class Doctor:
             raise RuntimeError(f"{self.name}: sign-in failed")
 
 
-def run(base: str, codes: dict, think: tuple[float, float], seed: int, scenario: str = "basic") -> dict:
+def _apply_fix(p: dict, key: str, line: str, ty: str) -> bool:
+    """What a doctor does after a correct alert: complete or remove the line it points at."""
+    ln = line.casefold()
+    if key == "rxList":
+        for m in list(p["rxList"]):
+            if ln in m["medicine"].casefold():
+                if ty == "Rx.freq.missing":
+                    m["dosage"], m["duration"] = m["dosage"] or "1+0+1", m["duration"] or "5 days"
+                elif ty == "Rx.duration.missing":
+                    m["duration"] = "5 days"
+                else:   # no reason, duplicate, against history, interaction: the medicine is taken off
+                    p["rxList"].remove(m)
+                return True
+        return False
+    if key == "adviceList" and ty == "Adv.refer":
+        p["adviceList"].append("Refer to hospital emergency department now")
+        return True
+    for i, text in enumerate(p.get(key, [])):
+        if ln in text.casefold():
+            if ty == "CC.3":
+                p[key][i] = f"{text} for 3 days"
+            else:     # a line that does not fit the patient is removed
+                p[key].pop(i)
+            return True
+    return False
+
+
+def run(base: str, codes: dict, think: tuple[float, float], seed: int, scenario: str = "basic",
+        track: bool = False, act_rate: float = 0.8) -> dict:
     rxs = make_critical(n=5 * len(codes), seed=seed) if scenario == "critical" else make_prescriptions(seed=seed)
     names = list(codes)
     per_doc = {n: rxs[i::len(names)] for i, n in enumerate(names)}
@@ -401,30 +430,60 @@ def run(base: str, codes: dict, think: tuple[float, float], seed: int, scenario:
             visit_id = int(time.time() * 1000) + local.randint(0, 999)
             visit: dict = {"id": visit_id}
             order = 0
+            p = json.loads(json.dumps(p))      # this doctor's working copy (fixes change it)
             for section, key in ORDER:
                 if not p.get(key):
                     continue
-                value = p[key]
-                visit[key] = value if key == "rxList" else [{"id": i + 1, "text": t} for i, t in enumerate(value)]
                 order += 1
-                payload = {"patient": patient, "visit": dict(visit), "section": section, "revision": 1}
-                ev = {"doctor": name, "rx": p["id"], "section": section, "start": time.time()}
+                for round_ in (1, 2):
+                    value = p[key]
+                    visit[key] = value if key == "rxList" else [{"id": i + 1, "text": t} for i, t in enumerate(value)]
+                    payload = {"patient": patient, "visit": dict(visit), "section": section, "revision": round_}
+                    ev = {"doctor": name, "rx": p["id"], "section": section, "start": time.time(), "round": round_}
+                    try:
+                        _, ev["save_s"] = d._req("/api/prescription-step", {"patient": patient, "visitId": str(visit_id),
+                                                                           "step": key, "order": order, "data": value})
+                        raw, ev["l1_s"] = d._req("/audit-api/audit/section", payload)
+                        live = json.loads(raw).get("live_audit", {})
+                        found = [a for a in live.get("findings") or [] if isinstance(a, dict)]
+                        ev["l1"] = [{"rule": str(a.get("rule_id", "")), "text": f"{a.get('evidence', '')} {a.get('why', '')}"}
+                                    for a in found]
+                        raw, ev["l2_s"] = d._req("/audit-api/audit/review",
+                                                 {**payload, "layer1": [a["text"] for a in ev["l1"]]})
+                        review = json.loads(raw).get("review", {})
+                        ev["l2"] = [{"rule": str(x.get("type")), "text": f"{x.get('entry', '')} {x.get('problem', '')}"}
+                                    for x in review.get("problems", [])]
+                        if track:   # as the app: each check's result is saved to the doctor's records
+                            d._req("/api/prescription-step", {"patient": patient, "visitId": str(visit_id),
+                                                              "step": f"liveAudit_{key}", "order": order,
+                                                              "data": {"status": live.get("status", ""), "findings": found}})
+                            d._req("/api/prescription-step", {"patient": patient, "visitId": str(visit_id),
+                                                              "step": f"liveReview_{key}", "order": order,
+                                                              "data": {"status": "done", "problems": review.get("problems", [])}})
+                    except Exception as exc:  # noqa: BLE001 - every failure is reported
+                        ev["error"] = f"{type(exc).__name__}: {exc}"
+                    # The doctor reads the alerts and fixes the real errors they point at (most of the time).
+                    fixed = []
+                    if track and round_ == 1 and "error" not in ev:
+                        for sec, line, ty in p["expected"]:
+                            kinds = RIGHT_KIND.get(ty)
+                            alerted = any(line.casefold() in a["text"].casefold() and (kinds is None or a["rule"] in kinds)
+                                          for a in ev["l1"] + ev["l2"])
+                            if sec == section and alerted and local.random() < act_rate and _apply_fix(p, key, line, ty):
+                                fixed.append(f"{ty}: {line}")
+                    ev["fixed"] = fixed
+                    with lock:
+                        events.append(ev)
+                    time.sleep(local.uniform(*think))   # the doctor writes the next section (or edits this one)
+                    if not fixed:
+                        break
+            if track:   # the doctor presses Save: the final prescription
                 try:
-                    _, ev["save_s"] = d._req("/api/prescription-step", {"patient": patient, "visitId": str(visit_id),
-                                                                       "step": key, "order": order, "data": value})
-                    raw, ev["l1_s"] = d._req("/audit-api/audit/section", payload)
-                    live = json.loads(raw).get("live_audit", {})
-                    ev["l1"] = [{"rule": str(a.get("rule_id", "")), "text": f"{a.get('evidence', '')} {a.get('why', '')}"}
-                                for a in live.get("findings") or [] if isinstance(a, dict)]
-                    raw, ev["l2_s"] = d._req("/audit-api/audit/review",
-                                             {**payload, "layer1": [a["text"] for a in ev["l1"]]})
-                    ev["l2"] = [{"rule": str(x.get("type")), "text": f"{x.get('entry', '')} {x.get('problem', '')}"}
-                                for x in json.loads(raw).get("review", {}).get("problems", [])]
-                except Exception as exc:  # noqa: BLE001 - every failure is reported
-                    ev["error"] = f"{type(exc).__name__}: {exc}"
-                with lock:
-                    events.append(ev)
-                time.sleep(local.uniform(*think))   # the doctor writes the next section
+                    d._req("/api/prescription-step", {"patient": patient, "visitId": str(visit_id),
+                                                      "step": "finalPrescription", "order": 99, "data": visit})
+                except Exception as exc:  # noqa: BLE001
+                    with lock:
+                        problems.append(f"{name} final save: {exc}")
 
     gpu.start()
     started = time.time()
@@ -437,7 +496,7 @@ def run(base: str, codes: dict, think: tuple[float, float], seed: int, scenario:
     wall = time.time() - started
     gpu.stop.set()
     gpu.join()
-    return {"base": base, "scenario": scenario, "doctors": names, "think_s": think, "wall_s": round(wall, 1), "gpu": gpu.summary(),
+    return {"base": base, "scenario": scenario, "track": track, "act_rate": act_rate, "doctors": names, "think_s": think, "wall_s": round(wall, 1), "gpu": gpu.summary(),
             "gpu_rows": gpu.rows, "prescriptions": rxs, "events": events, "problems": problems,
             "assignment": {n: [p["id"] for p in per_doc[n]] for n in names}}
 
@@ -451,7 +510,7 @@ RIGHT_KIND = {
     "Rx.freq.missing": {"Rx.freq.missing", "Rx.instr"},
     "Rx.duration.missing": {"Rx.duration.missing"},
     "Rx.over": {"Rx.over", "Rx.cc.mis", "unsupported", "no_indication"},
-    "Rx.dup": {"Rx.dup", "Rx.multi", "duplicate"},
+    "Rx.dup": {"Rx.dup", "Rx.dup.class", "Rx.multi", "duplicate", "interaction"},
     "Rx.hs": {"Rx.hs", "Rx.contra", "unsafe_for_patient", "contraindicated", "contradiction"},
     "Rx.ddi": {"Rx.ddi", "interaction", "unsafe_for_patient"},
     "Rx.demo": {"Rx.demo", "Rx.dose.weight", "Rx.dose.high", "unsafe_for_patient"},
@@ -465,13 +524,32 @@ RIGHT_KIND = {
     "Adv.refer": {"Adv.refer", "referral_missing"},
 }
 DOC_REMINDERS = {"side_missing", "severity_missing"}
+# The clinic's documentation standard (clinical_reviewer.TASK): severity is required for symptoms where it decides
+# emergency care, a side for body parts that exist more than once. A reminder that fits the standard is a correct
+# documentation alert, not a false one; one that does not (severity of an ordinary headache, "side" of scabies) is false.
+_URGENT = re.compile(r"chest pain|chest tightness|breath|weakness|slurred|unconscious|seizure|fit\b|bleeding|"
+                     r"sudden|severe|faint", re.IGNORECASE)
+_PAIRED = re.compile(r"\b(ears?|eyes?|knees?|hips?|shoulders?|elbows?|wrists?|ankles?|feet|foot|hands?|legs?|arms?|"
+                     r"limbs?|breasts?|kidneys?|testes|testis|testicles?|ovar(?:y|ies)|lungs?|tooth|teeth|joints?)\b",
+                     re.IGNORECASE)
+_SIDE = re.compile(r"\b(left|right|both|bilateral)\b", re.IGNORECASE)
+
+
+def reminder_fits_standard(rule: str, text: str) -> bool:
+    entry = text.split(" Severity")[0].split(" The ")[0]
+    if rule == "severity_missing":
+        return bool(_URGENT.search(entry))
+    if rule == "side_missing":
+        return bool(_PAIRED.search(entry)) and not _SIDE.search(entry)
+    return False
 
 
 def score(res: dict) -> dict:
     by_rx = {p["id"]: p for p in res["prescriptions"]}
     ev_by = {}
     for e in res["events"]:
-        ev_by.setdefault((e["doctor"], e["rx"]), []).append(e)
+        if e.get("round", 1) == 1:      # accuracy is judged on what the doctor first wrote
+            ev_by.setdefault((e["doctor"], e["rx"]), []).append(e)
     types: dict[str, dict] = {}
     tot = {"errors": 0, "l1": 0, "l2": 0, "either": 0, "false_l1": 0, "false_l2": 0, "clean_sections": 0,
            "clean_sections_quiet": 0, "rx_all_caught": 0, "rx_with_errors": 0, "clean_rx": 0, "clean_rx_quiet": 0}
@@ -498,6 +576,9 @@ def score(res: dict) -> dict:
             caught_all &= hit1 or hit2
         false = []
         all_err = [t for _, t, _ in exp]
+        for _s, t, ty in exp:            # an injected duplicate's partner medicine belongs to the same error
+            if ty == "Rx.dup":
+                all_err += [a[0].casefold() for a, b in SAME_CLASS if b[0].casefold() == t]
         for e in evs:
             err_texts = [t for s, t, _ in exp if s == e["section"]]
             for layer in ("l1", "l2"):
@@ -507,6 +588,9 @@ def score(res: dict) -> dict:
                         continue
                     if any(t in txt for t in all_err) and a["rule"] not in DOC_REMINDERS:
                         tot["repeats"] = tot.get("repeats", 0) + 1      # a real error raised again elsewhere
+                        continue
+                    if a["rule"] in DOC_REMINDERS and reminder_fits_standard(a["rule"], a["text"]):
+                        tot["reminders_ok"] = tot.get("reminders_ok", 0) + 1   # documentation alert per the standard
                         continue
                     tot[f"false_{layer}"] += 1
                     false.append((layer, e["section"], a["rule"], a["text"][:110]))
@@ -521,6 +605,21 @@ def score(res: dict) -> dict:
             tot["clean_rx_quiet"] += not false
         per_rx.append({"doctor": doc, "rx": rid, "expected": [f"{ty}: {t}" for _, t, ty in exp],
                        "caught_all": caught_all if exp else None, "false": false})
+    fixes = {"fixed": 0, "alert_gone": 0, "alert_still": 0, "new_alerts_after_fix": 0}
+    firsts = {(e["doctor"], e["rx"], e["section"]): e for e in res["events"] if e.get("round", 1) == 1}
+    for e in res["events"]:
+        if e.get("round") != 2 or "error" in e:
+            continue
+        before = firsts.get((e["doctor"], e["rx"], e["section"]))
+        for item in (before or {}).get("fixed", []):
+            ty, line = item.split(": ", 1)
+            kinds = RIGHT_KIND.get(ty)
+            fixes["fixed"] += 1
+            still = any(line.casefold() in a["text"].casefold() and (kinds is None or a["rule"] in kinds)
+                        for a in e.get("l1", []) + e.get("l2", []))
+            fixes["alert_still" if still else "alert_gone"] += 1
+        old = {a["rule"] for a in (before or {}).get("l1", []) + (before or {}).get("l2", [])}
+        fixes["new_alerts_after_fix"] += sum(a["rule"] not in old for a in e.get("l1", []) + e.get("l2", []))
     ok = [e for e in res["events"] if "error" not in e]
     lat = {k: [e[k] for e in ok] for k in ("save_s", "l1_s", "l2_s")}
     pct = lambda xs, q: sorted(xs)[min(len(xs) - 1, int(q * (len(xs) - 1)))] if xs else 0  # noqa: E731
@@ -535,7 +634,7 @@ def score(res: dict) -> dict:
     for e in ok:
         by_sec.setdefault(e["section"], []).append(e["l1_s"] + e["l2_s"])
     sec_lat = {k: {"n": len(v), "p50": round(statistics.median(v), 2), "p95": round(pct(v, 0.95), 2)} for k, v in by_sec.items()}
-    return {"tot": tot, "types": types, "per_rx": per_rx, "per_doc": per_doc, "sec_lat": sec_lat,
+    return {"tot": tot, "types": types, "per_rx": per_rx, "per_doc": per_doc, "sec_lat": sec_lat, "fixes": fixes,
             "lat": {k: {"p50": round(statistics.median(v), 2), "p95": round(pct(v, 0.95), 2), "max": round(max(v), 2)}
                     for k, v in lat.items() if v},
             "checks": len(ok), "failed": len(res["events"]) - len(ok),
@@ -551,6 +650,8 @@ def main() -> None:
     ap.add_argument("--think", type=float, nargs=2, default=[3.0, 8.0], help="seconds between sections (min max)")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--scenario", choices=["basic", "critical"], default="basic")
+    ap.add_argument("--track", action="store_true", help="save each check like the app and let doctors fix alerted errors")
+    ap.add_argument("--act-rate", type=float, default=0.8, help="share of correct alerts the doctor acts on")
     ap.add_argument("--n", type=int, default=100, help="prescriptions for list --scenario critical")
     a = ap.parse_args()
     if a.cmd == "list":
@@ -558,7 +659,7 @@ def main() -> None:
             print(p["id"], p["sex"], p["age"], p["diagnosis"], [e[2] for e in p["expected"]])
         return
     if a.cmd == "run":
-        res = run(a.link, json.loads(a.codes.read_text(encoding="utf-8")), tuple(a.think), a.seed, a.scenario)
+        res = run(a.link, json.loads(a.codes.read_text(encoding="utf-8")), tuple(a.think), a.seed, a.scenario, a.track, a.act_rate)
         a.file.parent.mkdir(parents=True, exist_ok=True)
         a.file.write_text(json.dumps(res, indent=1, ensure_ascii=False), encoding="utf-8")
     res = json.loads(a.file.read_text(encoding="utf-8"))

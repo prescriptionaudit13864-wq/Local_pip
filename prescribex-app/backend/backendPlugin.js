@@ -15,7 +15,11 @@
 //                                                          every save with what changed (added, removed, before ->
 //                                                          after), every AI check with each error and its suggested
 //                                                          fix, the clinical reviewer's problems, and which errors a
-//                                                          later edit resolved (with that edit)
+//                                                          later edit resolved (with that edit), or that an edit left
+//                                                          in place ("edited, still flagged")
+//         alerts.json                                      every alert of this prescription and what the doctor did:
+//                                                          fixed / edited, still flagged / not acted on /
+//                                                          gone on recheck (line not edited)
 //         attachments/                                     uploaded investigation reports
 //
 // Uploaded reports (data URLs) are decoded into ./attachments and the JSON keeps only their relative path.
@@ -232,6 +236,27 @@ const errorOf = (finding) => ({
 });
 
 const errorKey = (e) => `${e.rule}|${e.entry}`;
+const norm = (s) => String(s ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+// The edit (if any) that changed or removed the line an alert was about. An alert quotes its line in its own format
+// ("Complaint: Fever", "Seclo 20 mg [Before meal]") while a saved row reads "Seclo | 20 mg | Before meal", so lines are
+// compared by their words: a medicine row by its name (the first part), any other row by all its words.
+const words = (s) => new Set(norm(s).split(/[^a-z0-9ঀ-৿]+/).filter(w => w.length > 1));
+function lineIn(entry, rowText) {
+  const text = String(rowText).replace(/^[^:|]*:\s/, '');
+  const key = text.includes(' | ') ? text.split(' | ')[0] : text;
+  const need = words(key);
+  if (!need.size) return false;
+  const have = words(entry);
+  return [...need].every(w => have.has(w));
+}
+function editOfAlertLine(alert, edits) {
+  for (const c of edits) {
+    for (const e of c.edited || []) if (lineIn(alert.entry, e.before)) return { before: e.before, after: e.after };
+    for (const r of c.removed || []) if (lineIn(alert.entry, r)) return { removed: r };
+  }
+  return null;
+}
 
 // history/<section>.json: one timeline per section of one prescription.
 function recordHistory(visitDir, section, entry) {
@@ -240,17 +265,102 @@ function recordHistory(visitDir, section, entry) {
   const entries = history.entries;
   const at = new Date().toISOString();
   if (entry.type === 'check') {
-    // Errors shown by the previous check that this check no longer finds were resolved by the edits in between.
+    // Errors shown by the previous check that this check no longer finds. An error counts as resolved only when this
+    // check finds no error of the same rule on the edited line: "Fever" -> "High fever" with "duration missing"
+    // again is the same error still there (its entry text changed with the line), not a fix.
     const lastCheck = [...entries].reverse().find(e => e.type === 'check');
     const now = new Set(entry.errors.map(errorKey));
-    const edits = lastCheck ? entries.slice(entries.indexOf(lastCheck) + 1).filter(e => e.type === 'save' && e.changes) : [];
-    entry.resolved = (lastCheck?.errors || [])
-      .filter(e => !now.has(errorKey(e)))
-      .map(e => ({ ...e, fixedBy: edits.map(s => s.changes) }));
+    const edits = lastCheck ? entries.slice(entries.indexOf(lastCheck) + 1).filter(e => e.type === 'save' && e.changes).map(s => s.changes) : [];
+    entry.resolved = [];
+    entry.stillFlagged = [];
+    for (const e of (lastCheck?.errors || []).filter(x => !now.has(errorKey(x)))) {
+      const edit = editOfAlertLine(e, edits);
+      const again = edit?.after && entry.errors.find(x => x.rule === e.rule && lineIn(x.entry, edit.after));
+      if (again) entry.stillFlagged.push({ ...e, editedTo: edit.after, nowFlaggedAs: again.error });
+      else entry.resolved.push({ ...e, lineEdited: !!edit, fixedBy: edit || edits });
+    }
   }
   entries.push({ at, ...entry });
   history.updatedAt = at;
   writeJson(file, history);
+  writeAlertSummary(visitDir);
+}
+
+// alerts.json: every alert shown in this prescription and what the doctor did about it, rebuilt after each save and
+// check (pilot measure: how often doctors act on alerts).
+//   fixed                      a later check no longer found it (with the edit that fixed it)
+//   edited, still flagged      the doctor changed the line but the same error is still found
+//   not acted on               still shown in the section's latest check; the doctor did not change its line
+//   gone on recheck, line not edited  a later check did not raise it again although its line was not changed
+//   section changed, not rechecked  the doctor edited the section after the alert but it was not checked again
+function writeAlertSummary(visitDir) {
+  const dir = path.join(visitDir, 'history');
+  let files = [];
+  try { files = fs.readdirSync(dir).filter(f => f.endsWith('.json')); } catch { return; }
+  const alerts = [];
+  for (const f of files) {
+    const h = readJson(path.join(dir, f), null);
+    if (!h?.entries) continue;
+    const checks = h.entries.filter(e => e.type === 'check');
+    const seen = new Map();
+    h.entries.forEach((e, i) => {
+      if (e.type === 'check') {
+        for (const r of e.resolved || []) {
+          const a = seen.get(errorKey(r));
+          // Fixed only when the doctor changed or removed the alert's own line; an alert that simply was not raised
+          // again (the line untouched) is kept apart, so doctor fixes are not over-counted.
+          // An alert about something missing (no referral, no duration) is fixed by adding a line to the section.
+          const added = r.lineEdited === false ? (r.fixedBy || []).flatMap(c => c.added || []) : [];
+          if (a) Object.assign(a, r.lineEdited === false && !added.length
+            ? { outcome: 'gone on recheck, line not edited', goneAt: e.at }
+            : { outcome: 'fixed', fixedAt: e.at, fix: added.length ? { added } : r.fixedBy });
+        }
+        for (const s of e.stillFlagged || []) {
+          const a = seen.get(errorKey(s));
+          if (a) Object.assign(a, { outcome: 'edited, still flagged', editedTo: s.editedTo });
+        }
+        for (const err of e.errors || []) {
+          if (!seen.has(errorKey(err))) {
+            seen.set(errorKey(err), { section: h.section, source: 'fast check', rule: err.rule, entry: err.entry, error: err.error, level: err.level, shownAt: e.at, outcome: null, index: i });
+          }
+        }
+      }
+      if (e.type === 'review') {
+        for (const p of e.problems || []) {
+          const k = `review:${p.type}|${p.entry}`;
+          if (!seen.has(k)) seen.set(k, { section: h.section, source: 'clinical reviewer', rule: p.type, entry: p.entry, error: p.error, level: p.severity, shownAt: e.at, outcome: null, index: i });
+        }
+      }
+    });
+    const last = checks[checks.length - 1];
+    const lastKeys = new Set((last?.errors || []).map(errorKey));
+    const lastReview = [...h.entries].reverse().find(e => e.type === 'review');
+    const reviewKeys = new Set((lastReview?.problems || []).map(p => `review:${p.type}|${p.entry}`));
+    for (const [k, a] of seen) {
+      if (!a.outcome) {
+        const later = h.entries.slice(a.index + 1).filter(e => e.type === 'save' && e.changes).map(e => e.changes);
+        const stillShown = a.source === 'fast check' ? lastKeys.has(k) : reviewKeys.has(k);
+        const edit = editOfAlertLine(a, later);
+        if (a.source === 'clinical reviewer' && !stillShown) {
+          a.outcome = edit ? 'fixed' : 'gone on recheck, line not edited';
+          if (edit) a.fix = edit;
+        } else {
+          a.outcome = stillShown && !edit ? 'not acted on'
+            : stillShown ? 'edited, still flagged' : edit ? 'section changed, not rechecked' : 'not acted on';
+        }
+      }
+      delete a.index;
+      alerts.push(a);
+    }
+  }
+  const count = (o) => alerts.filter(a => a.outcome === o).length;
+  writeJson(path.join(visitDir, 'alerts.json'), {
+    updatedAt: new Date().toISOString(),
+    totals: { shown: alerts.length, fixed: count('fixed'), editedStillFlagged: count('edited, still flagged'),
+      notActedOn: count('not acted on'), goneLineNotEdited: count('gone on recheck, line not edited'),
+      changedNotRechecked: count('section changed, not rechecked') },
+    alerts,
+  });
 }
 
 function saveStep(payload) {
@@ -366,6 +476,8 @@ function handler(req, res, next) {
     reply(200, { success: true, file: saved.file, visitId: `${saved.payload.patient.serial || saved.payload.patient.id}-${saved.visit.number}`, db });
   });
 }
+
+export { writeAlertSummary };   // for tests and for rebuilding alerts.json from the history
 
 export default function prescriptionBackend() {
   return {

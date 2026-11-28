@@ -196,7 +196,8 @@ non-specific, other causes possible), or on a dose other than an adult dose for 
 14 days, is not a real error. Drop it if it is a usual practice (including a working diagnosis made before test results are back,
 and a usual dose for the use), a matter of preference, a wrong medical claim, about a section not written yet, or a
 detail that would not change care.
-Answer with JSON only: {{"keep": [numbers of the real errors]}} (an empty list if none)."""
+For EACH numbered problem, first give the reason in one short sentence, then the verdict. Answer with JSON only:
+{{"decisions": [{{"n": 1, "reason": "one short sentence", "verdict": "KEEP or DROP"}}, ... one for each of the {count} problems]}}"""
 
 
 def build_verify_messages(
@@ -211,7 +212,7 @@ def build_verify_messages(
     listing = "\n".join(f"{i}. [{p['severity']}] {p['entry']}: {p['problem']}" for i, p in enumerate(problems, 1))
     return [
         {"role": "system", "content": SYSTEM},
-        {"role": "user", "content": text + "\n\n" + VERIFY.format(title=title.lower(), listing=listing)},
+        {"role": "user", "content": text + "\n\n" + VERIFY.format(title=title.lower(), listing=listing, count=len(problems))},
     ]
 
 
@@ -228,7 +229,19 @@ def _first_json(text: str) -> Any:
 
 
 def parse_keep(text: str, count: int) -> set[int]:
+    """The problems the second look keeps. Reason-first answer {"decisions": [{"n", "reason", "verdict"}]}: only a
+    clear DROP removes a problem (pilot rehearsal 3: asked for a bare list of numbers to keep, the model kept "severity
+    of an ordinary headache" that the standard it was given excludes). Older {"keep": [...]} answers still work."""
     data = _first_json(text)
+    if isinstance(data, Mapping) and isinstance(data.get("decisions"), list):
+        dropped = {
+            int(d.get("n"))
+            for d in data["decisions"]
+            if isinstance(d, Mapping)
+            and str(d.get("n", "")).isdigit()
+            and str(d.get("verdict", "")).strip().casefold().startswith("drop")
+        }
+        return {n for n in range(1, count + 1) if n not in dropped}
     keep = data.get("keep") if isinstance(data, Mapping) else None
     if not isinstance(keep, list):
         return set(range(1, count + 1))  # unreadable answer: keep everything rather than hide a real problem
@@ -254,6 +267,7 @@ _PAIRED_PART = re.compile(
     r"kidneys?|testes|testis|testicles?|ovar(?:y|ies)|lungs?|tooth|teeth|joints?)\b",
     re.IGNORECASE,
 )
+_SIDE_WORD = re.compile(r"\b(left|right|both|bilateral|lt|rt)\b", re.IGNORECASE)
 
 
 def side_once(row: Mapping[str, Any], section_key: str, problems: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -270,9 +284,14 @@ def side_once(row: Mapping[str, Any], section_key: str, problems: list[dict[str,
         if p.get("type") != "side_missing":
             out.append(p)
             continue
-        part = _PAIRED_PART.search(f"{p.get('problem', '')} {p.get('entry', '')}")
-        if part is None:
-            out.append(p)  # no paired body part named: nothing to compare
+        entry = str(p.get("entry", ""))
+        # The type's own definition (TASK): "which side is not stated for a body part that exists more than once".
+        # Pilot rehearsal 3 labelled 23 problems side_missing that are not that: the site of scabies or itching, the
+        # kind of peptic ulcer, the brain side of a stroke, and "weakness of right side" (side written). Such a label
+        # is a mistyped problem, so it is relabelled "other" and hidden with the other unreliable types.
+        part = _PAIRED_PART.search(entry)
+        if part is None or _SIDE_WORD.search(entry):
+            out.append({**p, "type": "other", "relabelled_from": "side_missing"})
             continue
         word = part.group(1).casefold().rstrip("s")  # "knees" -> "knee"
         if re.search(rf"\b{re.escape(word)}", earlier):
