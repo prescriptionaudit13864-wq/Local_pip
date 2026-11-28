@@ -20,14 +20,18 @@ Tailscale (`tailscale funnel`) when the network allows it.
 ## One-time setup (Tanim, about 5 minutes)
 
 1. **cloudflared** is installed (`winget install --id Cloudflare.cloudflared -e`). No Cloudflare account is needed.
-2. **Add the doctors**, one at a time:
+2. **Add the doctors**, one at a time, from the Command Prompt (cmd) in the project folder:
 
-   ```powershell
-   .\pilot\add_doctor.ps1 -Name "Dr Rahman"
+   ```bat
+   pilot\add_doctor "Dr Rahman"
    ```
 
    It shows the doctor's access code once. Send it privately (a call or a private message), not in a group.
-   Lost code: run it again (the old code stops working). Remove a doctor: add `-Remove`. See all: `-List`.
+   **The name you give is fixed:** it is shown in the app and printed on the doctor's prescriptions, and the doctor
+   cannot change it (they can change their degrees, speciality, chamber, mobile and BMDC number). Spell it exactly.
+   Lost code: run it again (the old code stops working). See all: `pilot\add_doctor list`.
+   Remove a doctor (code stops working at once): `pilot\add_doctor remove "Dr Rahman"`.
+   (PowerShell works too: `.\pilot\add_doctor.ps1 -Name "Dr Rahman"`, `-List`, `-Remove`.)
 3. Copy `pilot\Start PrescribeX Pilot.bat` to the desktop if you like.
 
 ## Each pilot day

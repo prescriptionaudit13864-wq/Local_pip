@@ -22,7 +22,7 @@ function secret() {
   return fs.readFileSync(file, 'utf8').trim();
 }
 const PROFILE_FIELDS = [
-  ['name', 'Name as printed', 'Dr. ...', true],
+  ['name', 'Name (assigned by the pilot team)', '', false],
   ['degrees', 'Degrees', 'MBBS, FCPS ...', false],
   ['speciality', 'Speciality', 'Medicine', false],
   ['chamber', 'Chamber / hospital', '', false],
@@ -44,8 +44,8 @@ function sessionDoctor(req) {
   if (mac.length !== good.length || !crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(good))) return null;
   const doc = doctors()[id];
   if (!doc) return null;                           // removing a doctor from the list ends their session
-  // The name the doctor gave in their profile (falls back to the name used in add_doctor.ps1).
-  return { id, name: readProfile(id)?.name || doc.name };
+  // The name is the one the pilot admin assigned (pilot/add_doctor): doctors cannot change it.
+  return { id, name: doc.name };
 }
 
 const STYLE = `<style>body{font-family:system-ui,sans-serif;background:#f4f6f8;margin:0;display:grid;place-items:center;min-height:100vh}
@@ -58,9 +58,10 @@ button{margin-top:20px;width:100%;padding:12px;font-size:16px;border:0;border-ra
 const profilePage = (doctor, profile, msg = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>PrescribeX profile</title>${STYLE}</head><body>
 <form method="post" action="/pilot/profile"><h1>Your profile</h1>
-<p>Shown in the app and printed on your prescriptions. Only the name is required; you can change it later by clicking your name in the app.</p>
-${PROFILE_FIELDS.map(([k, label, ph, req]) => `<label for="${k}">${label}${req ? ' *' : ''}</label>
-<input id="${k}" name="${k}" maxlength="160" placeholder="${esc(ph)}" value="${esc((profile || {})[k] ?? (k === 'name' ? doctor.name : ''))}"${req ? ' required' : ''}>`).join('')}
+<p>Shown in the app and printed on your prescriptions. Your name is set by the pilot team; you can change the other
+details later by clicking your name in the app.</p>
+${PROFILE_FIELDS.map(([k, label, ph]) => `<label for="${k}">${label}</label>
+<input id="${k}" ${k === 'name' ? 'readonly style="background:#eef0f3;color:#555"' : `name="${k}"`} maxlength="160" placeholder="${esc(ph)}" value="${esc(k === 'name' ? doctor.name : ((profile || {})[k] ?? ''))}">`).join('')}
 <button type="submit">Save</button>${msg ? `<div class="err">${msg}</div>` : ''}
 ${profile ? '<p style="margin-top:16px"><a href="/">Back to the app</a> · <a href="/pilot/logout">Sign out</a></p>' : ''}</form></body></html>`;
 
@@ -70,7 +71,7 @@ function saveProfile(req, res, doctor) {
   req.on('end', () => {
     const form = new URLSearchParams(body);
     const profile = Object.fromEntries(PROFILE_FIELDS.map(([k]) => [k, (form.get(k) || '').trim().slice(0, 160)]));
-    if (!profile.name) { res.setHeader('Content-Type', 'text/html; charset=utf-8'); return res.end(profilePage(doctor, profile, 'Please give your name.')); }
+    profile.name = doctor.name;   // never taken from the form: the assigned name cannot be changed by the doctor
     fs.mkdirSync(path.dirname(profileFile(doctor.id)), { recursive: true });
     fs.writeFileSync(profileFile(doctor.id), JSON.stringify(profile, null, 2));
     res.statusCode = 303; res.setHeader('Location', '/'); res.end();
@@ -145,7 +146,8 @@ function handler(req, res, next) {
   req.pilotDoctor = doctor;
   if (url === '/pilot/me') {
     res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({ ...doctor, profile: readProfile(doctor.id) }));
+    const profile = readProfile(doctor.id);
+    return res.end(JSON.stringify({ ...doctor, profile: profile && { ...profile, name: doctor.name } }));
   }
   if (url === '/pilot/profile') {
     if (req.method === 'POST') return saveProfile(req, res, doctor);
