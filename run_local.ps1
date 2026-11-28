@@ -6,6 +6,8 @@
 #   AUDIT_PROVIDER=local   -> ANY Hugging Face chat model: set HF_MODEL=<hub id or folder> (downloaded and run in-process)
 #                             optional HF_ADAPTER, HF_QUANT=none|4bit|8bit, HF_TOKEN for gated models.
 #                             If LLM_BASE_URL is set (Ollama, LM Studio...) that server is used instead.
+#   AUDIT_PROVIDER=vllm    -> both layers on a vLLM server (WSL2, deploy/vllm/start_vllm.sh): HF_MODEL = base model,
+#                             VLLM_BASE_URL (default http://127.0.0.1:8000/v1), VLLM_LORA_NAME (default prescribex).
 $ErrorActionPreference = "Stop"
 $Root = $PSScriptRoot
 # The audit server loads the model itself, so it needs torch/transformers: prefer the project venv, else the PATH python.
@@ -26,7 +28,7 @@ if (-not $Python) { throw "No Python with torch + transformers found. Install th
 # Load .env. It always wins over values left in this PowerShell window by an earlier run
 # (otherwise an old AUDIT_PROVIDER from the previous start silently overrides your edit).
 $envFile = Join-Path $Root ".env"
-foreach ($stale in "AUDIT_PROVIDER", "HF_MODEL", "HF_ADAPTER", "HF_QUANT", "HF_TOKEN", "HF_PORT", "LLM_BASE_URL", "LLM_MODEL", "GEMMA_SERVER_URL", "GEMMA_UNSUPPORTED") {
+foreach ($stale in "AUDIT_PROVIDER", "HF_MODEL", "HF_ADAPTER", "HF_QUANT", "HF_TOKEN", "HF_PORT", "LLM_BASE_URL", "LLM_MODEL", "GEMMA_SERVER_URL", "GEMMA_UNSUPPORTED", "VLLM_BASE_URL", "VLLM_LORA_NAME", "AUDIT_CONCURRENCY") {
     [Environment]::SetEnvironmentVariable($stale, $null)
 }
 if (Test-Path $envFile) {
@@ -79,6 +81,17 @@ try {
     if ($provider -in @("local", "hf")) {
         if ($env:LLM_BASE_URL) { Write-Host "Using the model server at $($env:LLM_BASE_URL)" }
         else { Write-Host "Model: $($env:HF_MODEL) (downloaded from Hugging Face on first start, then loaded by the audit server)" }
+    }
+    if ($provider -eq "vllm") {
+        # Both layers on the vLLM server in WSL2 (deploy/vllm/start_vllm.sh must be running first).
+        $vllm = if ($env:VLLM_BASE_URL) { $env:VLLM_BASE_URL } else { "http://127.0.0.1:8000/v1" }
+        Write-Host "Using vLLM at $vllm (base $($env:HF_MODEL) = clinical reviewer, LoRA = fast check)"
+        $up = $false
+        for ($i = 0; $i -lt 600 -and -not $up; $i++) {
+            try { $null = Invoke-RestMethod "$($vllm.TrimEnd('/'))/models" -TimeoutSec 2; $up = $true } catch { Start-Sleep 1 }
+            if (-not $up -and $i -eq 0) { Write-Host "Waiting for the vLLM server (start it with .\deploy\vllm\start_vllm.ps1)" }
+        }
+        if (-not $up) { throw "No vLLM server at $vllm. Start it first: .\deploy\vllm\start_vllm.ps1" }
     }
 
     $bridge = Start-Process -PassThru -NoNewWindow -WorkingDirectory $Root -FilePath $Python `

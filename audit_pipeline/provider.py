@@ -386,6 +386,35 @@ class LocalChatProvider:
         self.client = None
         self._tokenizer = self._model = None
         token = (os.getenv("HF_TOKEN") or "").strip() or None
+        self._init_settings(token)
+        if not self.base_url:
+            # No server configured: download HF_MODEL from Hugging Face (first run) and run it in this process.
+            self._tokenizer, self._model = self._load_in_process()
+            self.always_prefill = not getattr(self._tokenizer, "chat_template", None)
+            if self.always_prefill and self.prompt_mode == "standard":
+                log.warning(
+                    "%s has no chat template (base model). Use the -Instruct version for reliable audits.", self.model
+                )
+            return
+
+        from openai import OpenAI
+
+        self.client = OpenAI(
+            api_key=os.getenv("LLM_API_KEY") or "local",
+            base_url=self.base_url,
+            timeout=float(os.getenv("LLM_TIMEOUT") or 300),
+            max_retries=0,
+        )
+        try:
+            self.client.models.list()
+        except Exception as exc:
+            raise RuntimeError(
+                f"Local model server not reachable at {self.base_url} ({type(exc).__name__}). "
+                "Start Ollama / LM Studio, or remove LLM_BASE_URL to run HF_MODEL in-process."
+            ) from exc
+
+    def _init_settings(self, token: str | None) -> None:
+        """Read the audit settings from .env (shared by the in-process and the vLLM provider)."""
         self.prompt_mode, mode_reason = _resolve_prompt_mode(self.model, self.base_url, token)
         self.unsupported_policy = (
             (os.getenv("FINETUNE_UNSUPPORTED") or os.getenv("GEMMA_UNSUPPORTED") or "confirm_high").strip().casefold()
@@ -465,31 +494,6 @@ class LocalChatProvider:
             )
         if self.prompt_mode == "finetune" and self.question_rules:
             log.info("[local] YES/NO questions for checks: %s", ", ".join(sorted(self.question_rules)))
-        if not self.base_url:
-            # No server configured: download HF_MODEL from Hugging Face (first run) and run it in this process.
-            self._tokenizer, self._model = self._load_in_process()
-            self.always_prefill = not getattr(self._tokenizer, "chat_template", None)
-            if self.always_prefill and self.prompt_mode == "standard":
-                log.warning(
-                    "%s has no chat template (base model). Use the -Instruct version for reliable audits.", self.model
-                )
-            return
-
-        from openai import OpenAI
-
-        self.client = OpenAI(
-            api_key=os.getenv("LLM_API_KEY") or "local",
-            base_url=self.base_url,
-            timeout=float(os.getenv("LLM_TIMEOUT") or 300),
-            max_retries=0,
-        )
-        try:
-            self.client.models.list()
-        except Exception as exc:
-            raise RuntimeError(
-                f"Local model server not reachable at {self.base_url} ({type(exc).__name__}). "
-                "Start Ollama / LM Studio, or remove LLM_BASE_URL to run HF_MODEL in-process."
-            ) from exc
 
     _loaded: dict = {}
 
@@ -1142,7 +1146,11 @@ def create_provider(name: str | None = None) -> ModelProvider:
         return LocalGemmaProvider()
     if selected in {"local", "hf"}:  # any HF chat model run in-process, or Ollama / LM Studio / vLLM via LLM_BASE_URL
         return LocalChatProvider()
-    raise RuntimeError(f"Unsupported audit provider {selected!r}; expected azure, groq, gemma or local")
+    if selected == "vllm":  # both layers on one vLLM server: base model + the fine-tune as a LoRA (vllm_provider.py)
+        from .vllm_provider import VLLMProvider
+
+        return VLLMProvider()
+    raise RuntimeError(f"Unsupported audit provider {selected!r}; expected azure, groq, gemma, local or vllm")
 
 
 __all__ = [

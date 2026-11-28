@@ -25,3 +25,10 @@ benchmark/results/candidate_coverage*.json
 
 # Local backups made by install_model.ps1
 audit_pipeline/configs/*.before_install.json
+
+# Doctor pilot: access-code hashes, cookie key, current link
+pilot/doctors.json
+pilot/secret
+pilot/link.txt
+pilot/cloudflared*.log
+pilot/profiles/

@@ -77,7 +77,10 @@ class AuditService:
         self._lock = threading.Lock()
         # Keep live checks responsive when the doctor advances before the prior
         # section has returned, while bounding concurrent provider requests.
-        self._audit_slots = threading.BoundedSemaphore(2)
+        # AUDIT_CONCURRENCY sets the bound; default 2 for the in-process model (one GPU lock), 16 for vLLM, which
+        # batches requests from many doctors on the GPU.
+        default_slots = 16 if os.getenv("AUDIT_PROVIDER", "").strip().lower() == "vllm" else 2
+        self._audit_slots = threading.BoundedSemaphore(max(1, int(os.getenv("AUDIT_CONCURRENCY") or default_slots)))
         self.icd11 = icd11 or ICD11Terminology()
 
     def search_icd11(self, query: str, limit: int = 12) -> dict[str, Any]:

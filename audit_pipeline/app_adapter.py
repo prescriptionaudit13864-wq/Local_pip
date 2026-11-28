@@ -428,13 +428,28 @@ def visit_to_row(patient: Mapping[str, Any], record: Mapping[str, Any], when: da
 
 # --------------------------------------------------------------------------- history
 def history_from_disk(data_dir: str | Path | None, patient: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """Prior ``finalPrescription`` files of the same patient under ``backend/data``."""
+    """Prior ``finalPrescription`` files of the same patient under ``backend/data``.
+
+    Patient folders sit in ``backend/data`` or, in the pilot, in a doctor's folder
+    (``doctor_<id>_<Name>/patient_<Patient ID>_<Name>``). A folder's ``.patient_id`` file holds the app's unique
+    patient id and is matched first; folders without one are matched by the Patient ID in the folder name."""
     if not data_dir:
         return []
     root = Path(data_dir).expanduser()
     serial = re.sub(r"[^A-Za-z0-9_-]+", "_", _s(patient.get("serial") or patient.get("id"))).strip("_")
+    unique = _s(patient.get("id"))
+    folders = [*root.glob("patient_*"), *root.glob("doctor_*/patient_*")]
+
+    def folder_id(folder: Path) -> str | None:
+        try:
+            return (folder / ".patient_id").read_text(encoding="utf-8").strip()
+        except OSError:
+            return None
+
+    by_id = [f for f in folders if unique and folder_id(f) == unique]
+    matched = by_id or [f for f in folders if folder_id(f) is None and f.name.startswith(f"patient_{serial}_")]
     out: list[dict[str, Any]] = []
-    for folder in root.glob(f"patient_{serial}_*"):
+    for folder in matched:
         for file in folder.glob("visit_*/[0-9][0-9]_finalPrescription.json"):
             try:
                 doc = json.loads(file.read_text(encoding="utf-8"))
