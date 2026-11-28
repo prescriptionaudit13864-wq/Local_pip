@@ -19,10 +19,13 @@ PORT="${PORT:-8000}"
 # bf16 weights take 23.6 GB of 32 GB; at 0.88 only 1.5 GB was left for the KV cache (not even one 8K request).
 # 0.95 leaves ~3.5 GB KV (a few requests at once). For many doctors use QUANT=fp8: weights ~12 GB, KV ~15 GB.
 GPU_UTIL="${GPU_UTIL:-0.95}"
-QUANT="${QUANT:-}"               # empty = bf16 (same weights as the local engine); fp8 = online FP8 weights
+QUANT="${QUANT-fp8}"            # fp8 = online FP8 weights (docs/vllm_tuning_report.md); QUANT= (empty) = bf16
 MAX_LEN="${MAX_LEN:-8192}"       # longest layer-1 prompt is about 3,100 tokens; layer 2 is longer with drug facts
 # Set ATTN=TRITON_ATTN if vLLM refuses the 512-wide full-attention heads with the default backend (vLLM #40677).
 ATTN="${ATTN:-}"
+KV_DTYPE="${KV_DTYPE:-}"         # fp8 = FP8 KV cache: about twice the cached tokens in the same memory
+MAX_SEQS="${MAX_SEQS:-}"         # requests batched together at most (vLLM default if empty)
+PREFIX_CACHE="${PREFIX_CACHE:-1}" # 1 = reuse the shared rule text between requests (vLLM default); 0 = off
 
 nvidia-smi --query-gpu=power.draw,power.limit,clocks.gr,memory.used --format=csv
 
@@ -46,6 +49,15 @@ args=(
 )
 if [[ -n "$QUANT" ]]; then
   args+=(--quantization "$QUANT")
+fi
+if [[ -n "$KV_DTYPE" ]]; then
+  args+=(--kv-cache-dtype "$KV_DTYPE")
+fi
+if [[ -n "$MAX_SEQS" ]]; then
+  args+=(--max-num-seqs "$MAX_SEQS")
+fi
+if [[ "$PREFIX_CACHE" == "0" ]]; then
+  args+=(--no-enable-prefix-caching)
 fi
 if [[ -n "$ATTN" ]]; then
   args+=(--attention-backend "$ATTN")

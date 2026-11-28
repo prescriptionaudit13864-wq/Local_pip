@@ -5,7 +5,11 @@
 param(
     [string]$Distro = "Ubuntu-24.04",
     [string]$Attn = "",
-    [double]$GpuUtil = 0.88,
+    [double]$GpuUtil = 0.95,          # was 0.88 here, which overrode the 0.95 in start_vllm.sh (small KV cache)
+    [string]$Quant = "fp8",           # fp8 = online FP8 weights (T02.2: 2.3x faster, same errors caught); "" = bf16
+    [string]$KvDtype = "",            # "" = same as the weights; fp8 = FP8 KV cache (twice the doctors per GB)
+    [int]$MaxSeqs = 0,                # 0 = vLLM default; requests batched together at most
+    [switch]$NoPrefixCache,           # prefix caching is on by default in vLLM 0.34
     [int]$MaxLen = 8192,
     [int]$Port = 8000
 )
@@ -26,5 +30,9 @@ $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $wslRepo = (wsl -d $Distro -- wslpath -a ($repo -replace '\\', '/')).Trim()
 $envs = "GPU_UTIL=$GpuUtil MAX_LEN=$MaxLen PORT=$Port"
 if ($Attn) { $envs += " ATTN=$Attn" }
+$envs += " QUANT=$Quant"            # always passed: empty means bf16
+if ($KvDtype) { $envs += " KV_DTYPE=$KvDtype" }
+if ($MaxSeqs -gt 0) { $envs += " MAX_SEQS=$MaxSeqs" }
+if ($NoPrefixCache) { $envs += " PREFIX_CACHE=0" }
 Write-Host "Starting vLLM in $Distro (first start takes a few minutes: loading 24 GB and compiling)..."
 wsl -d $Distro --cd $wslRepo -- bash -lc "$envs bash deploy/vllm/start_vllm.sh"

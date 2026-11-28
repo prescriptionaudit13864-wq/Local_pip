@@ -1,0 +1,647 @@
+{
+ "link": "https://everywhere-collar-widescreen-pat.trycloudflare.com",
+ "doctors": 30,
+ "results": [
+  {
+   "doctor": "Sim Doctor 01",
+   "rx": "C001",
+   "sent": 1795845812.1817634,
+   "secs": 29.51644340000348,
+   "findings": 0,
+   "found": [],
+   "expected": []
+  },
+  {
+   "doctor": "Sim Doctor 02",
+   "rx": "C002",
+   "sent": 1795845812.073163,
+   "secs": 35.88391070003854,
+   "findings": 4,
+   "found": [
+    [
+     "CC.context.demo",
+     "Complaint: Missed period for 6 weeks 'Missed period' does not fit a male patient: check the complaint and the recorded sex."
+    ],
+    [
+     "Dx.cc.1",
+     "Diagnosis: Lumbar spondylosis | Chief complaint: Low back pain for 2 months Missed period for 6 weeks Missed period is not a complaint, but it is a sign of a disease that needs to be investigated."
+    ],
+    [
+     "Rx.dup",
+     "Seclo 20 mg (1 + 0 + 1) - (14 day(s)) [Before meal], Maxpro 20 mg (1 + 0 + 1) - (14 day(s)) [Before meal] Both are Proton Pump Inhibitors (PPIs) prescribed for the same purpose."
+    ],
+    [
+     "Rx.over",
+     "Maxpro 20 mg (1 + 0 + 1) - (14 day(s)) [Before meal] There is no mention of GERD, heartburn, or gastric/duodenal ulcers in the complaints, history, examination, or diagnosis."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Maxpro",
+     "Rx.dup"
+    ],
+    [
+     "chiefComplaints",
+     "Missed period",
+     "CC.demo"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 03",
+   "rx": "C003",
+   "sent": 1795845812.073163,
+   "secs": 37.955374599958304,
+   "findings": 1,
+   "found": [
+    [
+     "Rx.duration.missing",
+     "Amdocal 5 mg (0 + 0 + 1) [After meal] The doctor did not specify a duration, and there is no indication of how long the patient should continue the medication."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Amdocal",
+     "Rx.duration.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 04",
+   "rx": "C004",
+   "sent": 1795845812.082873,
+   "secs": 21.13016639999114,
+   "findings": 3,
+   "found": [
+    [
+     "Rx.ddi",
+     "Warin 5 mg (0 + 0 + 1) - (30 day(s)) [After meal], Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal] Salicylates may enhance the effect of anticoagulants."
+    ],
+    [
+     "Rx.contra",
+     "Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal] Salicylates may enhance the effect of anticoagulants and the patient has a history of atrial fibrillation."
+    ],
+    [
+     "Rx.over",
+     "Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal] There is no mention of a condition such as myocardial infarction, arterial occlusive events, or pain/inflammation in the complaints, history, or diagnosis."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "ecosprin",
+     "Rx.ddi"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 05",
+   "rx": "C005",
+   "sent": 1795845812.082873,
+   "secs": 25.849730099958833,
+   "findings": 2,
+   "found": [
+    [
+     "Dx.cc.1",
+     "Diagnosis: Essential hypertension | Chief complaint: Headache for 1 week Headache is the complaint, but hypertension is not mentioned in CC."
+    ],
+    [
+     "Rx.duration.missing",
+     "Amdocal 5 mg (0 + 0 + 1) [After meal] The doctor did not specify a duration, and there is no information provided to indicate how long the patient should continue the medication."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Amdocal",
+     "Rx.duration.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 06",
+   "rx": "C006",
+   "sent": 1795845812.082873,
+   "secs": 16.221825199958403,
+   "findings": 1,
+   "found": [
+    [
+     "Rx.duration.missing",
+     "Napa 500 mg (1 + 1 + 1) [After meal] The doctor did not specify a duration for the treatment in the provided medicine line."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Napa",
+     "Rx.duration.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 07",
+   "rx": "C007",
+   "sent": 1795845812.082873,
+   "secs": 9.279864199983422,
+   "findings": 2,
+   "found": [
+    [
+     "CC.3",
+     "Complaint: Nausea Duration is not mentioned for 'Nausea'."
+    ],
+    [
+     "Rx.duration.missing",
+     "Comet 500 mg (1 + 0 + 1) [After meal] The medicine line does not say how long to take it."
+    ]
+   ],
+   "expected": [
+    [
+     "chiefComplaints",
+     "Nausea",
+     "CC.3"
+    ],
+    [
+     "rx",
+     "Comet",
+     "Rx.duration.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 08",
+   "rx": "C008",
+   "sent": 1795845812.261871,
+   "secs": 36.151121800008696,
+   "findings": 0,
+   "found": [],
+   "expected": []
+  },
+  {
+   "doctor": "Sim Doctor 09",
+   "rx": "C009",
+   "sent": 1795845812.118723,
+   "secs": 26.130313900008332,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.freq.missing",
+     "Seclo 20 mg [Before meal] The doctor did not specify the quantity of the medicine to be taken or the frequency of the dose."
+    ],
+    [
+     "Rx.duration.missing",
+     "Seclo 20 mg [Before meal] The medicine line does not say how long to take it."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Seclo",
+     "Rx.freq.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 10",
+   "rx": "C010",
+   "sent": 1795845812.198124,
+   "secs": 22.93849729996873,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.freq.missing",
+     "Napa 500 mg [After meal] The doctor did not specify the number of tablets to be taken or the frequency of the dose."
+    ],
+    [
+     "Rx.duration.missing",
+     "Napa 500 mg [After meal] The doctor did not specify a duration, and the medication is for a tension headache which typically requires a \"as needed\" approach rather than a fixed course."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Napa",
+     "Rx.duration.missing"
+    ],
+    [
+     "rx",
+     "Napa",
+     "Rx.freq.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 11",
+   "rx": "C011",
+   "sent": 1795845812.1277936,
+   "secs": 39.39635230001295,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.dup",
+     "Fexo 120 mg (0 + 0 + 1) - (7 day(s)) [After meal], Alatrol 10 mg (0 + 0 + 1) - (7 day(s)) [After meal] Both are antihistamines (Non-sedating antihistamines and Sedating Anti-histamine) given for the same purpose (allergic rhinitis)."
+    ],
+    [
+     "Rx.over",
+     "Fexo 120 mg (0 + 0 + 1) - (7 day(s)) [After meal], Alatrol 10 mg (0 + 0 + 1) - (7 day(s)) [After meal] There are no complaints, history, examination, or diagnoses related to allergic rhinitis or urticaria."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Alatrol",
+     "Rx.dup"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 12",
+   "rx": "C012",
+   "sent": 1795845812.1191857,
+   "secs": 28.757666999998037,
+   "findings": 0,
+   "found": [],
+   "expected": []
+  },
+  {
+   "doctor": "Sim Doctor 13",
+   "rx": "C013",
+   "sent": 1795845812.2231932,
+   "secs": 30.30872959998669,
+   "findings": 0,
+   "found": [],
+   "expected": []
+  },
+  {
+   "doctor": "Sim Doctor 14",
+   "rx": "C014",
+   "sent": 1795845812.118723,
+   "secs": 38.245638000022154,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.contra",
+     "Scabex 5% (Apply once at night) - (1 day(s)) The prescription specifies a 1-day duration, but the reference fact states it must be applied 3 times at 12-hourly intervals."
+    ],
+    [
+     "Rx.over",
+     "Scabex 5% (Apply once at night) - (1 day(s)) The diagnosis of Scabies is written in the prescription."
+    ]
+   ],
+   "expected": []
+  },
+  {
+   "doctor": "Sim Doctor 15",
+   "rx": "C015",
+   "sent": 1795845812.1345372,
+   "secs": 33.05131690000417,
+   "findings": 1,
+   "found": [
+    [
+     "Rx.over",
+     "Moxacil 500 mg (1 + 1 + 1) - (7 day(s)) [After meal] There is no infection (such as pneumonia, dental abscess, or pharyngitis) written in the complaints, history, examination, or diagnosis to justify the use of an antibiotic."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Moxacil",
+     "Rx.over"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 16",
+   "rx": "C016",
+   "sent": 1795845812.3061054,
+   "secs": 16.351655400008895,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.freq.missing",
+     "Azmasol 100 mcg [As needed] The \"amount and how often\" section is empty, leaving the patient without specific instructions on how many puffs or doses to take when needed."
+    ],
+    [
+     "Rx.duration.missing",
+     "Azmasol 100 mcg [As needed] The instruction \"As needed\" indicates a PRN (pro re nata) usage, which does not require a specific duration for a single-use dose."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Azmasol",
+     "Rx.freq.missing"
+    ],
+    [
+     "rx",
+     "Azmasol",
+     "Rx.duration.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 17",
+   "rx": "C017",
+   "sent": 1795845812.1345372,
+   "secs": 39.02714980003657,
+   "findings": 4,
+   "found": [
+    [
+     "Rx.timing",
+     "Azmasol 100 mcg (2 puffs when needed) - (30 day(s)) [As needed], Naprosyn 500 mg (1 + 0 + 1) - (5 day(s)) [After meal], Profen 400 mg (1 + 1 + 1) - (5 day(s)) [After meal] Before or after meal timing is not written for Azmasol 100 mcg (2 puffs when needed)."
+    ],
+    [
+     "Rx.dup",
+     "Naprosyn 500 mg (1 + 0 + 1) - (5 day(s)) [After meal], Profen 400 mg (1 + 1 + 1) - (5 day(s)) [After meal] Both are drugs for Osteoarthritis and are of the same class."
+    ],
+    [
+     "Rx.contra",
+     "Naprosyn 500 mg (1 + 0 + 1) - (5 day(s)) [After meal] Naproxen is contraindicated in patients who have experienced asthma, urticaria, or allergic-type reactions after taking it, and the patient has a history of asthma."
+    ],
+    [
+     "Rx.over",
+     "Naprosyn 500 mg (1 + 0 + 1) - (5 day(s)) [After meal], Profen 400 mg (1 + 1 + 1) - (5 day(s)) [After meal] There is no mention of pain, arthritis, or any other condition in the complaints, history, examination, or diagnosis that justifies the use of these NSAIDs."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Profen",
+     "Rx.dup"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 18",
+   "rx": "C018",
+   "sent": 1795845812.165809,
+   "secs": 10.753634199965745,
+   "findings": 0,
+   "found": [],
+   "expected": []
+  },
+  {
+   "doctor": "Sim Doctor 19",
+   "rx": "C019",
+   "sent": 1795845812.1817634,
+   "secs": 17.487724800012074,
+   "findings": 1,
+   "found": [
+    [
+     "Rx.over",
+     "Ciprocin 500 mg (1 + 0 + 1) - (5 day(s)) [After meal] There is no infection (such as a respiratory tract infection, urinary tract infection, or typhoid fever) written in the complaints, past history, examination, or diagnosis to justify the use of an antimicrobial drug."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Ciprocin",
+     "Rx.over"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 20",
+   "rx": "C020",
+   "sent": 1795845812.1032083,
+   "secs": 35.877788199984934,
+   "findings": 1,
+   "found": [
+    [
+     "Rx.duration.missing",
+     "Fexo 120 mg (0 + 0 + 1) [After meal] The doctor did not specify a duration for the treatment in the provided medicine line."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Fexo",
+     "Rx.duration.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 21",
+   "rx": "C021",
+   "sent": 1795845812.1032083,
+   "secs": 20.579696500033606,
+   "findings": 1,
+   "found": [
+    [
+     "Rx.duration.missing",
+     "Comet 500 mg (1 + 0 + 1) [After meal] The medicine line does not say how long to take it."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Comet",
+     "Rx.duration.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 22",
+   "rx": "C022",
+   "sent": 1795845812.1032083,
+   "secs": 27.656269400031306,
+   "findings": 0,
+   "found": [],
+   "expected": [
+    [
+     "rx",
+     "naprosyn",
+     "Rx.hs"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 23",
+   "rx": "C023",
+   "sent": 1795845812.2873054,
+   "secs": 33.28466569999,
+   "findings": 1,
+   "found": [
+    [
+     "Rx.duration.missing",
+     "Azmasol 100 mcg (2 puffs when needed) [As needed] The instruction \"when needed\" indicates a PRN (pro re nata) medication, which does not require a specific duration."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Azmasol",
+     "Rx.duration.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 24",
+   "rx": "C024",
+   "sent": 1795845812.1032083,
+   "secs": 33.40166859998135,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.cc.sym",
+     "Diagnosis: Acute stroke | Medication: Amdocal 5 mg (0 + 0 + 1) - (30 day(s)) [After meal] | Chief_Complaint: Sudden weakness of right side for 1 hours Slurred speech for 2 hours | Health_Screening: none | Age: 58 | Gender: F Acute stroke needs immediate treatment, but only amlodipine is prescribed."
+    ],
+    [
+     "Adv.refer",
+     "Diagnosis: Acute stroke | Medication: Amdocal 5 mg (0 + 0 + 1) - (30 day(s)) [After meal] | Advice: Take rest | Chief_Complaint: Sudden weakness of right side for 1 hours Slurred speech for 2 hours | Health_Screening: none A stroke needs emergency department assessment and neurosurgery, but no referral is advised."
+    ]
+   ],
+   "expected": [
+    [
+     "advice",
+     "refer",
+     "Adv.refer"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 25",
+   "rx": "C025",
+   "sent": 1795845812.1032083,
+   "secs": 33.74741150002228,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.ddi",
+     "Warin 5 mg (0 + 0 + 1) - (30 day(s)) [After meal], Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal] Salicylates may enhance the effect of anticoagulants."
+    ],
+    [
+     "Rx.contra",
+     "Ecosprin 300 mg (1 + 0 + 1) - (5 day(s)) [After meal] Salicylates may enhance the effect of anticoagulants and the patient has a history of atrial fibrillation."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "ecosprin",
+     "Rx.ddi"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 26",
+   "rx": "C026",
+   "sent": 1795845812.1127145,
+   "secs": 34.39297169999918,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.cc.sym",
+     "Diagnosis: Acute stroke | Medication: Amdocal 5 mg (0 + 0 + 1) - (30 day(s)) [After meal] | Chief_Complaint: Sudden weakness of right side for 4 hours Slurred speech for 2 hours | Health_Screening: none | Age: 42 | Gender: F Acute stroke needs immediate treatment like aspirin, clodipine, or other antiplatelet and blood pressure control, which are not prescribed."
+    ],
+    [
+     "Adv.refer",
+     "Diagnosis: Acute stroke | Medication: Amdocal 5 mg (0 + 0 + 1) - (30 day(s)) [After meal] | Advice: Take rest | Chief_Complaint: Sudden weakness of right side for 4 hours Slurred speech for 2 hours | Health_Screening: none A stroke needs emergency department assessment and neuro-care, but no referral is advised."
+    ]
+   ],
+   "expected": [
+    [
+     "advice",
+     "refer",
+     "Adv.refer"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 27",
+   "rx": "C027",
+   "sent": 1795845812.1428933,
+   "secs": 26.087924199993722,
+   "findings": 2,
+   "found": [
+    [
+     "Rx.contra",
+     "Cef-3 200 mg (1 + 0 + 1) - (7 day(s)) [After meal] Cefixime is indicated for infections, but the diagnosis of Allergic rhinitis does not indicate a bacterial infection requiring antibiotics."
+    ],
+    [
+     "Rx.over",
+     "Cef-3 200 mg (1 + 0 + 1) - (7 day(s)) [After meal] There is no written infection (such as acute otitis media, a urinary tract infection, or pharyngitis) in the complaints, history, examination, or diagnosis to justify the use of an antibiotic."
+    ]
+   ],
+   "expected": [
+    [
+     "rx",
+     "Cef-3",
+     "Rx.over"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 28",
+   "rx": "C028",
+   "sent": 1795845812.165809,
+   "secs": 32.79048839997267,
+   "findings": 0,
+   "found": [],
+   "expected": []
+  },
+  {
+   "doctor": "Sim Doctor 29",
+   "rx": "C029",
+   "sent": 1795845812.182878,
+   "secs": 32.5025548999547,
+   "findings": 4,
+   "found": [
+    [
+     "CC.3",
+     "Complaint: Dry cough Duration is not mentioned for 'Dry cough'."
+    ],
+    [
+     "Dx.cc.1",
+     "Diagnosis: Tension headache | Chief complaint: Headache for 5 days Dry cough Dry cough is a complaint, but tension headache does not explain it."
+    ],
+    [
+     "Rx.freq.missing",
+     "Napa 500 mg [After meal] The doctor did not specify the number of tablets to be taken or the frequency of the dose."
+    ],
+    [
+     "Rx.duration.missing",
+     "Napa 500 mg [After meal] The doctor did not specify a duration for the treatment, and the prescription does not indicate a single one-time dose."
+    ]
+   ],
+   "expected": [
+    [
+     "chiefComplaints",
+     "Dry cough",
+     "CC.3"
+    ],
+    [
+     "rx",
+     "Napa",
+     "Rx.freq.missing"
+    ]
+   ]
+  },
+  {
+   "doctor": "Sim Doctor 30",
+   "rx": "C030",
+   "sent": 1795845812.073163,
+   "secs": 10.131441299978178,
+   "findings": 0,
+   "found": [],
+   "expected": []
+  }
+ ],
+ "gpu": {
+  "samples": 72,
+  "util_mean": 85.9,
+  "util_max": 99.0,
+  "mem_mib_max": 30617.0,
+  "power_w_mean": 241.1,
+  "power_w_max": 304.08
+ },
+ "sent_at": "12:03:32",
+ "first_s": 9.3,
+ "median_s": 29.9,
+ "p95_s": 38.2,
+ "last_s": 39.4,
+ "failed": 0,
+ "caught": 26,
+ "errors": 27
+}
